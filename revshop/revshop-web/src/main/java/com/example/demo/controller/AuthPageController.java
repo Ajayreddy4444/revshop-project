@@ -16,24 +16,20 @@ public class AuthPageController {
 
 private final AuthClientService authService;
 
-// constructor injection
 public AuthPageController(AuthClientService authClientService) {
     this.authService = authClientService;
 }
 
-// ---------------- LOGIN PAGE ----------------
 @GetMapping("/login")
 public String loginPage() {
     return "login";
 }
 
-// ---------------- REGISTER PAGE ----------------
 @GetMapping("/register")
 public String registerPage() {
     return "register";
 }
 
-// ---------------- REGISTER SUBMIT ----------------
 @PostMapping("/register")
 public String registerUser(@ModelAttribute RegisterRequest request,
                            @RequestParam String role,
@@ -55,7 +51,6 @@ public String registerUser(@ModelAttribute RegisterRequest request,
     }
 }
 
-// ---------------- LOGIN SUBMIT ----------------
 @PostMapping("/login")
 public String loginUser(@RequestParam String email,
                         @RequestParam String password,
@@ -70,7 +65,6 @@ public String loginUser(@RequestParam String email,
 
         AuthResponse response = authService.login(req);
 
-        // store full user object in session
         session.setAttribute("user", response);
 
         return "redirect:/home";
@@ -81,7 +75,6 @@ public String loginUser(@RequestParam String email,
     }
 }
 
-// ---------------- LOGOUT ----------------
 @GetMapping("/logout")
 public String logout(HttpSession session) {
     session.invalidate();

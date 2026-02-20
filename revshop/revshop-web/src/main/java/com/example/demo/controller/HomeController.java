@@ -7,11 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
-// PUBLIC LANDING PAGE
 @GetMapping("/")
 public String landing(HttpSession session) {
 
-    // If already logged in → go dashboard
     if(session.getAttribute("user") != null) {
         return "redirect:/home";
     }
@@ -19,7 +17,6 @@ public String landing(HttpSession session) {
     return "home";
 }
 
-// AFTER LOGIN
 @GetMapping("/home")
 public String dashboard(HttpSession session) {
 

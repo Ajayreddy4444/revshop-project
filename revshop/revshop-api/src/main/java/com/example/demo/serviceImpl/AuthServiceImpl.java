@@ -1,4 +1,4 @@
-package com.example.demo.service.impl;
+package com.example.demo.serviceImpl;
 
 import com.example.demo.dto.AuthResponse;
 import com.example.demo.dto.LoginRequest;
@@ -18,7 +18,6 @@ public class AuthServiceImpl implements AuthService {
         this.userRepository = userRepository;
     }
     
-    // REGISTER
     @Override
     public AuthResponse register(RegisterRequest request, String roleStr) {
 
@@ -42,7 +41,6 @@ public class AuthServiceImpl implements AuthService {
         return mapToResponse(user);
     }
 
-    // LOGIN
     @Override
     public AuthResponse login(LoginRequest request) {
 
