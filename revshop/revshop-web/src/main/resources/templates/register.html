@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Register', ~{::section})}">
+
+<section style="max-width:450px;margin:auto;text-align:center">
+    <h2>Create Account</h2>
+
+    <form method="post" th:action="@{/register}">
+        
+        <input name="name" placeholder="Full Name" required><br><br>
+
+        <input type="email" name="email" placeholder="Email" required><br><br>
+
+        <input name="phone" placeholder="Phone" required><br><br>
+
+        <input type="password" name="password" placeholder="Password" required><br><br>
+
+        <!-- ROLE SELECTION -->
+        <label><b>Register As</b></label><br><br>
+
+        <input type="radio" name="role" value="buyer" required> Buyer
+        &nbsp;&nbsp;&nbsp;
+        <input type="radio" name="role" value="seller" required> Seller
+        <br><br>
+
+        <button type="submit">Register</button>
+
+    </form>
+
+    <p style="color:red" th:text="${error}"></p>
+    <p style="color:green" th:text="${success}"></p>
+
+</section>
+
+</html>

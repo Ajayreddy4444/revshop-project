@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title,content)">
+
+<head>
+    <title th:text="${title}">RevShop</title>
+    <style>
+        body{font-family:Arial;margin:0}
+        .container{padding:40px}
+        header{background:#222;color:white;padding:15px}
+        footer{background:#eee;padding:10px;text-align:center;margin-top:40px}
+    </style>
+</head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container">
+    <th:block th:replace="${content}"></th:block>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
