@@ -13,6 +13,7 @@ target/
 .settings/
 .metadata/
 .factorypath
+revshop-api/src/main/resources/application-dev.properties
 
 # IntelliJ
 .idea/
@@ -21,3 +22,19 @@ target/
 # OS
 .DS_Store
 Thumbs.db
+
+# Spring Boot
+
+*.pid
+*.seed
+*.pid.lock
+
+# Logs
+
+logs/
+*.out
+
+# Env configs (optional future use)
+
+.env
+
