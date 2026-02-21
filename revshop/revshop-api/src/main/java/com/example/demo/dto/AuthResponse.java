@@ -8,11 +8,10 @@ public class AuthResponse {
     private String name;
     private String email;
     private Role role;
-    private String token;   // ⭐ NEW FIELD
+    private String token;   
 
     public AuthResponse() {}
 
-    // old constructor (keep for compatibility)
     public AuthResponse(Long id, String name, String email, Role role) {
         this.id = id;
         this.name = name;
@@ -20,7 +19,6 @@ public class AuthResponse {
         this.role = role;
     }
 
-    // new constructor with token
     public AuthResponse(Long id, String name, String email, Role role, String token) {
         this.id = id;
         this.name = name;
