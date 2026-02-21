@@ -8,14 +8,25 @@ public class AuthResponse {
     private String name;
     private String email;
     private Role role;
+    private String token;   // ⭐ NEW FIELD
 
     public AuthResponse() {}
 
+    // old constructor (keep for compatibility)
     public AuthResponse(Long id, String name, String email, Role role) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.role = role;
+    }
+
+    // new constructor with token
+    public AuthResponse(Long id, String name, String email, Role role, String token) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.role = role;
+        this.token = token;
     }
 
     public Long getId() { return id; }
@@ -29,4 +40,7 @@ public class AuthResponse {
 
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
 }
