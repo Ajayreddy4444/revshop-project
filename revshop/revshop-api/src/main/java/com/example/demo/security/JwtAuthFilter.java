@@ -32,19 +32,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1️⃣ Read Authorization header
         final String authHeader = request.getHeader("Authorization");
 
         String token = null;
         String username = null;
 
-        // 2️⃣ Extract token
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             username = jwtUtil.extractUsername(token);
         }
 
-        // 3️⃣ Validate & set authentication
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -60,12 +57,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // ⭐ Spring now considers user logged-in
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
-        // 4️⃣ Continue request (IMPORTANT — non blocking)
         filterChain.doFilter(request, response);
     }
 }

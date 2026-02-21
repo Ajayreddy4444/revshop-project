@@ -27,17 +27,15 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // login/register open
-                        .anyRequest().permitAll() // ⚠ still open (team safe mode)
+                        .requestMatchers("/api/auth/**").permitAll() 
+                        .anyRequest().permitAll() 
                 );
 
-        // ⭐ attach JWT filter before Spring login filter
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // required by spring security internally
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

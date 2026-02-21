@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;   // ⭐ NEW
+    private final JwtUtil jwtUtil;  
 
     public AuthServiceImpl(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
@@ -41,7 +41,6 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        // token also generated after register (optional but good)
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
         return mapToResponse(user, token);
@@ -57,7 +56,6 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        // ⭐ GENERATE TOKEN AFTER SUCCESSFUL LOGIN
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
         return mapToResponse(user, token);
@@ -70,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
         response.setName(user.getName());
         response.setEmail(user.getEmail());
         response.setRole(user.getRole());
-        response.setToken(token); // ⭐ ADD TOKEN
+        response.setToken(token); 
 
         return response;
     }
