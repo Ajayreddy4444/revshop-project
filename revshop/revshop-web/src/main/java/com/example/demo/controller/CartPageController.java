@@ -23,7 +23,9 @@ public class CartPageController {
 
         AuthResponse user = (AuthResponse) session.getAttribute("user");
 
-        if(user == null) return "redirect:/login";
+        if(user == null){
+            return "redirect:/login";
+        }
 
         model.addAttribute("cart",
                 cartService.getCart(user.getId()));
@@ -38,7 +40,9 @@ public class CartPageController {
 
         AuthResponse user = (AuthResponse) session.getAttribute("user");
 
-        if(user == null) return "redirect:/login";
+        if(user == null){
+            return "redirect:/login";
+        }
 
         CartRequest req = new CartRequest();
         req.setUserId(user.getId());
@@ -51,8 +55,17 @@ public class CartPageController {
     }
 
     @GetMapping("/remove/{id}")
-    public String remove(@PathVariable Long id){
+    public String remove(@PathVariable Long id,
+                         HttpSession session){
+
+        AuthResponse user = (AuthResponse) session.getAttribute("user");
+
+        if(user == null){
+            return "redirect:/login";
+        }
+
         cartService.remove(id);
+
         return "redirect:/cart";
     }
 }
