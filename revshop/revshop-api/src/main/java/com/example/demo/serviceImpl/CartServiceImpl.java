@@ -6,6 +6,7 @@ import com.example.demo.entity.Cart;
 import com.example.demo.entity.CartItem;
 import com.example.demo.repository.CartItemRepository;
 import com.example.demo.repository.CartRepository;
+import com.example.demo.repository.ProductRepository;
 import com.example.demo.service.CartService;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,17 @@ public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
 
     public CartServiceImpl(CartRepository cartRepository,
-                           CartItemRepository cartItemRepository) {
+                           CartItemRepository cartItemRepository,
+                           ProductRepository productRepository) {
+
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
+        this.productRepository = productRepository;
     }
 
-    
     @Override
     public CartResponse addToCart(CartRequest request) {
 
@@ -42,23 +46,47 @@ public class CartServiceImpl implements CartService {
 
         cartItemRepository.save(item);
 
-        return new CartResponse(item.getId(), item.getProductId(), item.getQuantity());
+        String productName = productRepository.findById(item.getProductId())
+                .map(p -> p.getName())
+                .orElse("Unknown Product");
+
+        return new CartResponse(
+                item.getId(),
+                item.getProductId(),
+                productName,
+                item.getQuantity()
+        );
     }
 
-    
     @Override
     public List<CartResponse> getCartByUser(Long userId) {
 
-        Cart cart = cartRepository.findByUserId(userId).orElse(null);
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUserId(userId);
+                    return cartRepository.save(newCart);
+                });
 
-        
-        if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {
+        if(cart.getItems() == null || cart.getItems().isEmpty()){
             return List.of();
         }
 
         return cart.getItems()
                 .stream()
-                .map(i -> new CartResponse(i.getId(), i.getProductId(), i.getQuantity()))
+                .map(i -> {
+
+                    String productName = productRepository.findById(i.getProductId())
+                            .map(p -> p.getName())
+                            .orElse("Unknown Product");
+
+                    return new CartResponse(
+                            i.getId(),
+                            i.getProductId(),
+                            productName,
+                            i.getQuantity()
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
