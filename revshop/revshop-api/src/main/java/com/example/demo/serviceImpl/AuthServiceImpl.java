@@ -6,6 +6,7 @@ import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.security.JwtUtil;
 import com.example.demo.service.AuthService;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +14,13 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;  
 
-    public AuthServiceImpl(UserRepository userRepository) {
+    public AuthServiceImpl(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
-    
+
     @Override
     public AuthResponse register(RegisterRequest request, String roleStr) {
 
@@ -28,17 +31,19 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = new User(
-        	    request.getName(),
-        	    request.getEmail(),
-        	    request.getPassword(),
-        	    request.getPhone(),
-        	    role,
-        	    true
-        	);
+                request.getName(),
+                request.getEmail(),
+                request.getPassword(),
+                request.getPhone(),
+                role,
+                true
+        );
 
         userRepository.save(user);
 
-        return mapToResponse(user);
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+
+        return mapToResponse(user, token);
     }
 
     @Override
@@ -51,16 +56,19 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        return mapToResponse(user);
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+
+        return mapToResponse(user, token);
     }
 
-    private AuthResponse mapToResponse(User user){
+    private AuthResponse mapToResponse(User user, String token){
         AuthResponse response = new AuthResponse();
 
         response.setId(user.getId());
         response.setName(user.getName());
         response.setEmail(user.getEmail());
         response.setRole(user.getRole());
+        response.setToken(token); 
 
         return response;
     }
