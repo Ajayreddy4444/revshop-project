@@ -10,46 +10,57 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class AuthClientServiceImpl implements AuthClientService {
 
-private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-@Value("${backend.base-url}")
-private String baseUrl;
+    @Value("${backend.base-url}")
+    private String baseUrl;
 
-public AuthClientServiceImpl(RestTemplate restTemplate) {
-    this.restTemplate = restTemplate;
-}
+    public AuthClientServiceImpl(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
-@Override
-public AuthResponse login(LoginRequest request) {
+    @Override
+    public AuthResponse login(LoginRequest request) {
 
-    HttpEntity<LoginRequest> entity = new HttpEntity<>(request);
+        HttpEntity<LoginRequest> entity = new HttpEntity<>(request);
 
-    ResponseEntity<AuthResponse> response =
-            restTemplate.postForEntity(baseUrl + "/login", entity, AuthResponse.class);
+        ResponseEntity<AuthResponse> response =
+                restTemplate.postForEntity(
+                        baseUrl + "/auth/login",
+                        entity,
+                        AuthResponse.class
+                );
 
-    return response.getBody();
-}
+        return response.getBody();
+    }
 
-@Override
-public AuthResponse registerBuyer(RegisterRequest request) {
+    @Override
+    public AuthResponse registerBuyer(RegisterRequest request) {
 
-    HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
+        HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
 
-    ResponseEntity<AuthResponse> response =
-            restTemplate.postForEntity(baseUrl + "/register/buyer", entity, AuthResponse.class);
+        ResponseEntity<AuthResponse> response =
+                restTemplate.postForEntity(
+                        baseUrl + "/auth/register/buyer",
+                        entity,
+                        AuthResponse.class
+                );
 
-    return response.getBody();
-}
+        return response.getBody();
+    }
 
-@Override
-public AuthResponse registerSeller(RegisterRequest request) {
+    @Override
+    public AuthResponse registerSeller(RegisterRequest request) {
 
-    HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
+        HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
 
-    ResponseEntity<AuthResponse> response =
-            restTemplate.postForEntity(baseUrl + "/register/seller", entity, AuthResponse.class);
+        ResponseEntity<AuthResponse> response =
+                restTemplate.postForEntity(
+                        baseUrl + "/auth/register/seller",
+                        entity,
+                        AuthResponse.class
+                );
 
-    return response.getBody();
-}
-
+        return response.getBody();
+    }
 }
