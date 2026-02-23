@@ -1,4 +1,7 @@
 package com.example.demo.entity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import java.util.List;
 
 import jakarta.persistence.*;
 
@@ -41,6 +44,26 @@ public class Product {
     private User seller;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+    
+    //UPDATING PRODUCT ENTITY
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Review> reviews;
+
+    private double averageRating;
+
+    private int reviewCount;
+    
+    public List<Review> getReviews() { return reviews; }
+    public void setReviews(List<Review> reviews) { this.reviews = reviews; }
+
+    public double getAverageRating() { return averageRating; }
+    public void setAverageRating(double averageRating) { this.averageRating = averageRating; }
+
+    public int getReviewCount() { return reviewCount; }
+    public void setReviewCount(int reviewCount) { this.reviewCount = reviewCount; }
+    
+    //------------------------------
 
     public Product(){}
 
