@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+
 import com.example.demo.entity.Category;
 import com.example.demo.entity.Product;
 import com.example.demo.repository.CategoryRepository;
