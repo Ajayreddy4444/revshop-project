@@ -14,6 +14,7 @@ import com.example.demo.service.EmailService;
 
 import java.time.LocalDateTime;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,16 +24,19 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;  
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthServiceImpl(UserRepository userRepository,
             JwtUtil jwtUtil,
             PasswordResetTokenRepository passwordResetTokenRepository,
-            EmailService emailService) {
+            EmailService emailService,
+            PasswordEncoder passwordEncoder) {
 
 this.userRepository = userRepository;
 this.jwtUtil = jwtUtil;
 this.passwordResetTokenRepository = passwordResetTokenRepository;
 this.emailService = emailService;
+this.passwordEncoder = passwordEncoder;
 }
     
 
@@ -48,7 +52,7 @@ this.emailService = emailService;
         User user = new User(
                 request.getName(),
                 request.getEmail(),
-                request.getPassword(),
+                passwordEncoder.encode(request.getPassword()),
                 request.getPhone(),
                 role,
                 true
@@ -67,7 +71,7 @@ this.emailService = emailService;
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if(!user.getPassword().equals(request.getPassword())){
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
 
@@ -123,7 +127,7 @@ this.emailService = emailService;
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
         token.setUsed(true);
