@@ -10,14 +10,15 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AuthPageController {
 
-private final AuthClientService authService;
+private final AuthClientService authClientService;
 
 public AuthPageController(AuthClientService authClientService) {
-    this.authService = authClientService;
+    this.authClientService = authClientService;
 }
 
 @GetMapping("/login")
@@ -38,9 +39,9 @@ public String registerUser(@ModelAttribute RegisterRequest request,
     try {
 
         if(role.equalsIgnoreCase("buyer"))
-            authService.registerBuyer(request);
+        	authClientService.registerBuyer(request);
         else
-            authService.registerSeller(request);
+        	authClientService.registerSeller(request);
 
         model.addAttribute("success", "Registration successful! Please login.");
         return "login";
@@ -63,7 +64,7 @@ public String loginUser(@RequestParam String email,
         req.setEmail(email);
         req.setPassword(password);
 
-        AuthResponse response = authService.login(req);
+        AuthResponse response = authClientService.login(req);
 
         session.setAttribute("user", response);
 
@@ -79,6 +80,43 @@ public String loginUser(@RequestParam String email,
 public String logout(HttpSession session) {
     session.invalidate();
     return "redirect:/";
+}
+
+@GetMapping("/forgot-password")
+public String forgotPasswordPage() {
+    return "forgot-password";
+}
+
+@PostMapping("/forgot-password")
+public String processForgotPassword(@RequestParam String email, Model model) {
+    try {
+    	authClientService.forgotPassword(email);
+        model.addAttribute("success", "OTP sent to your email.");
+        model.addAttribute("email", email);
+        return "reset-password";
+    } catch (Exception e) {
+        model.addAttribute("error", e.getMessage());
+        return "forgot-password";
+    }
+}
+
+@PostMapping("/reset-password")
+public String processResetPassword(@RequestParam String email,
+                                   @RequestParam String otp,
+                                   @RequestParam String newPassword,
+                                   RedirectAttributes redirectAttributes) {
+    try {
+        authClientService.resetPassword(email, otp, newPassword);
+
+        redirectAttributes.addFlashAttribute("success",
+                "Password reset successfully! Please login.");
+
+        return "redirect:/login";
+
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("error", e.getMessage());
+        return "redirect:/reset-password";
+    }
 }
 
 

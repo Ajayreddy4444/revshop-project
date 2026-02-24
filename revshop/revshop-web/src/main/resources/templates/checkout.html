@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Checkout', ~{::section})}">
+
+<section>
+
+<h2>Checkout</h2>
+
+<!-- 🔥 Cart Items -->
+<table border="1">
+    <tr>
+        <th>Product Name</th>
+        <th>Quantity</th>
+    </tr>
+
+    <tr th:each="item : ${cartItems}">
+        <td th:text="${item.productName}"></td>
+        <td th:text="${item.quantity}"></td>
+    </tr>
+</table>
+
+<br/>
+
+<!-- 🔥 Order Form -->
+<form th:action="@{/orders/place}" method="post">
+
+    <!-- Hidden User ID -->
+    <input type="hidden" name="userId" th:value="${userId}" />
+
+    <label><strong>Payment Method:</strong></label>
+    <select name="paymentMethod" required>
+        <option value="">-- Select Payment Method --</option>
+        <option value="CARD">Card</option>
+        <option value="UPI">UPI</option>
+        <option value="COD">Cash on Delivery</option>
+    </select>
+
+    <br/><br/>
+
+    <label><strong>Delivery Address:</strong></label>
+    <input type="text" name="address" placeholder="Enter delivery address" required />
+
+    <br/><br/>
+
+    <button type="submit">Place Order</button>
+
+</form>
+
+</section>
+</html>

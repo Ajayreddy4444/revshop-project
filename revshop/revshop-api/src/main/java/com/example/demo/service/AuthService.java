@@ -10,4 +10,8 @@ public interface AuthService {
     AuthResponse register(RegisterRequest request, String role);
 
     AuthResponse login(LoginRequest request);
+    
+    void forgotPassword(String email);
+    void resetPassword(String email, String otp, String newPassword);
 }
+

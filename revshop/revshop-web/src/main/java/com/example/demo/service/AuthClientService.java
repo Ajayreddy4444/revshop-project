@@ -10,4 +10,7 @@ AuthResponse registerBuyer(RegisterRequest request);
 
 AuthResponse registerSeller(RegisterRequest request);
 
+void forgotPassword(String email);
+void resetPassword(String email, String otp, String newPassword);
+
 }
