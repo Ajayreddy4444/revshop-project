@@ -33,6 +33,7 @@ public class CartPageController {
         return "cart";
     }
 
+    
     @PostMapping("/add")
     public String add(@RequestParam Long productId,
                       @RequestParam int quantity,
@@ -51,7 +52,8 @@ public class CartPageController {
 
         cartService.add(req);
 
-        return "redirect:/cart";
+        
+        return "redirect:/products?added=true&pid="+productId;
     }
 
     @GetMapping("/remove/{id}")
