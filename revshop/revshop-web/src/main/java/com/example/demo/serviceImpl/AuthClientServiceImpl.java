@@ -41,10 +41,10 @@ public class AuthClientServiceImpl implements AuthClientService {
     public AuthResponse registerBuyer(RegisterRequest request) {
 
         HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
-
+      
         ResponseEntity<AuthResponse> response =
                 restTemplate.postForEntity(
-                        baseUrl + "/auth/register/buyer",
+                       baseUrl + "/auth/register/buyer",
                         entity,
                         AuthResponse.class
                 );
@@ -56,7 +56,7 @@ public class AuthClientServiceImpl implements AuthClientService {
     public AuthResponse registerSeller(RegisterRequest request) {
 
         HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
-
+      
         ResponseEntity<AuthResponse> response =
                 restTemplate.postForEntity(
                         baseUrl + "/auth/register/seller",

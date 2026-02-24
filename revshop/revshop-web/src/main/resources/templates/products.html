@@ -4,10 +4,16 @@
 
 <section class="container mt-4">
 
+    <!-- SUCCESS MESSAGE -->
+    <div id="successMsg"
+         th:if="${param.added}"
+         class="alert alert-success text-center">
+        ✔ Added to cart successfully
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Available Products</h2>
 
-        <!-- VIEW CART BUTTON -->
         <a th:href="@{/cart}">
             <button class="btn btn-dark">🛒 View Cart Items</button>
         </a>
@@ -19,29 +25,20 @@
 
                 <img th:src="@{'/images/' + ${product.imageUrl}}"
                      class="card-img-top"
-                     style="height: 200px; object-fit: cover;"
-                     alt="Product">
+                     style="height:200px;object-fit:cover;">
 
                 <div class="card-body d-flex flex-column">
 
-                    <h5 class="card-title" th:text="${product.name}"></h5>
-
-                    <p class="card-text text-muted"
-                       th:text="${product.description}"></p>
+                    <h5 th:text="${product.name}"></h5>
+                    <p class="text-muted" th:text="${product.description}"></p>
 
                     <div class="mt-auto">
 
                         <div>
                             <span class="fw-bold text-success"
                                   th:text="'₹ ' + ${product.price}"></span>
-
-                            <span class="text-muted text-decoration-line-through ms-2"
-                                  th:if="${product.mrp != null}"
-                                  th:text="'₹ ' + ${product.mrp}">
-                            </span>
                         </div>
 
-                        <!-- BUTTON ROW -->
                         <div class="d-flex gap-2 mt-2">
 
                             <a th:href="@{'/products/' + ${product.id}}"
@@ -49,8 +46,8 @@
                                 View Details
                             </a>
 
-                            <!-- ADD TO CART FORM -->
                             <form th:action="@{/cart/add}" method="post" class="w-50">
+
                                 <input type="hidden" name="productId"
                                        th:value="${product.id}">
                                 <input type="hidden" name="quantity" value="1">
@@ -59,6 +56,13 @@
                                         class="btn btn-success btn-sm w-100">
                                     Add To Cart
                                 </button>
+
+                                <!-- INLINE BADGE -->
+                                <div class="text-success small mt-1 d-none"
+                                     th:attr="id='badge-'+${product.id}">
+                                    ✔ Added to cart
+                                </div>
+
                             </form>
 
                         </div>
@@ -69,6 +73,35 @@
             </div>
         </div>
     </div>
+
+    <!-- ⭐⭐⭐ IMPORTANT: SCRIPT MUST BE INSIDE SECTION ⭐⭐⭐ -->
+    <script>
+
+        // hide green top message after 3 sec
+        const successMsg = document.getElementById("successMsg");
+        if(successMsg){
+            setTimeout(()=>{
+                successMsg.style.display="none";
+            },3000);
+        }
+
+        // show inline badge under clicked product
+        const params = new URLSearchParams(window.location.search);
+        const pid = params.get("pid");
+
+        if(pid){
+            const badge = document.getElementById("badge-"+pid);
+            if(badge){
+                badge.classList.remove("d-none");
+
+                setTimeout(()=>{
+                    badge.classList.add("d-none");
+                },3000);
+            }
+        }
+
+    </script>
+
 </section>
 
 </html>
