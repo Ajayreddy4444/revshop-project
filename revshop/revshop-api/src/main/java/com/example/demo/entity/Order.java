@@ -5,75 +5,93 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
-
 @Entity
-@Table(name="orders")
+@Table(name = "orders")
 public class Order {
-	
-	 @Id
-	 @GeneratedValue(strategy=GenerationType.IDENTITY)
-	 private long id;
-	 
-	 @ManyToOne
-	 @JoinColumn(name="user_id",nullable=false)
-	 private User user;
-	 
-	 @Column(nullable=false)
-	 private LocalDateTime orderDate = LocalDateTime.now();
-	 
-	 @Column(nullable=false)
-	 private Double totalAmount;
-	 
-	 @Column(nullable=false)
-	 private String status;
-	 
-	 @OneToMany(mappedBy="order",cascade=CascadeType.ALL)
-	 private List<OrderItem> items;
-	 
-	 public Order( ) {}
 
-	 public long getId() {
-		 return id;
-	 }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-	 public User getUser() {
-		 return user;
-	 }
+    // 🔹 Order belongs to one User
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-	 public void setUser(User user) {
-		 this.user = user;
-	 }
+    @Column(nullable = false)
+    private LocalDateTime orderDate = LocalDateTime.now();
 
-	 public LocalDateTime getOrderDate() {
-		 return orderDate;
-	 }
+    @Column(nullable = false)
+    private Double totalAmount;
 
-	 public void setOrderDate(LocalDateTime orderDate) {
-		 this.orderDate = orderDate;
-	 }
+    // 🔹 Order linked to one Address
+    @ManyToOne
+    @JoinColumn(name = "address_id", nullable = false)
+    private Address address;
 
-	 public Double getTotalAmount() {
-		 return totalAmount;
-	 }
+    // 🔹 Order lifecycle status
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderStatus status;
 
-	 public void setTotalAmount(Double totalAmount) {
-		 this.totalAmount = totalAmount;
-	 }
+    // 🔹 Order contains multiple items
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<OrderItem> items;
 
-	 public String getStatus() {
-		 return status;
-	 }
+    public Order() {
+    }
 
-	 public void setStatus(String status) {
-		 this.status = status;
-	 }
+    // ================= GETTERS & SETTERS =================
 
-	 public List<OrderItem> getItems() {
-		 return items;
-	 }
+    public long getId() {
+        return id;
+    }
 
-	 public void setItems(List<OrderItem> items) {
-		 this.items = items;
-	 }	 
+    public User getUser() {
+        return user;
+    }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public LocalDateTime getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDateTime orderDate) {
+        this.orderDate = orderDate;
+    }
+
+    public Double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
+    }
 }

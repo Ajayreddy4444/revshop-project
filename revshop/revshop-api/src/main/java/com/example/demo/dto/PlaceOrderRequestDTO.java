@@ -4,10 +4,20 @@ public class PlaceOrderRequestDTO {
 
 	private Long userId;
 	private String paymentMethod;
-	private String address;
+
 	
+	
+	private Long addressId;
+
 	public PlaceOrderRequestDTO() {
 		
+	}
+	public Long getAddressId() {
+	    return addressId;
+	}
+
+	public void setAddressId(Long addressId) {
+	    this.addressId = addressId;
 	}
 
 	public Long getUserId() {
@@ -26,11 +36,5 @@ public class PlaceOrderRequestDTO {
 		this.paymentMethod = paymentMethod;
 	}
 
-	public String getAddress() {
-		return address;
-	}
 
-	public void setAddress(String address) {
-		this.address = address;
-	}
 }

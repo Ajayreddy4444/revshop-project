@@ -9,12 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.dto.PlaceOrderRequestDTO;
 import com.example.demo.dto.OrderItemResponseDTO;
 import com.example.demo.dto.OrderResponseDTO;
+import com.example.demo.entity.Address;
 import com.example.demo.entity.Cart;
 import com.example.demo.entity.CartItem;
 import com.example.demo.entity.Order;
 import com.example.demo.entity.OrderItem;
+import com.example.demo.entity.OrderStatus;
 import com.example.demo.entity.Product;
 import com.example.demo.entity.User;
+import com.example.demo.repository.AddressRepository;
 import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.ProductRepository;
@@ -28,16 +31,20 @@ public class OrderServiceImpl implements OrderService {
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final AddressRepository addressRepository;
 
     public OrderServiceImpl(UserRepository userRepository,
                             CartRepository cartRepository,
                             OrderRepository orderRepository,
+                            AddressRepository addressRepository,
                             ProductRepository productRepository) {
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
-        this.orderRepository = orderRepository;
-        this.productRepository=productRepository;
+        this.orderRepository = orderRepository;      
+        this.addressRepository= addressRepository;
+        this.productRepository= productRepository;
     }
+    
 
     @Override
     @Transactional
@@ -53,11 +60,14 @@ public class OrderServiceImpl implements OrderService {
 //        if (cart == null || cart.getItems().isEmpty()) {
 //            throw new RuntimeException("Cart is empty");
 //        }
+        
+        Address address = addressRepository.findById(request.getAddressId())
+                .orElseThrow(() -> new RuntimeException("Address not found"));
 
-      
         Order order = new Order();
         order.setUser(user);
-        order.setStatus("PLACED");
+        order.setStatus(OrderStatus.CREATED);
+        order.setAddress(address);
 
         List<OrderItem> orderItems = new ArrayList<>();
         double totalAmount = 0.0;
