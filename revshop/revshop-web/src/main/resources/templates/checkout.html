@@ -21,30 +21,33 @@
 
 <br/>
 
-<!-- 🔥 Order Form -->
 <form th:action="@{/orders/place}" method="post">
 
     <!-- Hidden User ID -->
     <input type="hidden" name="userId" th:value="${userId}" />
 
-    <label><strong>Payment Method:</strong></label>
-    <select name="paymentMethod" required>
-        <option value="">-- Select Payment Method --</option>
-        <option value="CARD">Card</option>
-        <option value="UPI">UPI</option>
-        <option value="COD">Cash on Delivery</option>
-    </select>
+    <h3>Select Delivery Address</h3>
 
-    <br/><br/>
+    <div th:if="${addresses == null or #lists.isEmpty(addresses)}">
+        <p>No saved addresses found.</p>
+        <a th:href="@{/address/add}">Add New Address</a>
+    </div>
 
-    <label><strong>Delivery Address:</strong></label>
-    <input type="text" name="address" placeholder="Enter delivery address" required />
+    <div th:each="addr : ${addresses}">
+        <input type="radio"
+               name="addressId"
+               th:value="${addr.addressId}"
+               required />
 
-    <br/><br/>
+        <strong th:text="${addr.fullName}"></strong>,
+        <span th:text="${addr.addressLine}"></span>,
+        <span th:text="${addr.city}"></span>,
+        <span th:text="${addr.state}"></span>,
+        <span th:text="${addr.pincode}"></span>
+
+        <br/><br/>
+    </div>
 
     <button type="submit">Place Order</button>
 
 </form>
-
-</section>
-</html>
