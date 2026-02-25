@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
@@ -80,9 +81,13 @@ public class ProductClientServiceImpl implements ProductClientService {
         HttpEntity<Map<String, String>> request = new HttpEntity<>(
                 Map.of("name", name, "description", description), headers);
 
-        ResponseEntity<Category> response =
-                restTemplate.postForEntity(baseUrl + "/categories", request, Category.class);
+        try {
+            ResponseEntity<Category> response =
+                    restTemplate.postForEntity(baseUrl + "/categories", request, Category.class);
 
-        return response.getBody();
+            return response.getBody();
+        } catch (HttpClientErrorException ex) {
+            throw new RuntimeException(ex.getResponseBodyAsString());
+        }
     }
 }

@@ -38,7 +38,7 @@ public class CategoryController {
             CategoryResponse response = new CategoryResponse(category.getId(), category.getName());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

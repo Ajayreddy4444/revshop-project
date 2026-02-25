@@ -3,6 +3,9 @@
       th:replace="~{layout/base :: layout('Add Category', ~{::section})}">
 <section class="container mt-4">
     <h2>Add category</h2>
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span th:text="${errorMessage}"></span>
+    </div>
     <form th:action="@{/seller/categories/add}" method="post">
         <div class="mb-3">
             <label>Category Name</label>
