@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Add Product', ~{::section})}">
+<section class="container mt-4">
+    <h2>Add Product</h2>
+    <form th:action="@{/seller/products}" method="post" th:object="${product}">
+        <div class="mb-3">
+            <label>Name</label>
+            <input type="text" th:field="*{name}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Description</label>
+            <input type="text" th:field="*{description}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Price</label>
+            <input type="number" th:field="*{price}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>MRP</label>
+            <input type="number" th:field="*{mrp}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Quantity</label>
+            <input type="number" th:field="*{quantity}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Low Stock </label>
+            <input type="number"
+                   th:field="*{lowStockThreshold}"
+                   class="form-control"
+                   min="0"
+                   placeholder="Enter minimum stock level (e.g. 5)">
+        </div>
+
+        <div class="mb-3">
+            <label>Image File Name</label>
+            <input type="text" th:field="*{imageUrl}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Category</label>
+
+            <select id="categoryDropdown" th:field="*{categoryId}" class="form-control" required>
+                <option value="">Select Category</option>
+
+                <option th:each="cat : ${categories}"
+                        th:value="${cat.id}"
+                        th:text="${cat.name}"
+                        th:selected="${cat.id} == ${selectedCategoryId}">
+                </option>
+            </select>
+
+            <br>
+
+            <a th:href="@{/seller/categories/new}"><button type="button" class="btn btn-secondary">
+                + Add New Category
+            </button>
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                Add a product
+            </button>
+        </div>
+
+</section>
+</html>
