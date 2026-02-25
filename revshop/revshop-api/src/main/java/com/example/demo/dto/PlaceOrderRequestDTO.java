@@ -3,7 +3,7 @@ package com.example.demo.dto;
 public class PlaceOrderRequestDTO {
 
 	private Long userId;
-	private String paymentMethod;
+	private paymentMethod paymentMethod;
 
 	
 	
@@ -28,11 +28,11 @@ public class PlaceOrderRequestDTO {
 		this.userId = userId;
 	}
 
-	public String getPaymentMethod() {
+	public  PaymentMethod getPaymentMethod() {
 		return paymentMethod;
 	}
 
-	public void setPaymentMethod(String paymentMethod) {
+	public void setPaymentMethod(  PaymentMethod paymentMethod) {
 		this.paymentMethod = paymentMethod;
 	}
 
