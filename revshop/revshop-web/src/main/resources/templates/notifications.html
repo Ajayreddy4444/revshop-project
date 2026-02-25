@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Notifications', ~{::section})}">
+
+<section>
+
+    <h2>Notifications</h2>
+
+    <div id="notificationContainer"></div>
+
+    <!-- IMPORTANT: Enable Thymeleaf inline JavaScript -->
+    <script th:inline="javascript">
+
+        // Get userId from session (set during login)
+		const userId = /*[[${session.userId}]]*/ null;
+
+        function loadNotifications() {
+
+            const container = document.getElementById("notificationContainer");
+            container.innerHTML = "";
+
+            // If not logged in
+            if (!userId) {
+                container.innerHTML = "<p>Please login to view notifications.</p>";
+                return;
+            }
+
+            fetch(`http://localhost:8080/api/notifications/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    // If no notifications/orders
+                    if (!data || data.length === 0) {
+                        container.innerHTML = "<p>No orders placed yet.</p>";
+                        return;
+                    }
+
+                    let unreadCount = 0;
+
+                    data.forEach(n => {
+
+                        const card = document.createElement("div");
+                        card.style.border = "1px solid #ddd";
+                        card.style.padding = "15px";
+                        card.style.marginBottom = "12px";
+                        card.style.borderRadius = "12px";
+
+                        if (!n.seen) {
+                            card.style.backgroundColor = "#e8f1ff";
+                            unreadCount++;
+                        }
+
+                        card.innerHTML = `
+                            <div>
+                                <strong>${n.title ?? ''}</strong>
+                                <p>${n.message ?? ''}</p>
+                                <small>${n.createdAt ?? ''}</small>
+                            </div>
+                        `;
+
+                        card.onclick = function () {
+                            fetch(`http://localhost:8080/api/notifications/seen/${n.id}`, {
+                                method: "PUT"
+                            }).then(() => loadNotifications());
+                        };
+
+                        container.appendChild(card);
+                    });
+
+                    updateBadge(unreadCount);
+                })
+                .catch(() => {
+                    container.innerHTML = "<p>Error loading notifications.</p>";
+                });
+        }
+
+        function updateBadge(count) {
+            const badge = document.getElementById("notificationCount");
+            if (!badge) return;
+
+            if (count > 0) {
+                badge.style.display = "block";
+                badge.innerText = count;
+            } else {
+                badge.style.display = "none";
+            }
+        }
+
+        window.onload = loadNotifications;
+
+    </script>
+
+</section>
+
+</html>

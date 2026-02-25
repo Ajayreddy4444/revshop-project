@@ -14,7 +14,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AuthPageController {
-
 private final AuthClientService authClientService;
 
 public AuthPageController(AuthClientService authClientService) {
@@ -67,7 +66,7 @@ public String loginUser(@RequestParam String email,
         AuthResponse response = authClientService.login(req);
 
         session.setAttribute("user", response);
-
+        session.setAttribute("userId", response.getId());
         return "redirect:/home";
 
     } catch (Exception e) {

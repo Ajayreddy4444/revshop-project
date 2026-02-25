@@ -1,5 +1,27 @@
 <div th:fragment="header">
-    <header>
+    <header style="display:flex; justify-content:space-between; align-items:center; padding:10px 20px;">
+
         <h2>RevShop</h2>
+
+        <!-- Bell Icon -->
+        <div style="position:relative; cursor:pointer;"
+             onclick="window.location.href='/notifications'">
+
+            <i class="fa fa-bell" style="font-size:22px;"></i>
+
+            <!-- Notification Badge -->
+            <span id="notificationCount"
+                  style="display:none;
+                         position:absolute;
+                         top:-5px;
+                         right:-8px;
+                         background:red;
+                         color:white;
+                         font-size:12px;
+                         padding:3px 6px;
+                         border-radius:50%;">
+            </span>
+        </div>
+
     </header>
 </div>

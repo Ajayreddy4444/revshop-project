@@ -20,6 +20,7 @@ import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.OrderService;
+import com.example.demo.service.NotificationService;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -28,15 +29,19 @@ public class OrderServiceImpl implements OrderService {
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
-
+    private final NotificationService notificationService;
+    
     public OrderServiceImpl(UserRepository userRepository,
                             CartRepository cartRepository,
                             OrderRepository orderRepository,
-                            ProductRepository productRepository) {
+                            ProductRepository productRepository,
+                            NotificationService notificationService
+                            ) {
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
         this.orderRepository = orderRepository;
         this.productRepository=productRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -54,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
 //            throw new RuntimeException("Cart is empty");
 //        }
 
-      
+       
         Order order = new Order();
         order.setUser(user);
         order.setStatus("PLACED");
@@ -90,7 +95,11 @@ public class OrderServiceImpl implements OrderService {
 
         
         Order savedOrder = orderRepository.save(order);
-
+        notificationService.createOrderNotification(
+                user,
+                savedOrder.getId(),
+                "Order successfully placed"
+        );
     
         cart.getItems().clear();
         cartRepository.save(cart);

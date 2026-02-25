@@ -26,7 +26,7 @@ public class AuthClientServiceImpl implements AuthClientService {
     public AuthResponse login(LoginRequest request) {
 
         HttpEntity<LoginRequest> entity = new HttpEntity<>(request);
-
+       
         ResponseEntity<AuthResponse> response =
                 restTemplate.postForEntity(
                         baseUrl + "/auth/login",
