@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Payment', ~{::section})}">
+
+<section>
+
+<h2>Complete Payment</h2>
+
+<p><strong>Order ID:</strong>
+    <span th:text="${orderId}"></span>
+</p>
+
+<p><strong>Total Amount:</strong>
+    ₹ <span th:text="${amount}"></span>
+</p>
+
+<form th:action="@{/payment/process}" method="post">
+
+    <input type="hidden" name="orderId" th:value="${orderId}" />
+    <input type="hidden" name="amount" th:value="${amount}" />
+
+    <h3>Select Payment Method</h3>
+
+    <input type="radio" name="paymentMethod" value="CARD" required> Card <br><br>
+    <input type="radio" name="paymentMethod" value="UPI"> UPI <br><br>
+
+    <button type="submit">Pay Now</button>
+
+</form>
+
+</section>
+</html>
