@@ -41,7 +41,6 @@ public class CartServiceImpl implements CartService {
                     return cartRepository.save(c);
                 });
 
-        
         CartItem existingItem = null;
 
         if (cart.getItems() != null) {
@@ -65,11 +64,13 @@ public class CartServiceImpl implements CartService {
                     existingItem.getId(),
                     existingItem.getProductId(),
                     product != null ? product.getName() : "Unknown",
+                    product != null ? product.getImageUrl() : null,
+                    product != null ? product.getPrice() : 0,
+                    product != null ? product.getMrp() : 0,
                     existingItem.getQuantity()
             );
         }
 
-   
         CartItem item = new CartItem();
         item.setProductId(request.getProductId());
         item.setQuantity(request.getQuantity());
@@ -84,6 +85,9 @@ public class CartServiceImpl implements CartService {
                 item.getId(),
                 item.getProductId(),
                 product != null ? product.getName() : "Unknown",
+                product != null ? product.getImageUrl() : null,
+                product != null ? product.getPrice() : 0,
+                product != null ? product.getMrp() : 0,
                 item.getQuantity()
         );
     }
@@ -107,6 +111,9 @@ public class CartServiceImpl implements CartService {
                             i.getId(),
                             i.getProductId(),
                             product != null ? product.getName() : "Unknown",
+                            product != null ? product.getImageUrl() : null,
+                            product != null ? product.getPrice() : 0,
+                            product != null ? product.getMrp() : 0,
                             i.getQuantity()
                     );
                 })

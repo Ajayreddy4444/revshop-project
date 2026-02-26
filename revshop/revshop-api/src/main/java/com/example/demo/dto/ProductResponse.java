@@ -8,12 +8,14 @@ public class ProductResponse {
     private Double mrp;
     private Integer quantity;
     private String imageUrl;
+    private Integer lowStockThreshold;
 
-    public ProductResponse(){}
+    public ProductResponse() {
+    }
 
     public ProductResponse(Long id, String name, String description,
                            Double price, Double mrp,
-                           Integer quantity, String imageUrl){
+                           Integer quantity, String imageUrl, Integer lowStockThreshold) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -21,6 +23,7 @@ public class ProductResponse {
         this.mrp = mrp;
         this.quantity = quantity;
         this.imageUrl = imageUrl;
+        this.lowStockThreshold = lowStockThreshold;
     }
 
     public Long getId() {
@@ -73,5 +76,13 @@ public class ProductResponse {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Integer getLowStockThreshold() {
+        return lowStockThreshold;
+    }
+
+    public void setLowStockThreshold(Integer lowStockThreshold) {
+        this.lowStockThreshold = lowStockThreshold;
     }
 }

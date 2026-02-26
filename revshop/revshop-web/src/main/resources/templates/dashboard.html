@@ -5,35 +5,41 @@
 
 <section style="text-align:center; margin-top:60px">
 
-<h1>Welcome to RevShop 🎉</h1>
+    <h1>Welcome to RevShop 🎉</h1>
 
-<h2 th:text="'Hello, ' + ${session.user.name}"></h2>
+    <h2 th:text="'Hello, ' + ${session.user.name}"></h2>
 
-<h3>
-    Logged in as :
-    <span th:text="${session.user.role}"></span>
-</h3>
+    <h3>
+        Logged in as :
+        <span th:text="${session.user.role}"></span>
+    </h3>
 
-<br><br>
+    <br><br>
 
-<div th:if="${session.user.role == 'BUYER'}">
-    <h3>Buyer Panel</h3>
-    <p>You can browse and purchase products</p>
-    <a th:href="@{/products}">
-        <button>Browse Products</button>
+    <div th:if="${session.user.role == 'BUYER'}">
+        <h3>Buyer Panel</h3>
+        <p>You can browse and purchase products</p>
+        <a th:href="@{/products}">
+            <button>Browse Products</button>
+        </a>
+    </div>
+
+    <div th:if="${session.user.role == 'SELLER'}">
+        <h3>Seller Panel</h3>
+        <p>You can manage your products</p>
+        <a th:href="@{/seller/products/new}">
+            <button>Add Product</button>
+        </a>
+        <a th:href="@{/seller/products}">
+            <button>My Products</button>
+        </a>
+    </div>
+
+    <br><br>
+
+    <a th:href="@{/logout}">
+        <button>Logout</button>
     </a>
-</div>
-
-<div th:if="${session.user.role == 'SELLER'}">
-    <h3>Seller Panel</h3>
-    <p>You can manage your products</p>
-</div>
-
-<br><br>
-
-<a th:href="@{/logout}">
-    <button>Logout</button>
-</a>
 
 </section>
 
