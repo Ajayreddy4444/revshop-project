@@ -10,5 +10,8 @@ public interface OrderService {
 	OrderResponseDTO getOrderById(Long orderId);
 	List<OrderResponseDTO> getOrderByUser(Long userId);
 	
+	//updated
+	boolean hasUserPurchasedProduct(Long userId, Long productId);
+	
 
 }

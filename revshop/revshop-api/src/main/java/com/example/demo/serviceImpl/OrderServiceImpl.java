@@ -145,4 +145,31 @@ public class OrderServiceImpl implements OrderService {
 
         return dto;
     }
+    
+ // ============================================================
+ // ✅ UPDATED: Check If User Purchased Specific Product
+ // Used by review module to restrict reviews
+ // ============================================================
+ @Override
+ public boolean hasUserPurchasedProduct(Long userId, Long productId) {
+
+     User user = userRepository.findById(userId)
+             .orElseThrow(() -> new RuntimeException("User not found"));
+
+     // Get all orders of the user
+     List<Order> orders = orderRepository.findByUser(user);
+
+     // Check each order and its items
+     for (Order order : orders) {
+
+         for (OrderItem item : order.getItems()) {
+
+             if (item.getProduct().getId().equals(productId)) {
+                 return true; // Product found in any order
+             }
+         }
+     }
+
+     return false; // Product never purchased
+ }
 }

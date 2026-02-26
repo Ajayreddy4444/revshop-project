@@ -47,4 +47,20 @@ public class OrderController {
 
         return ResponseEntity.ok(response);
     }
+
+    // =========================================================
+    // ✅ UPDATED: Check If User Purchased Specific Product
+    // Used by review module in revshop-web
+    // Endpoint: /api/orders/has-purchased/{userId}/{productId}
+    // =========================================================
+    @GetMapping("/has-purchased/{userId}/{productId}")
+    public ResponseEntity<Boolean> hasUserPurchased(
+            @PathVariable Long userId,
+            @PathVariable Long productId) {
+
+        boolean result =
+                orderService.hasUserPurchasedProduct(userId, productId);
+
+        return ResponseEntity.ok(result);
+    }
 }
