@@ -33,10 +33,11 @@ public class CartPageController {
         return "cart";
     }
 
-    
+    // ⭐ UPDATED ADD METHOD (SMART REDIRECT)
     @PostMapping("/add")
     public String add(@RequestParam Long productId,
                       @RequestParam int quantity,
+                      @RequestHeader(value="referer", required=false) String referer,
                       HttpSession session){
 
         AuthResponse user = (AuthResponse) session.getAttribute("user");
@@ -52,7 +53,12 @@ public class CartPageController {
 
         cartService.add(req);
 
-        
+        // ⭐ If user came from product-details page
+        if(referer != null && referer.contains("/products/")){
+            return "redirect:" + referer + "?added=true";
+        }
+
+        // ⭐ Otherwise products page
         return "redirect:/products?added=true&pid="+productId;
     }
 
