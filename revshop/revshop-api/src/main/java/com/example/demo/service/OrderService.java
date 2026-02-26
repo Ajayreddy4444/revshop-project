@@ -14,8 +14,6 @@ public interface OrderService {
 	//updated
 	boolean hasUserPurchasedProduct(Long userId, Long productId);
 	
-	//updated
-	boolean hasUserPurchasedProduct(Long userId, Long productId);
 	
 
 }
