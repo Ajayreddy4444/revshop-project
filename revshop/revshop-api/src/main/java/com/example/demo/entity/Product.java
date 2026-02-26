@@ -8,7 +8,11 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "products")
+@Table(name = "products",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"seller_id", "name", "category_id"}
+        )
+)
 public class Product {
 
     @Id
@@ -24,6 +28,10 @@ public class Product {
     @Column(nullable = false)
     private Double price;
 
+    @Column(nullable = false)
+    private Double discountPercent;
+
+    @Column(nullable = false)
     private Double mrp;
 
     @Column(nullable = false)
@@ -65,7 +73,8 @@ public class Product {
     
     //------------------------------
 
-    public Product(){}
+    public Product() {
+    }
 
     public String getImageUrl() {
         return imageUrl;
@@ -109,6 +118,14 @@ public class Product {
 
     public void setMrp(Double mrp) {
         this.mrp = mrp;
+    }
+
+    public Double getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(Double discountPercent) {
+        this.discountPercent = discountPercent;
     }
 
     public Integer getQuantity() {

@@ -1,29 +1,70 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Add Category', ~{::section})}">
-<section class="container mt-4">
-    <h2>Add category</h2>
-    <div th:if="${errorMessage}" class="alert alert-danger">
-        <span th:text="${errorMessage}"></span>
+
+<section class="container mt-5 d-flex justify-content-center">
+
+    <div class="card shadow-sm border-0 p-4" style="width:100%; max-width:520px;">
+
+        <h3 class="text-center mb-4">📂 Add Category</h3>
+
+
+        <div th:if="${errorMessage}"
+             class="alert alert-danger alert-dismissible fade show"
+             role="alert"
+             id="errorAlert">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <form th:action="@{/seller/categories/add}" method="post">
+
+
+            <div class="mb-3">
+                <label class="form-label">Category Name</label>
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       placeholder="Enter category name"
+                       required>
+            </div>
+
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description"
+                          class="form-control"
+                          rows="2"
+                          placeholder="Optional description"></textarea>
+            </div>
+
+
+            <div class="d-flex justify-content-between mt-4">
+
+                <a th:href="@{/seller/products/new}"
+                   class="btn btn-outline-secondary">
+                    ← Back
+                </a>
+
+                <button class="btn btn-primary px-4">
+                    Save Category
+                </button>
+
+            </div>
+
+        </form>
+
     </div>
-    <form th:action="@{/seller/categories/add}" method="post">
-        <div class="mb-3">
-            <label>Category Name</label>
-            <input type="text" name="name"
-                   class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label>Description</label>
-            <input type="text" name="description"
-                   class="form-control">
-        </div>
-
-        <button class="btn btn-primary">Save Category</button>
-        <a th:href="@{/seller/products/new}"
-           class="btn btn-secondary">Cancel</a>
-
-    </form>
 
 </section>
+
+<script>
+    setTimeout(function () {
+        let el = document.getElementById("errorAlert");
+        if (el) {
+            el.classList.remove("show");
+            setTimeout(() => el.remove(), 500);
+        }
+    }, 4000);
+</script>
+
 </html>

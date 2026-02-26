@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class ProductDto {
 
     private Long id;
@@ -10,7 +12,9 @@ public class ProductDto {
     private Integer quantity;
     private Integer lowStockThreshold;
     private String imageUrl;
+    private MultipartFile imageFile;
     private Long categoryId;
+    private Double discountPercent;
     private double averageRating;
     private int reviewCount;
 
@@ -89,11 +93,25 @@ public class ProductDto {
         this.imageUrl = imageUrl;
     }
 
-    
+    public MultipartFile getImageFile() {
+        return imageFile;
+    }
+
+    public void setImageFile(MultipartFile imageFile) {
+        this.imageFile = imageFile;
+    }
+
     public double getAverageRating() {
         return averageRating;
     }
 
+    public Double getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(Double discountPercent) {
+        this.discountPercent = discountPercent;
+    }
     public void setAverageRating(double averageRating) {
         this.averageRating = averageRating;
     }

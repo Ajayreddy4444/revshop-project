@@ -7,6 +7,7 @@ public class ProductResponse {
     private Double price;
     private Double mrp;
     private Integer quantity;
+    private Double discountPercent;
     private String imageUrl;
     private Integer lowStockThreshold;
     private double averageRating;
@@ -17,7 +18,7 @@ public class ProductResponse {
 
     public ProductResponse(Long id, String name, String description,
                            Double price, Double mrp,
-                           Integer quantity, String imageUrl, Integer lowStockThreshold, Double averageRating, int reviewCount) {
+                           Integer quantity, String imageUrl, Integer lowStockThreshold, Double averageRating, int reviewCount, Double discountPercent) {
 
         this.id = id;
         this.name = name;
@@ -29,6 +30,7 @@ public class ProductResponse {
         this.lowStockThreshold = lowStockThreshold;
         this.averageRating = averageRating;
         this.reviewCount = reviewCount;
+        this.discountPercent = discountPercent;
     }
 
     public Long getId() {
@@ -90,7 +92,7 @@ public class ProductResponse {
     public void setLowStockThreshold(Integer lowStockThreshold) {
         this.lowStockThreshold = lowStockThreshold;
     }
-    
+
     public double getAverageRating() {
         return averageRating;
     }
@@ -105,5 +107,13 @@ public class ProductResponse {
 
     public void setReviewCount(int reviewCount) {
         this.reviewCount = reviewCount;
+    }
+
+    public Double getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(Double discountPercent) {
+        this.discountPercent = discountPercent;
     }
 }
