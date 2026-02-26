@@ -2,49 +2,265 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Checkout', ~{::section})}">
 
-<section>
+<section class="container checkout-container mt-5">
 
-<h2>Checkout</h2>
+    <style>
+        .checkout-container {
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+        }
 
-<!-- 🔥 Cart Items -->
-<table border="1">
-    <tr>
-        <th>Product Name</th>
-        <th>Quantity</th>
-    </tr>
+        .checkout-title {
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
 
-    <tr th:each="item : ${cartItems}">
-        <td th:text="${item.productName}"></td>
-        <td th:text="${item.quantity}"></td>
-    </tr>
-</table>
+        .checkout-card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 20px;
+            background-color: #ffffff;
+            margin-bottom: 20px;
+        }
 
-<br/>
+        .order-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
 
-<!-- 🔥 Order Form -->
-<form th:action="@{/orders/place}" method="post">
+        .order-item:last-child {
+            border-bottom: none;
+        }
 
-    <!-- Hidden User ID -->
-    <input type="hidden" name="userId" th:value="${userId}" />
+        .product-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
 
-    <label><strong>Payment Method:</strong></label>
-    <select name="paymentMethod" required>
-        <option value="">-- Select Payment Method --</option>
-        <option value="CARD">Card</option>
-        <option value="UPI">UPI</option>
-        <option value="COD">Cash on Delivery</option>
-    </select>
+        .address-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: 0.2s ease;
+        }
 
-    <br/><br/>
+        .address-card:hover {
+            background-color: #f1f3f5;
+            cursor: pointer;
+        }
 
-    <label><strong>Delivery Address:</strong></label>
-    <input type="text" name="address" placeholder="Enter delivery address" required />
+        .summary-card {
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            background-color: #ffffff;
+            position: sticky;
+            top: 100px;
+        }
 
-    <br/><br/>
+        .summary-total {
+            font-size: 18px;
+            font-weight: 700;
+            color: #28a745;
+        }
 
-    <button type="submit">Place Order</button>
+        .place-order-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            transition: 0.3s ease;
+        }
 
-</form>
+        .place-order-btn:hover {
+            background-color: #0b5ed7;
+            transform: scale(1.03);
+        }
+
+        /* 🔥 Animated Alert */
+        .custom-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #dc3545;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideIn 0.4s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+
+    <!-- 🔥 Animated Cancel Message -->
+    <div th:if="${cancelMessage}" 
+         id="cancelAlert"
+         class="custom-alert">
+        <span th:text="${cancelMessage}"></span>
+    </div>
+
+    <div class="row">
+
+        <!-- LEFT SIDE -->
+        <div class="col-lg-8">
+
+            <h3 class="checkout-title">Checkout</h3>
+
+            <div class="checkout-card">
+                <h5>🛒 Order Items</h5>
+
+                <div th:each="item : ${cartItems}" 
+                     class="order-item d-flex align-items-center">
+
+                    <div class="me-3">
+                        <img th:src="@{${item.imageUrl}}"
+                             class="product-img"
+                             alt="Product Image">
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <strong th:text="${item.productName}"></strong>
+
+                        <div class="text-muted">
+                            ₹ <span th:text="${item.price}"></span>
+                            ×
+                            <span th:text="${item.quantity}"></span>
+                        </div>
+                    </div>
+
+                    <div class="fw-bold text-success">
+                        ₹ <span th:text="${item.price * item.quantity}"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="checkout-card">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>📍 Delivery Address</h5>
+
+                    <a th:href="@{/address/add}" 
+                       class="btn btn-outline-primary btn-sm">
+                        + Add New
+                    </a>
+                </div>
+
+                <form th:action="@{/orders/place}" method="post">
+
+                    <input type="hidden" name="userId" th:value="${userId}" />
+
+                    <div th:each="addr : ${addresses}" class="address-card">
+
+                        <div class="form-check">
+
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="addressId"
+                                   th:value="${addr.addressId}"
+                                   required>
+
+                            <label class="form-check-label w-100">
+                                <strong th:text="${addr.fullName}"></strong><br/>
+                                <span th:text="${addr.phoneNumber}"></span><br/>
+                                <span th:text="${addr.addressLine}"></span>,
+                                <span th:text="${addr.city}"></span>,
+                                <span th:text="${addr.state}"></span> -
+                                <span th:text="${addr.pincode}"></span>
+                            </label>
+                        </div>
+
+                        <div class="text-end mt-2">
+                            <a th:href="@{'/address/edit/' + ${addr.addressId}}"
+                               class="btn btn-sm btn-outline-secondary">
+                                Edit
+                            </a>
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="col-lg-4">
+
+            <div class="summary-card">
+
+                <h5 class="text-center mb-3">Order Summary</h5>
+
+                <hr>
+
+                <div th:each="item : ${cartItems}" 
+                     class="d-flex justify-content-between mb-2">
+
+                    <span th:text="${item.productName}"></span>
+                    <span>
+                        ₹ <span th:text="${item.price * item.quantity}"></span>
+                    </span>
+                </div>
+
+                <hr>
+
+                <p>
+                    Delivery:
+                    <span class="float-end text-success">FREE</span>
+                </p>
+
+                <hr>
+
+                <p class="summary-total">
+                    Total:
+                    <span class="float-end">
+                        ₹ <span th:text="${totalAmount}"></span>
+                    </span>
+                </p>
+
+                <form th:action="@{/orders/place}" 
+                      method="post" 
+                      class="d-none d-lg-block">
+
+                    <input type="hidden" name="userId" th:value="${userId}" />
+
+                    <button type="submit" class="place-order-btn mt-3">
+                        Place Order
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </section>
+
+<!-- 🔥 Auto Disappear Script -->
+<script>
+    setTimeout(function() {
+        const alertBox = document.getElementById("cancelAlert");
+        if (alertBox) {
+            alertBox.style.transition = "opacity 0.5s ease";
+            alertBox.style.opacity = "0";
+            setTimeout(() => alertBox.remove(), 500);
+        }
+    }, 5000);
+</script>
+
 </html>
