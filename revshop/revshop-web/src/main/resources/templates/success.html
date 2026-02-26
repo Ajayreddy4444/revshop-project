@@ -2,19 +2,105 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Payment Success', ~{::section})}">
 
-<section>
+<section class="container success-container mt-5">
 
-<h2>Payment Successful 🎉</h2>
+    <style>
+        .success-container {
+            min-height: 80vh;
+            background-color: #f8f9fa;
+        }
 
-<p>Your payment was completed successfully.</p>
+        .success-card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: auto;
+        }
 
-<p><strong>Order ID:</strong>
-    <span th:text="${orderId}"></span>
-</p>
+        .success-icon {
+            font-size: 50px;
+            color: #28a745;
+            text-align: center;
+        }
 
-<br/>
+        .order-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
 
-<a th:href="@{/orders/my-orders}">View My Orders</a>
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .summary-total {
+            font-size: 18px;
+            font-weight: 700;
+            color: #28a745;
+        }
+
+        .btn-primary {
+            border-radius: 8px;
+            font-weight: 600;
+        }
+    </style>
+
+    <div class="success-card">
+
+        <div class="success-icon">✔</div>
+
+        <h3 class="text-center mb-3">Payment Successful</h3>
+
+        <p class="text-center">
+            Order ID: <strong th:text="${orderId}"></strong>
+        </p>
+
+        <hr>
+
+        <!-- Ordered Items -->
+        <div th:each="item : ${orderItems}" 
+             class="order-item d-flex align-items-center">
+
+            <div class="me-3">
+                <img th:src="@{${item.imageUrl}}" class="product-img">
+            </div>
+
+            <div class="flex-grow-1">
+                <strong th:text="${item.productName}"></strong>
+                <div class="text-muted">
+                    ₹ <span th:text="${item.price}"></span>
+                    × <span th:text="${item.quantity}"></span>
+                </div>
+            </div>
+
+            <div class="fw-bold text-success">
+                ₹ <span th:text="${item.price * item.quantity}"></span>
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="summary-total text-end">
+            Total: ₹ <span th:text="${totalAmount}"></span>
+        </div>
+
+        <div class="text-center mt-4">
+            <a th:href="@{/orders/my-orders}" 
+               class="btn btn-primary">
+                View My Orders
+            </a>
+        </div>
+
+    </div>
 
 </section>
 </html>

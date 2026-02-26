@@ -2,33 +2,118 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Add Address', ~{::section})}">
 
-<section>
+<section class="container address-container">
 
-<h2>Add New Address</h2>
+    <!-- ============ ADDRESS PAGE CSS ============ -->
+    <style>
+        .address-container {
+            min-height: 85vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f9fa;
+        }
 
-<form th:action="@{/address/save}" method="post">
+        .address-card {
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
 
-    <label>Full Name:</label><br/>
-    <input type="text" name="fullName" required/><br/><br/>
+        .address-title {
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+        }
 
-    <label>Phone Number:</label><br/>
-    <input type="text" name="phoneNumber" required/><br/><br/>
+        .form-group {
+            margin-bottom: 18px;
+        }
 
-    <label>Address Line:</label><br/>
-    <input type="text" name="addressLine" required/><br/><br/>
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            transition: 0.2s ease;
+        }
 
-    <label>City:</label><br/>
-    <input type="text" name="city" required/><br/><br/>
+        .form-control:focus {
+            border-color: #0d6efd;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(13,110,253,0.2);
+        }
 
-    <label>State:</label><br/>
-    <input type="text" name="state" required/><br/><br/>
+        .save-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            transition: 0.3s ease;
+        }
 
-    <label>Pincode:</label><br/>
-    <input type="text" name="pincode" required/><br/><br/>
+        .save-btn:hover {
+            background-color: #0b5ed7;
+            transform: scale(1.03);
+        }
 
-    <button type="submit">Save Address</button>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 
-</form>
+    <div class="address-card">
+
+        <h2 class="address-title">Add New Address</h2>
+
+        <form th:action="@{/address/save}" method="post">
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="fullName" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" name="phoneNumber" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label>Address Line</label>
+                <input type="text" name="addressLine" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label>City</label>
+                <input type="text" name="city" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label>State</label>
+                <input type="text" name="state" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label>Pincode</label>
+                <input type="text" name="pincode" class="form-control" required />
+            </div>
+
+            <button type="submit" class="save-btn">
+                Save Address
+            </button>
+
+        </form>
+
+    </div>
 
 </section>
 </html>

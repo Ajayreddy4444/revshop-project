@@ -50,9 +50,14 @@ public class OrderpageController {
             return "redirect:/cart";
         }
 
-        model.addAttribute("cartItems", cartItems);
+        // 🔥 Calculate total amount
+        double totalAmount = cartItems.stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
 
-        // 🔥 Fetch saved addresses
+        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("totalAmount", totalAmount);
+
         model.addAttribute("addresses",
                 addressClientService.getAddressesByUser(userId));
 
