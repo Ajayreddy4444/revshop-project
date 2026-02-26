@@ -2,31 +2,241 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Payment', ~{::section})}">
 
-<section>
+<section class="container mt-5 payment-wrapper">
 
-<h2>Complete Payment</h2>
+    <style>
+        .payment-wrapper {
+            max-width: 550px;
+            margin: auto;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
 
-<p><strong>Order ID:</strong>
-    <span th:text="${orderId}"></span>
-</p>
+        .payment-wrapper h2 {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
 
-<p><strong>Total Amount:</strong>
-    ₹ <span th:text="${amount}"></span>
-</p>
+        .order-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
 
-<form th:action="@{/payment/process}" method="post">
+        .amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: #198754;
+        }
 
-    <input type="hidden" name="orderId" th:value="${orderId}" />
-    <input type="hidden" name="amount" th:value="${amount}" />
+        .payment-method {
+            margin-bottom: 12px;
+        }
 
-    <h3>Select Payment Method</h3>
+        .input-box {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
 
-    <input type="radio" name="paymentMethod" value="CARD" required> Card <br><br>
-    <input type="radio" name="paymentMethod" value="UPI"> UPI <br><br>
+        .input-box:focus {
+            border-color: #0d6efd;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(13,110,253,0.2);
+        }
 
-    <button type="submit">Pay Now</button>
+        .hidden-section {
+            display: none;
+            margin-top: 15px;
+        }
 
-</form>
+        .error {
+            color: #dc3545;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pay-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background-color: #0d6efd;
+            color: white;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .pay-btn:hover {
+            background-color: #0b5ed7;
+        }
+
+        .cancel-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #dc3545;
+            background-color: white;
+            color: #dc3545;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .cancel-btn:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+
+    <h2>Secure Payment</h2>
+
+    <div class="order-box">
+        <p><strong>Order ID:</strong>
+            <span th:text="${orderId}"></span>
+        </p>
+        <p class="amount">
+            ₹ <span th:text="${amount}"></span>
+        </p>
+    </div>
+
+    <form th:action="@{/payment/process}" method="post" onsubmit="return validatePayment()">
+
+        <input type="hidden" name="orderId" th:value="${orderId}" />
+        <input type="hidden" name="amount" th:value="${amount}" />
+
+        <h5>Select Payment Method</h5>
+
+        <div class="payment-method">
+            <input type="radio" name="paymentMethod" value="CARD"
+                   onclick="showCard()" required>
+            💳 Card
+        </div>
+
+        <div class="payment-method">
+            <input type="radio" name="paymentMethod" value="UPI"
+                   onclick="showUpi()">
+            📱 UPI
+        </div>
+
+        <!-- CARD SECTION -->
+        <div id="cardSection" class="hidden-section">
+
+            <input type="text" id="cardNumber" name="cardNumber"
+                   placeholder="Card Number (16 digits)"
+                   class="input-box" maxlength="16">
+
+            <div id="cardError" class="error"></div>
+
+            <input type="text" id="cardHolder" name="cardHolder"
+                   placeholder="Card Holder Name"
+                   class="input-box">
+
+            <input type="text" id="expiry" name="expiry"
+                   placeholder="Expiry (MM/YY)"
+                   class="input-box">
+
+            <input type="password" id="cvv" name="cvv"
+                   placeholder="CVV (3 digits)"
+                   class="input-box" maxlength="3">
+        </div>
+
+        <!-- UPI SECTION -->
+        <div id="upiSection" class="hidden-section">
+
+            <input type="text" id="upiId" name="upiId"
+                   placeholder="Enter UPI ID (example@upi)"
+                   class="input-box">
+
+            <div id="upiError" class="error"></div>
+        </div>
+
+        <div class="btn-container">
+            <button type="submit" class="pay-btn">
+                Pay Now
+            </button>
+
+            <a th:href="@{'/orders/checkout?cancel=true'}"
+               class="cancel-btn">
+                Cancel
+            </a>
+        </div>
+
+    </form>
 
 </section>
+
+<script>
+    function showCard() {
+        document.getElementById("cardSection").style.display = "block";
+        document.getElementById("upiSection").style.display = "none";
+
+        setRequired("cardSection", true);
+        setRequired("upiSection", false);
+    }
+
+    function showUpi() {
+        document.getElementById("upiSection").style.display = "block";
+        document.getElementById("cardSection").style.display = "none";
+
+        setRequired("upiSection", true);
+        setRequired("cardSection", false);
+    }
+
+    function setRequired(sectionId, isRequired) {
+        const inputs = document.getElementById(sectionId).querySelectorAll("input");
+        inputs.forEach(input => {
+            input.required = isRequired;
+        });
+    }
+
+    function validatePayment() {
+        const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+        if (method === "CARD") {
+            const cardNumber = document.getElementById("cardNumber").value;
+            const cvv = document.getElementById("cvv").value;
+
+            if (!/^\d{16}$/.test(cardNumber)) {
+                document.getElementById("cardError").innerText = "Card number must be 16 digits.";
+                return false;
+            }
+
+            if (!/^\d{3}$/.test(cvv)) {
+                document.getElementById("cardError").innerText = "CVV must be 3 digits.";
+                return false;
+            }
+
+            document.getElementById("cardError").innerText = "";
+        }
+
+        if (method === "UPI") {
+            const upi = document.getElementById("upiId").value;
+
+            if (!/^[a-zA-Z0-9.\-_]{3,}@[a-zA-Z]{3,}$/.test(upi)) {
+                document.getElementById("upiError").innerText = "Enter valid UPI ID (example@upi).";
+                return false;
+            }
+
+            document.getElementById("upiError").innerText = "";
+        }
+
+        return true;
+    }
+</script>
+
 </html>
