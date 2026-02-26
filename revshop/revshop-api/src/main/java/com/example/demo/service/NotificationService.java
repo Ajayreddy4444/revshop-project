@@ -16,6 +16,9 @@ public interface NotificationService {
     // Get unread count
     long getUnreadCount(User user);
 
-    // Mark notification as seen
+    // Mark single notification as seen
     void markAsSeen(Long notificationId);
+
+    // ✅ NEW: Mark all notifications as seen
+    void markAllAsSeen(User user);
 }

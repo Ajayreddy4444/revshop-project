@@ -5,7 +5,7 @@
 
         <!-- Bell Icon -->
         <div style="position:relative; cursor:pointer;"
-             onclick="window.location.href='/notifications'">
+             onclick="handleBellClick()">
 
             <i class="fa fa-bell" style="font-size:22px;"></i>
 
@@ -24,4 +24,68 @@
         </div>
 
     </header>
+
+    <!-- 🔥 AUTO LOAD NOTIFICATION COUNT -->
+    <script th:inline="javascript">
+
+        const headerUserId = /*[[${session.userId}]]*/ null;
+
+        function loadHeaderNotificationCount() {
+
+            if (!headerUserId) return;
+
+            fetch(`http://localhost:8080/api/notifications/${headerUserId}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    if (!data) return;
+
+                    const unread = data.filter(n => !n.seen).length;
+
+                    const badge = document.getElementById("notificationCount");
+
+                    if (!badge) return;
+
+                    if (unread > 0) {
+                        badge.style.display = "block";
+                        badge.innerText = unread;
+                    } else {
+                        badge.style.display = "none";
+                    }
+                })
+                .catch(() => {});
+        }
+
+        // 🔔 PROFESSIONAL BELL CLICK HANDLER
+        function handleBellClick() {
+
+            if (!headerUserId) {
+                window.location.href = "/notifications";
+                return;
+            }
+
+            // Mark all as seen
+            fetch(`http://localhost:8080/api/notifications/markAllSeen/${headerUserId}`, {
+                method: "PUT"
+            })
+            .then(() => {
+
+                // Immediately hide badge
+                const badge = document.getElementById("notificationCount");
+                if (badge) {
+                    badge.style.display = "none";
+                }
+
+                // Redirect to notifications page
+                window.location.href = "/notifications";
+            })
+            .catch(() => {
+                window.location.href = "/notifications";
+            });
+        }
+
+        window.addEventListener("load", loadHeaderNotificationCount);
+
+    </script>
+
 </div>

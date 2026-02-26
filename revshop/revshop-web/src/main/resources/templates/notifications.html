@@ -8,18 +8,18 @@
 
     <div id="notificationContainer"></div>
 
-    <!-- IMPORTANT: Enable Thymeleaf inline JavaScript -->
+    <!-- Enable Thymeleaf inline JavaScript -->
     <script th:inline="javascript">
 
-        // Get userId from session (set during login)
-		const userId = /*[[${session.userId}]]*/ null;
+        // Get logged-in userId from session
+        const userId = /*[[${session.userId}]]*/ null;
 
         function loadNotifications() {
 
             const container = document.getElementById("notificationContainer");
             container.innerHTML = "";
 
-            // If not logged in
+            // If user not logged in
             if (!userId) {
                 container.innerHTML = "<p>Please login to view notifications.</p>";
                 return;
@@ -29,9 +29,10 @@
                 .then(res => res.json())
                 .then(data => {
 
-                    // If no notifications/orders
+                    // If no notifications found
                     if (!data || data.length === 0) {
-                        container.innerHTML = "<p>No orders placed yet.</p>";
+                        container.innerHTML = "<p>No notifications available.</p>";
+                        updateBadge(0);
                         return;
                     }
 
@@ -44,6 +45,7 @@
                         card.style.padding = "15px";
                         card.style.marginBottom = "12px";
                         card.style.borderRadius = "12px";
+                        card.style.cursor = "pointer";
 
                         if (!n.seen) {
                             card.style.backgroundColor = "#e8f1ff";
@@ -58,6 +60,7 @@
                             </div>
                         `;
 
+                        // Mark as seen when clicked
                         card.onclick = function () {
                             fetch(`http://localhost:8080/api/notifications/seen/${n.id}`, {
                                 method: "PUT"
@@ -75,6 +78,7 @@
         }
 
         function updateBadge(count) {
+
             const badge = document.getElementById("notificationCount");
             if (!badge) return;
 
@@ -86,7 +90,8 @@
             }
         }
 
-        window.onload = loadNotifications;
+        // Safe event listener (no conflicts with header)
+        window.addEventListener("load", loadNotifications);
 
     </script>
 
