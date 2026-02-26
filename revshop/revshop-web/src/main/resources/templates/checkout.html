@@ -84,30 +84,53 @@
             background-color: #0b5ed7;
             transform: scale(1.03);
         }
+
+        /* 🔥 Animated Alert */
+        .custom-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #dc3545;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideIn 0.4s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
+
+    <!-- 🔥 Animated Cancel Message -->
+    <div th:if="${cancelMessage}" 
+         id="cancelAlert"
+         class="custom-alert">
+        <span th:text="${cancelMessage}"></span>
+    </div>
 
     <div class="row">
 
-        <!-- ================= LEFT SIDE ================= -->
+        <!-- LEFT SIDE -->
         <div class="col-lg-8">
 
             <h3 class="checkout-title">Checkout</h3>
 
-            <!-- ================= ORDER ITEMS ================= -->
             <div class="checkout-card">
                 <h5>🛒 Order Items</h5>
 
                 <div th:each="item : ${cartItems}" 
                      class="order-item d-flex align-items-center">
 
-                    <!-- Product Image -->
                     <div class="me-3">
                         <img th:src="@{${item.imageUrl}}"
                              class="product-img"
                              alt="Product Image">
                     </div>
 
-                    <!-- Product Details -->
                     <div class="flex-grow-1">
                         <strong th:text="${item.productName}"></strong>
 
@@ -118,7 +141,6 @@
                         </div>
                     </div>
 
-                    <!-- Item Total -->
                     <div class="fw-bold text-success">
                         ₹ <span th:text="${item.price * item.quantity}"></span>
                     </div>
@@ -126,63 +148,57 @@
                 </div>
             </div>
 
+            <div class="checkout-card">
 
-            <!-- ================= ADDRESS SECTION ================= -->
-			<div class="checkout-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>📍 Delivery Address</h5>
 
-			    <div class="d-flex justify-content-between align-items-center mb-3">
-			        <h5>📍 Delivery Address</h5>
+                    <a th:href="@{/address/add}" 
+                       class="btn btn-outline-primary btn-sm">
+                        + Add New
+                    </a>
+                </div>
 
-			        <!-- ADD BUTTON -->
-			        <a th:href="@{/address/add}" 
-			           class="btn btn-outline-primary btn-sm">
-			            + Add New
-			        </a>
-			    </div>
+                <form th:action="@{/orders/place}" method="post">
 
-			    <form th:action="@{/orders/place}" method="post">
+                    <input type="hidden" name="userId" th:value="${userId}" />
 
-			        <input type="hidden" name="userId" th:value="${userId}" />
+                    <div th:each="addr : ${addresses}" class="address-card">
 
-			        <div th:each="addr : ${addresses}" class="address-card">
+                        <div class="form-check">
 
-			            <div class="form-check">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="addressId"
+                                   th:value="${addr.addressId}"
+                                   required>
 
-			                <input class="form-check-input"
-			                       type="radio"
-			                       name="addressId"
-			                       th:value="${addr.addressId}"
-			                       required>
+                            <label class="form-check-label w-100">
+                                <strong th:text="${addr.fullName}"></strong><br/>
+                                <span th:text="${addr.phoneNumber}"></span><br/>
+                                <span th:text="${addr.addressLine}"></span>,
+                                <span th:text="${addr.city}"></span>,
+                                <span th:text="${addr.state}"></span> -
+                                <span th:text="${addr.pincode}"></span>
+                            </label>
+                        </div>
 
-			                <label class="form-check-label w-100">
+                        <div class="text-end mt-2">
+                            <a th:href="@{'/address/edit/' + ${addr.addressId}}"
+                               class="btn btn-sm btn-outline-secondary">
+                                Edit
+                            </a>
+                        </div>
 
-			                    <strong th:text="${addr.fullName}"></strong><br/>
-			                    <span th:text="${addr.phoneNumber}"></span><br/>
-			                    <span th:text="${addr.addressLine}"></span>,
-			                    <span th:text="${addr.city}"></span>,
-			                    <span th:text="${addr.state}"></span> -
-			                    <span th:text="${addr.pincode}"></span>
+                    </div>
 
-			                </label>
-			            </div>
+                </form>
 
-			            <!-- EDIT BUTTON -->
-			            <div class="text-end mt-2">
-			                <a th:href="@{'/address/edit/' + ${addr.addressId}}"
-			                   class="btn btn-sm btn-outline-secondary">
-			                    Edit
-			                </a>
-			            </div>
+            </div>
 
-			        </div>
+        </div>
 
-
-			    </form>
-
-			</div>
-			
-			</div>
-        <!-- ================= RIGHT SIDE ================= -->
+        <!-- RIGHT SIDE -->
         <div class="col-lg-4">
 
             <div class="summary-card">
@@ -198,7 +214,6 @@
                     <span>
                         ₹ <span th:text="${item.price * item.quantity}"></span>
                     </span>
-
                 </div>
 
                 <hr>
@@ -226,7 +241,6 @@
                     <button type="submit" class="place-order-btn mt-3">
                         Place Order
                     </button>
-
                 </form>
 
             </div>
@@ -236,4 +250,17 @@
     </div>
 
 </section>
+
+<!-- 🔥 Auto Disappear Script -->
+<script>
+    setTimeout(function() {
+        const alertBox = document.getElementById("cancelAlert");
+        if (alertBox) {
+            alertBox.style.transition = "opacity 0.5s ease";
+            alertBox.style.opacity = "0";
+            setTimeout(() => alertBox.remove(), 500);
+        }
+    }, 5000);
+</script>
+
 </html>
