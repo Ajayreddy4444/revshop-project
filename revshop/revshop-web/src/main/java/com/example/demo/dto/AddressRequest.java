@@ -9,6 +9,7 @@ public class AddressRequest {
     private String city;
     private String state;
     private String pincode;
+    private Long addressId;
 	public Long getUserId() {
 		return userId;
 	}
@@ -50,6 +51,12 @@ public class AddressRequest {
 	}
 	public void setPincode(String pincode) {
 		this.pincode = pincode;
+	}
+	public Long getAddressId() {
+		return addressId;
+	}
+	public void setAddressId(Long addressId) {
+		this.addressId = addressId;
 	}
 
     // getters & setters

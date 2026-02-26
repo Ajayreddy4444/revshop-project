@@ -9,4 +9,7 @@ public interface AddressClientService {
 
     List<AddressResponse> getAddressesByUser(Long userId);
     void saveAddress(AddressRequest request); 
+    AddressResponse getAddressById(Long id);
+
+    void updateAddress(AddressRequest request);
 }

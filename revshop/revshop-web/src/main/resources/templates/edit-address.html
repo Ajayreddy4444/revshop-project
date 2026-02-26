@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Edit Address', ~{::section})}">
+
+<section>
+
+<h2>Edit Address</h2>
+
+<form th:action="@{/address/update}" 
+      th:object="${address}" 
+      method="post">
+
+    <!-- VERY IMPORTANT: hidden ID -->
+    <input type="hidden" th:field="*{addressId}" />
+
+    <div>
+        <label>Full Name:</label>
+        <input type="text" th:field="*{fullName}" required />
+    </div>
+    <br/>
+
+    <div>
+        <label>Phone Number:</label>
+        <input type="text" th:field="*{phoneNumber}" required />
+    </div>
+    <br/>
+
+    <div>
+        <label>Address Line:</label>
+        <input type="text" th:field="*{addressLine}" required />
+    </div>
+    <br/>
+
+    <div>
+        <label>City:</label>
+        <input type="text" th:field="*{city}" required />
+    </div>
+    <br/>
+
+    <div>
+        <label>State:</label>
+        <input type="text" th:field="*{state}" required />
+    </div>
+    <br/>
+
+    <div>
+        <label>Pincode:</label>
+        <input type="text" th:field="*{pincode}" required />
+    </div>
+    <br/>
+
+    <button type="submit">Update Address</button>
+
+</form>
+
+</section>
+</html>

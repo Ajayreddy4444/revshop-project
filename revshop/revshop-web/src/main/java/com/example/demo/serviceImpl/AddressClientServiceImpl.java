@@ -41,4 +41,22 @@ public class AddressClientServiceImpl implements AddressClientService {
 
         restTemplate.postForObject(url, request, Object.class);
     }
+
+    // ✅ NEW METHOD
+    @Override
+    public AddressResponse getAddressById(Long id) {
+
+        String url = baseUrl + "/address/" + id;
+
+        return restTemplate.getForObject(url, AddressResponse.class);
+    }
+
+    // ✅ NEW METHOD
+    @Override
+    public void updateAddress(AddressRequest request) {
+
+        String url = baseUrl + "/address/update";
+
+        restTemplate.put(url, request);
+    }
 }

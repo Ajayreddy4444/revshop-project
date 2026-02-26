@@ -28,26 +28,49 @@
 
     <h3>Select Delivery Address</h3>
 
+    <!-- ✅ Always show Add New Address -->
+    <a th:href="@{/address/add}" 
+       style="display:inline-block; margin-bottom:10px;">
+       ➕ Add New Address
+    </a>
+
+    <!-- If no addresses -->
     <div th:if="${addresses == null or #lists.isEmpty(addresses)}">
         <p>No saved addresses found.</p>
-        <a th:href="@{/address/add}">Add New Address</a>
     </div>
 
-    <div th:each="addr : ${addresses}">
+    <!-- Address List -->
+    <div th:each="addr : ${addresses}" 
+         style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+
         <input type="radio"
                name="addressId"
                th:value="${addr.addressId}"
                required />
 
-        <strong th:text="${addr.fullName}"></strong>,
+        <strong th:text="${addr.fullName}"></strong><br/>
+
+        <span th:text="${addr.phoneNumber}"></span><br/>
+
         <span th:text="${addr.addressLine}"></span>,
         <span th:text="${addr.city}"></span>,
         <span th:text="${addr.state}"></span>,
         <span th:text="${addr.pincode}"></span>
 
         <br/><br/>
+
+        <!-- ✅ Edit Button -->
+        <a th:href="@{'/address/edit/' + ${addr.addressId}}">
+            ✏ Edit
+        </a>
+
     </div>
+
+    <br/>
 
     <button type="submit">Place Order</button>
 
 </form>
+
+</section>
+</html>
