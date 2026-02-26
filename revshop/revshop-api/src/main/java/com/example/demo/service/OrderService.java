@@ -13,5 +13,9 @@ public interface OrderService {
 	void updateOrderStatus(Long orderId, OrderStatus status);
 	//updated
 	boolean hasUserPurchasedProduct(Long userId, Long productId);
+	
+	//updated
+	boolean hasUserPurchasedProduct(Long userId, Long productId);
+	
 
 }
