@@ -22,7 +22,7 @@ public class Order {
     private LocalDateTime orderDate = LocalDateTime.now();
 
     @Column(nullable = false)
-    private Double totalAmount;
+    private Double totalAmount= 0.0 ;
 
     // 🔹 Order linked to one Address
     @ManyToOne
@@ -35,7 +35,7 @@ public class Order {
     private OrderStatus status;
 
     // 🔹 Order contains multiple items
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL ,orphanRemoval = true)
     private List<OrderItem> items;
 
     public Order() {

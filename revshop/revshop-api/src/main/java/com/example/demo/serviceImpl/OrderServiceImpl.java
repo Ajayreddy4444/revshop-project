@@ -1,126 +1,260 @@
+//
+//package com.example.demo.serviceImpl;
+//
+//import java.time.LocalDateTime;
+//import java.util.ArrayList;
+//import java.util.List;
+//
+//import org.springframework.stereotype.Service;
+//import org.springframework.transaction.annotation.Transactional;
+//
+//import com.example.demo.dto.OrderItemResponseDTO;
+//import com.example.demo.dto.OrderResponseDTO;
+//import com.example.demo.dto.PlaceOrderRequestDTO;
+//import com.example.demo.entity.Address;
+//import com.example.demo.entity.Order;
+//import com.example.demo.entity.OrderItem;
+//import com.example.demo.entity.OrderStatus;
+//import com.example.demo.entity.User;
+//import com.example.demo.repository.AddressRepository;
+//import com.example.demo.repository.OrderRepository;
+//import com.example.demo.repository.UserRepository;
+//import com.example.demo.service.OrderService;
+//
+//@Service
+//@Transactional
+//public class OrderServiceImpl implements OrderService {
+//
+//    private final UserRepository userRepository;
+//    private final OrderRepository orderRepository;
+//    private final AddressRepository addressRepository;
+//
+//    public OrderServiceImpl(UserRepository userRepository,
+//                            OrderRepository orderRepository,
+//                            AddressRepository addressRepository) {
+//        this.userRepository = userRepository;
+//        this.orderRepository = orderRepository;
+//        this.addressRepository = addressRepository;
+//    }
+//
+//    @Override
+//    public OrderResponseDTO placeOrder(PlaceOrderRequestDTO request) {
+//
+//        User user = userRepository.findById(request.getUserId())
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        Address address = addressRepository.findById(request.getAddressId())
+//                .orElseThrow(() -> new RuntimeException("Address not found"));
+//
+//        Order order = new Order();
+//        order.setUser(user);
+//        order.setAddress(address);
+//        order.setOrderDate(LocalDateTime.now());
+//        order.setStatus(OrderStatus.CREATED);
+//        //order.setTotalAmount(request.getTotalAmount());
+//
+//        Order savedOrder = orderRepository.save(order);
+//
+//        return convertToDTO(savedOrder);
+//    }
+//
+//    @Override
+//    public void updateOrderStatus(Long orderId, OrderStatus status) {
+//
+//        Order order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new RuntimeException("Order not found"));
+//
+//        order.setStatus(status);
+//        orderRepository.save(order);
+//    }
+//
+//    @Override
+//    public OrderResponseDTO getOrderById(Long orderId) {
+//
+//        Order order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new RuntimeException("Order not found"));
+//
+//        return convertToDTO(order);
+//    }
+//
+//    @Override
+//    public List<OrderResponseDTO> getOrderByUser(Long userId) {
+//
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        List<Order> orders = orderRepository.findByUser(user);
+//        List<OrderResponseDTO> responseList = new ArrayList<>();
+//
+//        for (Order order : orders) {
+//            responseList.add(convertToDTO(order));
+//        }
+//
+//        return responseList;
+//    }
+//
+//    private OrderResponseDTO convertToDTO(Order order) {
+//
+//        OrderResponseDTO dto = new OrderResponseDTO();
+//        dto.setOrderId(order.getId());
+//        dto.setOrderDate(order.getOrderDate());
+//        dto.setTotalAmount(order.getTotalAmount());
+//        dto.setStatus(order.getStatus());
+//
+//        List<OrderItemResponseDTO> itemDTOs = new ArrayList<>();
+//
+//        if (order.getItems() != null) {
+//            for (OrderItem item : order.getItems()) {
+//                OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
+//                itemDTO.setProductName(item.getProduct().getName());
+//                itemDTO.setQuantity(item.getQuantity());
+//                itemDTO.setPriceAtPurchase(item.getPriceAtPurchase());
+//                itemDTO.setSubtotal(item.getSubtotal());
+//                itemDTOs.add(itemDTO);
+//            }
+//        }
+//
+//        dto.setItems(itemDTOs);
+//        return dto;
+//    }
+//}
+
+
+
 package com.example.demo.serviceImpl;
 
+
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.dto.PlaceOrderRequestDTO;
 import com.example.demo.dto.OrderItemResponseDTO;
 import com.example.demo.dto.OrderResponseDTO;
-import com.example.demo.entity.Address;
-import com.example.demo.entity.Cart;
-import com.example.demo.entity.CartItem;
-import com.example.demo.entity.Order;
-import com.example.demo.entity.OrderItem;
-import com.example.demo.entity.OrderStatus;
-import com.example.demo.entity.Product;
-import com.example.demo.entity.User;
-import com.example.demo.repository.AddressRepository;
-import com.example.demo.repository.CartRepository;
-import com.example.demo.repository.OrderRepository;
-import com.example.demo.repository.ProductRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.dto.PlaceOrderRequestDTO;
+import com.example.demo.entity.*;
+import com.example.demo.repository.*;
 import com.example.demo.service.OrderService;
 
 @Service
+@Transactional
 public class OrderServiceImpl implements OrderService {
 
     private final UserRepository userRepository;
-    private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
     private final AddressRepository addressRepository;
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
 
     public OrderServiceImpl(UserRepository userRepository,
-                            CartRepository cartRepository,
                             OrderRepository orderRepository,
                             AddressRepository addressRepository,
+                            CartRepository cartRepository,
+                            CartItemRepository cartItemRepository,
                             ProductRepository productRepository) {
         this.userRepository = userRepository;
+        this.orderRepository = orderRepository;
+        this.addressRepository = addressRepository;
         this.cartRepository = cartRepository;
-        this.orderRepository = orderRepository;      
-        this.addressRepository= addressRepository;
-        this.productRepository= productRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.productRepository = productRepository;
     }
-    
 
     @Override
-    @Transactional
     public OrderResponseDTO placeOrder(PlaceOrderRequestDTO request) {
 
-       
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Cart cart = cartRepository.findByUserId(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
-//        Cart cart = cartRepository.findByUserId(request.getUserId());
-//        if (cart == null || cart.getItems().isEmpty()) {
-//            throw new RuntimeException("Cart is empty");
-//        }
-        
         Address address = addressRepository.findById(request.getAddressId())
                 .orElseThrow(() -> new RuntimeException("Address not found"));
 
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        List<CartItem> cartItems = cart.getItems();
+
+        if (cartItems == null || cartItems.isEmpty()) {
+            throw new RuntimeException("Cart is empty");
+        }
+
         Order order = new Order();
         order.setUser(user);
-        order.setStatus(OrderStatus.CREATED);
         order.setAddress(address);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.CREATED);
 
-        List<OrderItem> orderItems = new ArrayList<>();
         double totalAmount = 0.0;
+        List<OrderItem> orderItems = new ArrayList<>();
 
-       
-        for (CartItem cartItem : cart.getItems()) {
-        	
-        	Product product = productRepository.findById(cartItem.getProductId())
-        			.orElseThrow(()-> new RuntimeException("product not found"));
+        for (CartItem cartItem : cartItems) {
+
+            Product product = productRepository.findById(cartItem.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+
+            if (product.getQuantity() < cartItem.getQuantity()) {
+                throw new RuntimeException(
+                        "Insufficient stock for product: " + product.getName());
+            }
+
+            double subtotal = product.getPrice() * cartItem.getQuantity();
+
+            product.setQuantity(product.getQuantity() - cartItem.getQuantity());
+            productRepository.save(product);
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setQuantity(cartItem.getQuantity());
-
-          
-            double price = product.getPrice();
-            orderItem.setPriceAtPurchase(price);
-
-            double subtotal = price * cartItem.getQuantity();
+            orderItem.setPriceAtPurchase(product.getPrice());
             orderItem.setSubtotal(subtotal);
 
             totalAmount += subtotal;
-
             orderItems.add(orderItem);
         }
 
         order.setItems(orderItems);
         order.setTotalAmount(totalAmount);
 
-        
         Order savedOrder = orderRepository.save(order);
 
-    
-        cart.getItems().clear();
-        cartRepository.save(cart);
+        // Clear cart after successful order
+        cartItemRepository.deleteAll(cartItems);
 
         return convertToDTO(savedOrder);
     }
 
     @Override
-    public OrderResponseDTO getOrderById(Long orderId) {
+    public void updateOrderStatus(Long orderId, OrderStatus status) {
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        order.setStatus(status);
+        orderRepository.save(order);
+    }
+
+    @Override
+    public OrderResponseDTO getOrderById(Long orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
         return convertToDTO(order);
     }
 
     @Override
     public List<OrderResponseDTO> getOrderByUser(Long userId) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<Order> orders = orderRepository.findByUser(user);
+
         List<OrderResponseDTO> responseList = new ArrayList<>();
 
         for (Order order : orders) {
@@ -130,7 +264,6 @@ public class OrderServiceImpl implements OrderService {
         return responseList;
     }
 
- 
     private OrderResponseDTO convertToDTO(Order order) {
 
         OrderResponseDTO dto = new OrderResponseDTO();
@@ -141,18 +274,20 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderItemResponseDTO> itemDTOs = new ArrayList<>();
 
-        for (OrderItem item : order.getItems()) {
-            OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
-            itemDTO.setProductName(item.getProduct().getName());
-            itemDTO.setQuantity(item.getQuantity());
-            itemDTO.setPriceAtPurchase(item.getPriceAtPurchase());
-            itemDTO.setSubtotal(item.getSubtotal());
+        if (order.getItems() != null) {
+            for (OrderItem item : order.getItems()) {
 
-            itemDTOs.add(itemDTO);
+                OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
+                itemDTO.setProductName(item.getProduct().getName());
+                itemDTO.setQuantity(item.getQuantity());
+                itemDTO.setPriceAtPurchase(item.getPriceAtPurchase());
+                itemDTO.setSubtotal(item.getSubtotal());
+
+                itemDTOs.add(itemDTO);
+            }
         }
 
         dto.setItems(itemDTOs);
-
         return dto;
     }
 }
