@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Add Category', ~{::section})}">
+<section class="container mt-4">
+    <h2>Add category</h2>
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span th:text="${errorMessage}"></span>
+    </div>
+    <form th:action="@{/seller/categories/add}" method="post">
+        <div class="mb-3">
+            <label>Category Name</label>
+            <input type="text" name="name"
+                   class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Description</label>
+            <input type="text" name="description"
+                   class="form-control">
+        </div>
+
+        <button class="btn btn-primary">Save Category</button>
+        <a th:href="@{/seller/products/new}"
+           class="btn btn-secondary">Cancel</a>
+
+    </form>
+
+</section>
+</html>

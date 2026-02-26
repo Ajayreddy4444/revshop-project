@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('My Products', ~{::section})}">
+<section class="container mt-4">
+    <h2>My Products</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4" th:each="product : ${products}">
+            <div class="card shadow-sm">
+                <img th:src="@{'/images/' + ${product.imageUrl}}"
+                     class="card-img-top"
+                     style="height: 200px; object-fit:cover;">
+                <div class="card-body">
+                    <h5 th:text="${product.name}"></h5>
+                    <p class="text-muted" th:text="${product.description}"></p>
+                    <p class="fw-bold text-success">
+                        ₹ <span th:text="${product.price}"></span>
+                    </p>
+                    <p>Stock: <span th:text="${product.quantity}"></span></p>
+                    <span class="badge bg-danger"
+                          th:if="${product.lowStockThreshold != null and product.quantity <= product.lowStockThreshold}">Low Stock</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</section>
+</html>
