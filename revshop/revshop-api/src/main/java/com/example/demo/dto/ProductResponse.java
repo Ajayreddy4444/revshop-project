@@ -8,14 +8,23 @@ public class ProductResponse {
     private Double mrp;
     private Integer quantity;
     private String imageUrl;
+<<<<<<< Updated upstream
     private Integer lowStockThreshold;
+=======
+    private double averageRating;
+    private int reviewCount;
+>>>>>>> Stashed changes
 
     public ProductResponse() {
     }
 
     public ProductResponse(Long id, String name, String description,
                            Double price, Double mrp,
+<<<<<<< Updated upstream
                            Integer quantity, String imageUrl, Integer lowStockThreshold) {
+=======
+                           Integer quantity, String imageUrl, Double averageRating, int reviewCount){
+>>>>>>> Stashed changes
         this.id = id;
         this.name = name;
         this.description = description;
@@ -23,7 +32,12 @@ public class ProductResponse {
         this.mrp = mrp;
         this.quantity = quantity;
         this.imageUrl = imageUrl;
+<<<<<<< Updated upstream
         this.lowStockThreshold = lowStockThreshold;
+=======
+        this.averageRating = averageRating;
+        this.reviewCount = reviewCount;
+>>>>>>> Stashed changes
     }
 
     public Long getId() {
@@ -77,6 +91,7 @@ public class ProductResponse {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+<<<<<<< Updated upstream
 
     public Integer getLowStockThreshold() {
         return lowStockThreshold;
@@ -84,5 +99,22 @@ public class ProductResponse {
 
     public void setLowStockThreshold(Integer lowStockThreshold) {
         this.lowStockThreshold = lowStockThreshold;
+=======
+    
+    public double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
+>>>>>>> Stashed changes
     }
 }

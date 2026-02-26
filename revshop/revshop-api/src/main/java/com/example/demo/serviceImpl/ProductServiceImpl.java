@@ -85,7 +85,12 @@ public class ProductServiceImpl implements ProductService {
                 product.getMrp(),
                 product.getQuantity(),
                 product.getImageUrl(),
+<<<<<<< Updated upstream
                 product.getLowStockThreshold()
+=======
+                product.getAverageRating(),
+                product.getReviewCount()
+>>>>>>> Stashed changes
         );
     }
 }

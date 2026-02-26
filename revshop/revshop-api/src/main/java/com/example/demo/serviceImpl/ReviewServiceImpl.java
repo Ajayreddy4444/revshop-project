@@ -1,12 +1,11 @@
 package com.example.demo.serviceImpl;
 
-import com.example.demo.entity.Product;
-import com.example.demo.entity.Review;
-import com.example.demo.entity.User;
-import com.example.demo.repository.ProductRepository;
-import com.example.demo.repository.ReviewRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.dto.*;
+
+import com.example.demo.entity.*;
+import com.example.demo.repository.*;
 import com.example.demo.service.ReviewService;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,13 +25,14 @@ public class ReviewServiceImpl implements ReviewService {
         this.userRepository = userRepository;
     }
 
+    // ✅ ADD REVIEW
     @Override
-    public Review addReview(Long productId, int rating, String comment, Long userId) {
+    public ReviewResponse addReview(Long productId, ReviewRequest request) {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (reviewRepository.findByUserAndProduct(user, product).isPresent()) {
@@ -42,25 +42,91 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = new Review();
         review.setProduct(product);
         review.setUser(user);
-        review.setRating(rating);
-        review.setComment(comment);
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
 
         reviewRepository.save(review);
 
         updateProductRating(product);
 
-        return review;
+        return mapToResponse(review);
     }
 
+    // ✅ GET REVIEWS (PAGINATION)
+//    @Override
+//    public Page<ReviewResponse> getReviewsByProduct(Long productId, Pageable pageable) {
+//
+//        Product product = productRepository.findById(productId)
+//                .orElseThrow(() -> new RuntimeException("Product not found"));
+//
+//        Page<Review> reviews = reviewRepository.findByProduct(product, pageable);
+//
+//        return reviews.map(this::mapToResponse);
+//    }
+    
     @Override
-    public List<Review> getReviewsByProduct(Long productId) {
+    public List<ReviewResponse> getReviewsByProduct(Long productId) {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        return reviewRepository.findByProduct(product);
+        List<Review> reviews = reviewRepository.findByProduct(product);
+
+        return reviews.stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
+    // ✅ UPDATE REVIEW
+    @Override
+    public ReviewResponse updateReview(Long reviewId, ReviewRequest request) {
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
+
+        reviewRepository.save(review);
+
+        updateProductRating(review.getProduct());
+
+        return mapToResponse(review);
+    }
+
+    // ✅ DELETE REVIEW
+    @Override
+    public void deleteReview(Long reviewId) {
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        Product product = review.getProduct();
+
+        reviewRepository.delete(review);
+
+        updateProductRating(product);
+    }
+
+    // ✅ REVIEW STATS
+    @Override
+    public ReviewStatsResponse getReviewStats(Long productId) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        long total = reviewRepository.countByProduct(product);
+
+        double avg = reviewRepository.findByProduct(product)
+                .stream()
+                .mapToInt(Review::getRating)
+                .average()
+                .orElse(0);
+
+        return new ReviewStatsResponse(productId, total, avg);
+    }
+
+    // 🔥 UPDATE PRODUCT RATING
     private void updateProductRating(Product product) {
 
         List<Review> reviews = reviewRepository.findByProduct(product);
@@ -74,5 +140,26 @@ public class ReviewServiceImpl implements ReviewService {
         product.setReviewCount(reviews.size());
 
         productRepository.save(product);
+    }
+
+    // 🔥 MAP ENTITY → DTO
+    private ReviewResponse mapToResponse(Review review) {
+
+        ReviewResponse response = new ReviewResponse();
+        response.setId(review.getId());
+        response.setUserId(review.getUser().getId());
+        response.setUserName(review.getUser().getName());
+        response.setRating(review.getRating());
+        response.setComment(review.getComment());
+        response.setCreatedAt(review.getCreatedAt());
+
+        return response;
+    }
+    
+    //existing review not allowed
+    @Override
+    public boolean hasUserReviewed(Long userId, Long productId) {
+        return reviewRepository
+                .existsByUser_IdAndProduct_Id(userId, productId);
     }
 }
