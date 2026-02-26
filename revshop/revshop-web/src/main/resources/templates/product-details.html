@@ -4,75 +4,75 @@
 
 <section class="container mt-4">
 
-    <div class="d-flex justify-content-end mb-3">
-        <a th:href="@{/cart}">
-            <button class="btn btn-dark">🛒 View Cart Items</button>
-        </a>
-    </div>
+<!-- SUCCESS MESSAGE -->
+<div id="successMsg"
+     th:if="${param.added}"
+     class="alert alert-success text-center">
+✔ Added to cart successfully
+</div>
 
-    <div class="row">
+<div class="d-flex justify-content-end mb-3">
+<a th:href="@{/cart}">
+<button class="btn btn-dark">🛒 View Cart Items</button>
+</a>
+</div>
 
-        <div class="col-md-6">
-            <img th:src="@{'/images/' + ${product.imageUrl}}"
-                 class="img-fluid rounded shadow-sm"
-                 style="max-height:350px;object-fit:contain;">
-        </div>
+<div class="row">
 
-        <div class="col-md-6">
+<div class="col-md-6">
+<img th:src="@{'/images/' + ${product.imageUrl}}"
+     class="img-fluid rounded shadow-sm"
+     style="max-height:350px;object-fit:contain;">
+</div>
 
-            <h2 th:text="${product.name}"></h2>
+<div class="col-md-6">
 
-            <p class="text-muted" th:text="${product.description}"></p>
+<h2 th:text="${product.name}"></h2>
 
-            <h4 class="text-success">
-                ₹ <span th:text="${product.price}"></span>
-            </h4>
+<p class="text-muted" th:text="${product.description}"></p>
 
-            <p th:if="${product.mrp != null}"
-               class="text-muted text-decoration-line-through">
-                ₹ <span th:text="${product.mrp}"></span>
-            </p>
+<h4 class="text-success">
+₹ <span th:text="${product.price}"></span>
+</h4>
 
-            <p>
-                <strong>Available Quantity:</strong>
-                <span th:text="${product.quantity}"></span>
-            </p>
-            
-               <!-- ===================== UPDATED: SHOW AVERAGE RATING ===================== -->
-            <div class="mt-3">
+<p th:if="${product.mrp != null}"
+   class="text-muted text-decoration-line-through">
+₹ <span th:text="${product.mrp}"></span>
+</p>
+
+<p>
+<strong>Available Quantity:</strong>
+<span th:text="${product.quantity}"></span>
+</p>
+
+<div class="mt-3">
                 <strong>Average Rating:</strong>
                 <span th:text="${product.averageRating}"></span> ⭐
                 (<span th:text="${product.reviewCount}"></span> Reviews)
-            </div>
-            <!-- ===============================================================
+</div>
 
-            <!-- ADD TO CART FORM -->
-            <form th:action="@{/cart/add}" method="post">
+<form th:action="@{/cart/add}" method="post">
 
-                <input type="hidden" name="productId"
-                       th:value="${product.id}">
-                <input type="hidden" name="quantity" value="1">
+<input type="hidden" name="productId"
+       th:value="${product.id}">
+<input type="hidden" name="quantity" value="1">
 
-                <button class="btn btn-success mt-3">
-                    Add To Cart
-                </button>
+<button class="btn btn-success mt-3">
+Add To Cart
+</button>
 
-            </form>
+</form>
+ 
+<a th:href="@{/products}"
+   class="btn btn-secondary mt-3 ms-2">
+Back to Products
+</a>
 
-            <a th:href="@{/products}"
-               class="btn btn-secondary mt-3 ms-2">
-                Back to Products
-            </a>
-
-        </div>
-    </div>
-    
-    <!-- ===================== REVIEW SECTION ===================== -->
 <div class="mt-5">
 
     <h3>Customer Reviews</h3>
     
-    <!-- ❌ CASE 2: Purchased But Already Reviewed -->
+    
 <div class="mt-4 alert alert-info"
      th:if="${hasPurchased and hasReviewed}">
     You have already submitted a review for this product.
@@ -101,15 +101,8 @@
         </small>
 
     </div>
-
 </div>
-<!-- =============================================================== -->
 
-
-
-<!-- ===================== ADD REVIEW FORM ===================== -->
-
-<!-- ✅ CASE 1: User Purchased AND Not Reviewed -->
 <div class="mt-5" th:if="${canReview}">
 
     <h4>Add Your Review</h4>
@@ -145,11 +138,6 @@
 
 </div>
 
-
-
-
-
-<!-- ❌ CASE 3: Not Purchased -->
 <div class="mt-4 text-muted"
      th:if="${!hasPurchased}">
     <small>
@@ -157,9 +145,18 @@
     </small>
 </div>
 
-<!-- =============================================================== -->
-    
+</div>
+</div>
+
+<script>
+// hide success msg after 3 sec
+const msg=document.getElementById("successMsg");
+if(msg){
+setTimeout(()=>{
+msg.style.display="none";
+},3000);
+}
+</script>
 
 </section>
-
 </html>
