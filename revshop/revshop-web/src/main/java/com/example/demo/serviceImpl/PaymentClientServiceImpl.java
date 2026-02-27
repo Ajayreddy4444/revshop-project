@@ -25,5 +25,14 @@ public class PaymentClientServiceImpl implements PaymentClientService {
         String url = baseUrl + "/payments/process";
 
         restTemplate.postForObject(url, request, Object.class);
+        
+    }
+    @Override
+    public void cancelOrder(Long orderId) {
+
+        String url = baseUrl + "/payments/cancel/" + orderId;
+
+        restTemplate.postForObject(url, null, String.class);
+
     }
 }

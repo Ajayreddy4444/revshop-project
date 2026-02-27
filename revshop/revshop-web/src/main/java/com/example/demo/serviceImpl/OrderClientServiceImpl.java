@@ -39,10 +39,11 @@ public class OrderClientServiceImpl implements OrderClientService {
             );
 
         } catch (RestClientException ex) {
-            ex.printStackTrace();
-            return null;
+            throw new RuntimeException("API call failed", ex);
         }
-    }
+            
+        }
+    
 
     // ================== GET ORDERS BY USER ==================
     @Override

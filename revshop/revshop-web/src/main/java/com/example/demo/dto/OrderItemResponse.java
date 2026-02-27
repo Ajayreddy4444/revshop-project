@@ -1,12 +1,16 @@
 package com.example.demo.dto;
 
 public class OrderItemResponse {
-    
+	
+	
+	private Long productId;
 	private String productName;
 	private Integer quantity;
 	private Double priceAtPurchase;
 	private Double subtotal;
+	private String imageUrl;
 	
+
 	public OrderItemResponse() {}
 
 	public String getProductName() {
@@ -40,5 +44,19 @@ public class OrderItemResponse {
 	public void setSubtotal(Double subtotal) {
 		this.subtotal = subtotal;
 	}
-	
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+	public Long getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Long productId) {
+		this.productId = productId;
+	}
+
 }

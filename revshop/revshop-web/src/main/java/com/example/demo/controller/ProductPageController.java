@@ -103,4 +103,5 @@ public class ProductPageController {
 
         return "redirect:/products/" + id;
     }
+   
 }
