@@ -1,29 +1,200 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('My Products', ~{::section})}">
+
 <section class="container mt-4">
-    <h2>My Products</h2>
-    <div class="row">
-        <div class="col-md-4 mb-4" th:each="product : ${products}">
-            <div class="card shadow-sm">
-                <img th:src="@{'/images/' + ${product.imageUrl}}"
+
+    <link rel="stylesheet" th:href="@{/css/seller-products.css}">
+
+    <a th:href="@{/}"
+       class="btn btn-outline-secondary">
+        ← Back to Home
+    </a>
+
+    <h2 class="mt-4 mb-4">📦 My Products</h2>
+
+    <div th:if="${successMessage}"
+         class="alert alert-success shadow-sm border-0 fade show"
+         id="successAlert">
+        <i class="bi bi-check-circle"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div th:if="${errorMessage}"
+         class="alert alert-danger shadow-sm border-0 fade show"
+         id="errorAlert">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <div th:if="${#lists.isEmpty(products)}"
+         class="alert alert-info text-center mt-4">
+
+        You haven't added any products yet.
+
+        <br><br>
+
+        <a th:href="@{/seller/products/new}"
+           class="btn btn-primary">
+            + Add Your First Product
+        </a>
+
+    </div>
+    <div th:if="${!#lists.isEmpty(products)}"
+         class="row g-4">
+        <div class="col-md-4 d-flex" th:each="product : ${products}">
+            <div class="card shadow-sm w-100 product-card"
+                 th:classappend="${product.lowStockThreshold != null and product.quantity <= product.lowStockThreshold}
+                     ? 'border-danger' : 'border-light'">
+
+                <img th:src="${product.imageUrl != null}
+                ? @{'/images/' + ${product.imageUrl}}
+                : @{'/images/no-image.jpg'}"
                      class="card-img-top"
-                     style="height: 200px; object-fit:cover;">
-                <div class="card-body">
-                    <h5 th:text="${product.name}"></h5>
-                    <p class="text-muted" th:text="${product.description}"></p>
-                    <p class="fw-bold text-success">
+                     style="height:220px; object-fit:cover;">
+
+                <div class="card-body d-flex flex-column">
+
+                    <h5 class="fw-semibold mb-1" th:text="${product.name}"></h5>
+
+                    <p class="text-muted small mb-2"
+                       th:text="${product.description}"></p>
+
+                    <div class="price mb-1">
                         ₹ <span th:text="${product.price}"></span>
-                    </p>
-                    <p>Stock: <span th:text="${product.quantity}"></span></p>
-                    <span class="badge bg-danger"
-                          th:if="${product.lowStockThreshold != null and product.quantity <= product.lowStockThreshold}">Low Stock</span>
+                    </div>
+
+                    <div class="mb-2">
+                        <span class="fw-semibold">Stock:</span>
+                        <span th:text="${product.quantity}"></span>
+
+                        <span class="badge bg-danger ms-2"
+                              th:if="${product.lowStockThreshold != null and product.quantity <= product.lowStockThreshold}">
+                            Low Stock
+                        </span>
+                    </div>
+
+
+                    <div class="mt-auto">
+
+                        <a th:href="@{'/seller/products/' + ${product.id}}"
+                           class="btn btn-sm btn-outline-secondary w-100 mb-3">
+                            View Details
+                        </a>
+
+                        <!-- EDIT + DELETE -->
+                        <div class="d-flex gap-2 mb-3">
+
+                            <a th:href="@{'/seller/products/edit/' + ${product.id}}"
+                               class="btn btn-sm btn-outline-primary w-100">
+                                Edit
+                            </a>
+
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger w-100"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    th:attr="data-id=${product.id},data-name=${product.name}">
+                                Delete
+                            </button>
+
+                        </div>
+                        <!-- STOCK UPDATE -->
+                        <form th:action="@{/seller/products/stock/{id}(id=${product.id})}"
+                              method="post"
+                              class="d-flex gap-2">
+
+                            <input type="number"
+                                   name="quantity"
+                                   class="form-control form-control-sm"
+                                   min="0"
+                                   placeholder="Stock"
+                                   required>
+
+                            <button class="btn btn-sm btn-warning">
+                                Update
+                            </button>
+                        </form>
+
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    Are you sure you want to delete
+                    <strong id="deleteProductName"></strong> ?
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <form id="deleteForm" method="post">
+                        <button type="submit" class="btn btn-danger">
+                            Yes, Delete
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // 🔹 Auto hide alerts
+            function hideAlert(id, delay) {
+                setTimeout(function () {
+                    let el = document.getElementById(id);
+                    if (el) {
+                        el.style.transition = "opacity 0.5s";
+                        el.style.opacity = "0";
+                        setTimeout(() => el.remove(), 500);
+                    }
+                }, delay);
+            }
+
+            hideAlert("successAlert", 2500);
+            hideAlert("errorAlert", 3500);
+
+            const deleteModal = document.getElementById('deleteModal');
+
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+
+                    const button = event.relatedTarget;
+
+                    const productId = button.getAttribute('data-id');
+                    const productName = button.getAttribute('data-name');
+
+                    document.getElementById('deleteProductName').textContent = productName;
+
+                    document.getElementById('deleteForm').action =
+                        '/seller/products/delete/' + productId;
+                });
+            }
+
+        });
+    </script>
 
 </section>
 </html>
