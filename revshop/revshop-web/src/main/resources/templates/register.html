@@ -2,32 +2,85 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Register', ~{::section})}">
 
-<section style="max-width:450px;margin:auto;text-align:center">
-    <h2>Create Account</h2>
+<section class="auth-wrapper">
 
-    <form method="post" th:action="@{/register}">
-        
-        <input name="name" placeholder="Full Name" required><br><br>
+    <div class="auth-card">
 
-        <input type="email" name="email" placeholder="Email" required><br><br>
+        <h2 class="mb-4 text-center">Create Account</h2>
 
-        <input name="phone" placeholder="Phone" required><br><br>
+        <form method="post" th:action="@{/register}">
 
-        <input type="password" name="password" placeholder="Password" required><br><br>
+            <div class="mb-3">
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       placeholder="Full Name"
+                       required>
+            </div>
 
-        <label><b>Register As</b></label><br><br>
+            <div class="mb-3">
+                <input type="email"
+                       name="email"
+                       class="form-control"
+                       placeholder="Email"
+                       required>
+            </div>
 
-        <input type="radio" name="role" value="buyer" required> Buyer
-        &nbsp;&nbsp;&nbsp;
-        <input type="radio" name="role" value="seller" required> Seller
-        <br><br>
+            <div class="mb-3">
+                <input type="text"
+                       name="phone"
+                       class="form-control"
+                       placeholder="Phone"
+                       required>
+            </div>
 
-        <button type="submit">Register</button>
+            <div class="mb-3">
+                <input type="password"
+                       name="password"
+                       class="form-control"
+                       placeholder="Password"
+                       required>
+            </div>
 
-    </form>
+            <div class="mb-3 text-center">
+                <label class="fw-semibold mb-2 d-block">Register As</label>
 
-    <p style="color:red" th:text="${error}"></p>
-    <p style="color:green" th:text="${success}"></p>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input"
+                           type="radio"
+                           name="role"
+                           value="BUYER"
+                           required>
+                    <label class="form-check-label">Buyer</label>
+                </div>
+
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input"
+                           type="radio"
+                           name="role"
+                           value="SELLER"
+                           required>
+                    <label class="form-check-label">Seller</label>
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-warning w-100 fw-semibold">
+                Register
+            </button>
+
+        </form>
+
+        <div class="mt-4 text-center">
+            <small>
+                Already have an account?
+                <a th:href="@{/login}" class="text-warning fw-semibold">
+                    Login
+                </a>
+            </small>
+        </div>
+
+    </div>
 
 </section>
 

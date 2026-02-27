@@ -1,5 +1,89 @@
 <div th:fragment="header">
-    <header>
-        <h2>RevShop</h2>
-    </header>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-black px-4 py-3">
+
+    <!-- Brand -->
+    <a class="navbar-brand fw-bold fs-4 text-warning" th:href="@{/}">
+        Rev<span class="text-white">Shop</span>
+    </a>
+
+    <button class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+
+        <!-- LEFT SIDE -->
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+                <a class="nav-link text-white"
+                   th:href="@{/products}">
+                    Products
+                </a>
+            </li>
+        </ul>
+
+        <!-- RIGHT SIDE -->
+        <ul class="navbar-nav align-items-center">
+
+            <!-- IF NOT LOGGED IN -->
+            <li class="nav-item" th:if="${session.user == null}">
+                <a class="nav-link text-white"
+                   th:href="@{/login}">
+                    Login
+                </a>
+            </li>
+
+            <li class="nav-item" th:if="${session.user == null}">
+                <a class="btn btn-warning ms-2"
+                   th:href="@{/register}">
+                    Register
+                </a>
+            </li>
+
+            <!-- IF LOGGED IN -->
+            <li class="nav-item dropdown"
+                th:if="${session.user != null}">
+
+                <a class="nav-link dropdown-toggle text-white"
+                   href="#"
+                   role="button"
+                   data-bs-toggle="dropdown">
+
+                    <span th:text="${session.user.name}"></span>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+
+                    <li>
+                        <a class="dropdown-item"
+                           th:href="@{/home}">
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item text-danger"
+                           th:href="@{/logout}">
+                            Logout
+                        </a>
+                    </li>
+
+                </ul>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+</nav>
+
 </div>
