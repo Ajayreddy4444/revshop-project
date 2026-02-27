@@ -2,19 +2,32 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Home', ~{::section})}">
 
-<section style="text-align:center;margin-top:50px">
-    <h1>Welcome to RevShop</h1>
-    <p>Your one stop marketplace for Buyers & Sellers</p>
+<section class="hero-section">
 
-    <div style="margin-top:30px">
-        <a th:href="@{/login}">
-            <button style="padding:10px 20px;margin-right:20px">Login</button>
-        </a>
+    <div class="hero-content text-center text-white">
 
-        <a th:href="@{/register}">
-            <button style="padding:10px 20px">Register</button>
-        </a>
+        <h1 class="display-3 fw-bold">
+            Welcome to <span style="color:#f4c430;">RevShop</span>
+        </h1>
+
+        <p class="lead mt-3">
+            Buy. Sell. Discover. Your trusted marketplace platform.
+        </p>
+
+        <div class="mt-4">
+            <a th:href="@{/login}"
+               class="btn btn-light btn-lg me-3 px-4">
+                Login
+            </a>
+
+            <a th:href="@{/register}"
+               class="btn btn-warning btn-lg px-4">
+                Get Started
+            </a>
+        </div>
+
     </div>
+
 </section>
 
 </html>
