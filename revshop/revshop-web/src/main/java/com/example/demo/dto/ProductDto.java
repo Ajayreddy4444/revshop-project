@@ -11,6 +11,8 @@ public class ProductDto {
     private Integer lowStockThreshold;
     private String imageUrl;
     private Long categoryId;
+    private double averageRating;
+    private int reviewCount;
 
     public ProductDto() {
     }
@@ -87,5 +89,21 @@ public class ProductDto {
         this.imageUrl = imageUrl;
     }
 
+    
+    public double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
+    }
 
 }

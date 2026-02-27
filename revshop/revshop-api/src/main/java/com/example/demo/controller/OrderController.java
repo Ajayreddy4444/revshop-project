@@ -19,7 +19,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    // 🔥 Place Order
+
     @PostMapping("/place")
     public ResponseEntity<OrderResponseDTO> placeOrder(
             @RequestBody PlaceOrderRequestDTO request) {
@@ -28,7 +28,7 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    // 🔥 Get Order By ID
+
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponseDTO> getOrderById(
             @PathVariable Long orderId) {
@@ -37,7 +37,7 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    // 🔥 Get Orders By User
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<OrderResponseDTO>> getOrdersByUser(
             @PathVariable Long userId) {
@@ -46,5 +46,21 @@ public class OrderController {
                 orderService.getOrderByUser(userId);
 
         return ResponseEntity.ok(response);
+    }
+
+    // =========================================================
+    // ✅ UPDATED: Check If User Purchased Specific Product
+    // Used by review module in revshop-web
+    // Endpoint: /api/orders/has-purchased/{userId}/{productId}
+    // =========================================================
+    @GetMapping("/has-purchased/{userId}/{productId}")
+    public ResponseEntity<Boolean> hasUserPurchased(
+            @PathVariable Long userId,
+            @PathVariable Long productId) {
+
+        boolean result =
+                orderService.hasUserPurchasedProduct(userId, productId);
+
+        return ResponseEntity.ok(result);
     }
 }
