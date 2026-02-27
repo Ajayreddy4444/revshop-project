@@ -23,4 +23,5 @@ public class SellerProductController {
     public List<ProductResponse> getSellerProducts(@PathVariable Long sellerId) {
         return productService.getProductsBySeller(sellerId);
     }
+    
 }
