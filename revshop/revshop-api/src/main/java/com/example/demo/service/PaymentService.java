@@ -8,4 +8,5 @@ public interface PaymentService {
     Payment processPayment(Long orderId,
                            Double amount,
                            PaymentMethod method);
+    void cancelOrder(Long orderId);
 }

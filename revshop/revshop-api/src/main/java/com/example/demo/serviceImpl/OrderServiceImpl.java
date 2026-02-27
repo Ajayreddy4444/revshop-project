@@ -22,7 +22,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final AddressRepository addressRepository;
     private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
 
     public OrderServiceImpl(UserRepository userRepository,
@@ -35,7 +34,6 @@ public class OrderServiceImpl implements OrderService {
         this.orderRepository = orderRepository;
         this.addressRepository = addressRepository;
         this.cartRepository = cartRepository;
-        this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
     }
 
@@ -88,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
             double subtotal = product.getPrice() * requestedQty;
 
             // 🔥 Reduce Product Stock
-            product.setQuantity(availableStock - requestedQty);
+            //product.setQuantity(availableStock - requestedQty);
             // No need to call save() — JPA auto flushes inside @Transactional
 
             // 🔥 Create Order Item
@@ -108,9 +106,9 @@ public class OrderServiceImpl implements OrderService {
 
         // 6️⃣ Save Order (Cascade should save OrderItems)
         Order savedOrder = orderRepository.save(order);
-
-        // 7️⃣ Clear Cart
-        cartItemRepository.deleteAll(cartItems);
+//
+//        // 7️⃣ Clear Cart
+//        cartItemRepository.deleteAll(cartItems);
 
         return convertToDTO(savedOrder);
     }
@@ -164,6 +162,7 @@ public class OrderServiceImpl implements OrderService {
             for (OrderItem item : order.getItems()) {
 
                 OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
+                itemDTO.setProductId(item.getProduct().getId()); // ✅ CORRECT
                 itemDTO.setProductName(item.getProduct().getName());
                 itemDTO.setQuantity(item.getQuantity());
                 itemDTO.setPriceAtPurchase(item.getPriceAtPurchase());

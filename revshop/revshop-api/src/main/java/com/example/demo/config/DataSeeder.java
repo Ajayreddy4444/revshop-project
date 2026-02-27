@@ -58,6 +58,8 @@ public class DataSeeder {
                     javaBook.setCategory(books);
                     javaBook.setCreatedAt(LocalDateTime.now());
 
+                    
+                   
                     productRepository.save(phone);
                     productRepository.save(javaBook);
                 }

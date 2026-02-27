@@ -1,22 +1,33 @@
 
 	package com.example.demo.controller;
 
-	import org.springframework.web.bind.annotation.*;
+	import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.dto.PaymentRequestDTO;
+import com.example.demo.entity.OrderStatus;
 import com.example.demo.entity.Payment;
-	import com.example.demo.service.PaymentService;
+import com.example.demo.service.OrderService;
+import com.example.demo.service.PaymentService;
 
 	@RestController
 	@RequestMapping("/api/payments")
 	public class PaymentController {
 
 	    private final PaymentService paymentService;
-
-	    public PaymentController(PaymentService paymentService) {
-	        this.paymentService = paymentService;
+	     private final OrderService orderService;
+	    public PaymentController(PaymentService paymentService,
+	    		OrderService orderService) {
+	        this.paymentService = paymentService;   
+	        this.orderService = orderService;
 	    }
+	    @PostMapping("/cancel/{orderId}")
+	    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
 
+	        paymentService.cancelOrder(orderId);   // 👈 Same service method
+
+	        return ResponseEntity.ok("Order cancelled successfully");
+	    }
 	    
 	
 	@PostMapping("/process")
