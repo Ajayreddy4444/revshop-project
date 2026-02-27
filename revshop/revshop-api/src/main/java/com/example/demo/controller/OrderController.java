@@ -19,7 +19,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    // 🔥 Place Order
+
     @PostMapping("/place")
     public ResponseEntity<OrderResponseDTO> placeOrder(
             @RequestBody PlaceOrderRequestDTO request) {
@@ -28,7 +28,7 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    // 🔥 Get Order By ID
+
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponseDTO> getOrderById(
             @PathVariable Long orderId) {
@@ -37,7 +37,7 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    // 🔥 Get Orders By User
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<OrderResponseDTO>> getOrdersByUser(
             @PathVariable Long userId) {

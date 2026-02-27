@@ -3,12 +3,14 @@ package com.example.demo.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.demo.entity.OrderStatus;
+
 public class OrderResponseDTO {
 
     private Long orderId;
     private LocalDateTime orderDate;
     private Double totalAmount;
-    private String status;
+    private OrderStatus status;
     private List<OrderItemResponseDTO> items;
 
     public OrderResponseDTO() {}
@@ -37,12 +39,12 @@ public class OrderResponseDTO {
         this.totalAmount = totalAmount;
     }
 
-    public String getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setStatus(OrderStatus orderStatus) {
+        this.status = orderStatus;
     }
 
     public List<OrderItemResponseDTO> getItems() {

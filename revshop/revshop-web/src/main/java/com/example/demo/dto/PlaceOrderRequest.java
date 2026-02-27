@@ -4,7 +4,7 @@ public class PlaceOrderRequest {
 
     private Long userId;
     private String paymentMethod;
-    private String address;
+    private Long addressId;
 
     public PlaceOrderRequest() {}
 
@@ -24,11 +24,11 @@ public class PlaceOrderRequest {
         this.paymentMethod = paymentMethod;
     }
 
-    public String getAddress() {
-        return address;
+    public Long getAddressId() {
+        return addressId;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddressId(Long addressId) {
+        this.addressId = addressId;
     }
 }
