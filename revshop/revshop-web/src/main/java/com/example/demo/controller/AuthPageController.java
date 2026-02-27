@@ -22,12 +22,14 @@ public AuthPageController(AuthClientService authClientService) {
 }
 
 @GetMapping("/login")
-public String loginPage() {
+public String login(Model model) {
+    model.addAttribute("activePage", "login");
     return "login";
 }
 
 @GetMapping("/register")
-public String registerPage() {
+public String register(Model model) {
+    model.addAttribute("activePage", "register");
     return "register";
 }
 

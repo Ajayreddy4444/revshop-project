@@ -6,10 +6,10 @@ public class ProductRequest {
     private Double price;
     private Double mrp;
     private Integer quantity;
-    private Double discountPercent;
     private Integer lowStockThreshold;
     private String imageUrl;
     private Long categoryId;
+    private Double discountPercent;
 
     public String getName() {
         return name;

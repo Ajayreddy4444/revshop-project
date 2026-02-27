@@ -11,6 +11,10 @@ import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -29,15 +33,28 @@ public class ProductPageController {
         this.orderClientService = orderClientService;
     }
 
-    // ================== PRODUCT LIST ==================
     @GetMapping
-    public String productList(HttpSession session, Model model) {
+    public String productList(HttpSession session,
+                              @RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) Long categoryId,
+                              @RequestParam(required = false) Double minPrice,
+                              @RequestParam(required = false) Double maxPrice,
+                              Model model) {
 
         if (session.getAttribute("user") == null)
             return "redirect:/login";
 
-        model.addAttribute("products",
-                productClientService.getAllProducts());
+        var products = productClientService.searchProducts(
+                keyword, categoryId, minPrice, maxPrice
+        );
+
+        model.addAttribute("products", products);
+        model.addAttribute("categories", productClientService.getAllCategories());
+
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
 
         return "products";
     }

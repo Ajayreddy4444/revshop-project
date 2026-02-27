@@ -2,6 +2,7 @@ package com.example.demo.serviceImpl;
 
 import com.example.demo.dto.Category;
 import com.example.demo.dto.ProductDto;
+import com.example.demo.dto.ProductRequest;
 import com.example.demo.service.ProductClientService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -45,7 +46,7 @@ public class ProductClientServiceImpl implements ProductClientService {
     }
 
     @Override
-    public void createProduct(ProductDto product, Long sellerId) {
+    public void createProduct(ProductRequest product, Long sellerId) {
         restTemplate.postForEntity(
                 baseUrl + "/products?sellerId=" + sellerId,
                 product,
@@ -89,5 +90,43 @@ public class ProductClientServiceImpl implements ProductClientService {
         } catch (HttpClientErrorException ex) {
             throw new RuntimeException(ex.getResponseBodyAsString());
         }
+    }
+
+    @Override
+    public void updateProduct(Long id, ProductRequest product) {
+        restTemplate.put(baseUrl + "/products/" + id, product);
+    }
+
+    @Override
+    public void updateStock(Long id, Integer quantity) {
+
+        restTemplate.patchForObject(
+                baseUrl + "/products/" + id + "/stock?quantity=" + quantity,
+                null,
+                Void.class
+        );
+    }
+
+    @Override
+    public void deleteProduct(Long id) {
+        restTemplate.delete(baseUrl + "/products/" + id);
+    }
+
+    @Override
+    public List<ProductDto> searchProducts(String keyword,
+                                           Long categoryId,
+                                           Double minPrice,
+                                           Double maxPrice) {
+
+        String url = baseUrl + "/products/search?"
+                + "keyword=" + (keyword != null ? keyword : "")
+                + "&categoryId=" + (categoryId != null ? categoryId : "")
+                + "&minPrice=" + (minPrice != null ? minPrice : "")
+                + "&maxPrice=" + (maxPrice != null ? maxPrice : "");
+
+        ResponseEntity<ProductDto[]> response =
+                restTemplate.getForEntity(url, ProductDto[].class);
+
+        return Arrays.asList(response.getBody());
     }
 }
