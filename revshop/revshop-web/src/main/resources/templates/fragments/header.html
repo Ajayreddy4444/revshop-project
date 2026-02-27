@@ -5,7 +5,7 @@
 
         <!-- Bell Icon -->
         <div style="position:relative; cursor:pointer;"
-             onclick="handleBellClick()">
+             onclick="window.location.href='/notifications'">
 
             <i class="fa fa-bell" style="font-size:22px;"></i>
 
@@ -25,7 +25,6 @@
 
     </header>
 
-    <!-- 🔥 AUTO LOAD NOTIFICATION COUNT -->
     <script th:inline="javascript">
 
         const headerUserId = /*[[${session.userId}]]*/ null;
@@ -54,34 +53,6 @@
                     }
                 })
                 .catch(() => {});
-        }
-
-        // 🔔 PROFESSIONAL BELL CLICK HANDLER
-        function handleBellClick() {
-
-            if (!headerUserId) {
-                window.location.href = "/notifications";
-                return;
-            }
-
-            // Mark all as seen
-            fetch(`http://localhost:8080/api/notifications/markAllSeen/${headerUserId}`, {
-                method: "PUT"
-            })
-            .then(() => {
-
-                // Immediately hide badge
-                const badge = document.getElementById("notificationCount");
-                if (badge) {
-                    badge.style.display = "none";
-                }
-
-                // Redirect to notifications page
-                window.location.href = "/notifications";
-            })
-            .catch(() => {
-                window.location.href = "/notifications";
-            });
         }
 
         window.addEventListener("load", loadHeaderNotificationCount);

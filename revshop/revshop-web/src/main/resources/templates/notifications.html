@@ -4,14 +4,12 @@
 
 <section>
 
-    <h2>Notifications</h2>
+    <h2 style="margin-bottom:20px;">Notifications</h2>
 
     <div id="notificationContainer"></div>
 
-    <!-- Enable Thymeleaf inline JavaScript -->
     <script th:inline="javascript">
 
-        // Get logged-in userId from session
         const userId = /*[[${session.userId}]]*/ null;
 
         function loadNotifications() {
@@ -19,7 +17,6 @@
             const container = document.getElementById("notificationContainer");
             container.innerHTML = "";
 
-            // If user not logged in
             if (!userId) {
                 container.innerHTML = "<p>Please login to view notifications.</p>";
                 return;
@@ -29,7 +26,6 @@
                 .then(res => res.json())
                 .then(data => {
 
-                    // If no notifications found
                     if (!data || data.length === 0) {
                         container.innerHTML = "<p>No notifications available.</p>";
                         updateBadge(0);
@@ -41,26 +37,33 @@
                     data.forEach(n => {
 
                         const card = document.createElement("div");
-                        card.style.border = "1px solid #ddd";
                         card.style.padding = "15px";
-                        card.style.marginBottom = "12px";
-                        card.style.borderRadius = "12px";
+                        card.style.marginBottom = "10px";
+                        card.style.borderRadius = "8px";
                         card.style.cursor = "pointer";
+                        card.style.border = "1px solid #e0e0e0";
 
+                        // 🔥 Unseen notification style (Ecommerce look)
                         if (!n.seen) {
-                            card.style.backgroundColor = "#e8f1ff";
+                            card.style.backgroundColor = "#f3f3f3";  // soft grey
                             unreadCount++;
+                        } else {
+                            card.style.backgroundColor = "#ffffff";
                         }
 
                         card.innerHTML = `
-                            <div>
-                                <strong>${n.title ?? ''}</strong>
-                                <p>${n.message ?? ''}</p>
-                                <small>${n.createdAt ?? ''}</small>
+                            <div style="${!n.seen ? 'font-weight:600;' : ''}">
+                                ${n.title ?? ''}
                             </div>
+                            <div style="margin-top:5px; ${!n.seen ? 'font-weight:600;' : ''}">
+                                ${n.message ?? ''}
+                            </div>
+                            <small style="color:gray;">
+                                ${n.createdAt ?? ''}
+                            </small>
                         `;
 
-                        // Mark as seen when clicked
+                        // Mark only THIS notification as seen when clicked
                         card.onclick = function () {
                             fetch(`http://localhost:8080/api/notifications/seen/${n.id}`, {
                                 method: "PUT"
@@ -90,7 +93,6 @@
             }
         }
 
-        // Safe event listener (no conflicts with header)
         window.addEventListener("load", loadNotifications);
 
     </script>
