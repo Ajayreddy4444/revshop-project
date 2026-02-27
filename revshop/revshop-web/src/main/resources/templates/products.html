@@ -99,6 +99,27 @@
                     <div class="fw-bold text-success fs-5 mb-2">
                         ₹ <span th:text="${product.price}"></span>
                     </div>
+                    <div class="mb-2">
+
+                        <!-- IN STOCK -->
+                        <span class="badge bg-success"
+                              th:if="${product.quantity > product.lowStockThreshold}">
+                                 In Stock
+                        </span>
+
+                        <!-- LOW STOCK -->
+                        <span class="badge bg-warning text-dark"
+                              th:if="${product.quantity > 0 and product.quantity <= product.lowStockThreshold}">
+                                   Only <span th:text="${product.quantity}"></span> left
+                        </span>
+
+                        <!-- OUT OF STOCK -->
+                        <span class="badge bg-danger"
+                              th:if="${product.quantity == 0}">
+                                   Out of Stock
+                        </span>
+
+                    </div>
                     <div class="mt-auto">
 
                         <div class="d-flex gap-2">
@@ -114,8 +135,10 @@
                                 <input type="hidden" name="quantity" value="1">
 
                                 <button type="submit"
-                                        class="btn btn-success btn-sm w-100">
-                                    Add To Cart
+                                        class="btn btn-success btn-sm w-100"
+                                        th:disabled="${product.quantity == 0}">
+                                    <span th:if="${product.quantity > 0}">Add To Cart</span>
+                                    <span th:if="${product.quantity == 0}">Out of Stock</span>
                                 </button>
 
                                 <div class="text-success small mt-1 d-none"

@@ -90,13 +90,13 @@
                                 Edit
                             </a>
 
-                            <form th:action="@{'/seller/products/delete/' + ${product.id}}"
-                                  method="post" class="w-100">
-                                <button class="btn btn-sm btn-outline-danger w-100"
-                                        onclick="return confirm('Delete this product?')">
-                                    Delete
-                                </button>
-                            </form>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger w-100"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    th:attr="data-id=${product.id},data-name=${product.name}">
+                                Delete
+                            </button>
 
                         </div>
                         <!-- STOCK UPDATE -->
@@ -121,20 +121,79 @@
             </div>
         </div>
     </div>
-    <script>
-        function hideAlert(id, delay) {
-            setTimeout(function () {
-                let el = document.getElementById(id);
-                if (el) {
-                    el.style.transition = "opacity 0.5s";
-                    el.style.opacity = "0";
-                    setTimeout(() => el.remove(), 500);
-                }
-            }, delay);
-        }
 
-        hideAlert("successAlert", 2500);
-        hideAlert("errorAlert", 3500);
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    Are you sure you want to delete
+                    <strong id="deleteProductName"></strong> ?
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <form id="deleteForm" method="post">
+                        <button type="submit" class="btn btn-danger">
+                            Yes, Delete
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // 🔹 Auto hide alerts
+            function hideAlert(id, delay) {
+                setTimeout(function () {
+                    let el = document.getElementById(id);
+                    if (el) {
+                        el.style.transition = "opacity 0.5s";
+                        el.style.opacity = "0";
+                        setTimeout(() => el.remove(), 500);
+                    }
+                }, delay);
+            }
+
+            hideAlert("successAlert", 2500);
+            hideAlert("errorAlert", 3500);
+
+            const deleteModal = document.getElementById('deleteModal');
+
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+
+                    const button = event.relatedTarget;
+
+                    const productId = button.getAttribute('data-id');
+                    const productName = button.getAttribute('data-name');
+
+                    document.getElementById('deleteProductName').textContent = productName;
+
+                    document.getElementById('deleteForm').action =
+                        '/seller/products/delete/' + productId;
+                });
+            }
+
+        });
     </script>
 
 </section>
