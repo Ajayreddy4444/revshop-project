@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Products', ~{::section})}">
 
-<section class="container mt-4">
+<section class="container mt-3 mb-4 ">
 
 
     <div id="successMsg"
@@ -11,65 +11,78 @@
         ✔ Added to cart successfully
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <a th:href="@{/}"
-           class="btn btn-outline-secondary">
-            ← Back to Home
-        </a>
-
-        <h2 class="mt-4 mb-4">📦Available Products</h2>
-
-        <a th:href="@{/cart}">
-            <button class="btn btn-dark">🛒 View Cart Items</button>
-        </a>
+    <div class="mb-3 text-center">
+        <h2 class="fw-bold">
+            <i class="bi bi-shop me-2 text-warning"></i>
+            Shop Now
+        </h2>
     </div>
 
-    <form method="get" th:action="@{/products}" class="row g-2 mb-4">
+    <form method="get"
+          th:action="@{/products}"
+          class="d-flex align-items-center justify-content-between mb-4">
 
-        <div class="col-md-3">
-            <input type="text" name="keyword"
-                   th:value="${keyword}"
-                   class="form-control"
-                   placeholder="Search product...">
-        </div>
+        <!-- LEFT SIDE -->
+        <select name="categoryId"
+                class="form-select form-select-sm"
+                style="width:180px;">
+            <option value="">All Categories</option>
+            <option th:each="c : ${categories}"
+                    th:value="${c.id}"
+                    th:text="${c.name}"
+                    th:selected="${c.id == categoryId}">
+            </option>
+        </select>
 
-        <div class="col-md-3">
-            <select name="categoryId" class="form-select">
-                <option value="">All Categories</option>
-                <option th:each="c : ${categories}"
-                        th:value="${c.id}"
-                        th:text="${c.name}"
-                        th:selected="${c.id == categoryId}">
-                </option>
-            </select>
-        </div>
+        <!-- RIGHT SIDE -->
+        <div class="d-flex align-items-center gap-2">
 
-        <div class="col-md-2">
-            <input type="number" name="minPrice"
+            <input type="number"
+                   name="minPrice"
                    th:value="${minPrice}"
-                   class="form-control"
-                   placeholder="Min Price">
-        </div>
+                   class="form-control form-control-sm"
+                   placeholder="Min"
+                   style="width:110px;">
 
-        <div class="col-md-2">
-            <input type="number" name="maxPrice"
+            <input type="number"
+                   name="maxPrice"
                    th:value="${maxPrice}"
-                   class="form-control"
-                   placeholder="Max Price">
-        </div>
+                   class="form-control form-control-sm"
+                   placeholder="Max"
+                   style="width:110px;">
 
-        <div class="col-md-2 d-flex gap-2">
-            <button class="btn btn-primary w-100">Search</button>
+            <button class="btn btn-warning btn-sm">
+                <i class="bi bi-search"></i>
+            </button>
 
-            <a th:href="@{/products}" class="btn btn-outline-secondary w-100">
-                Reset
+            <a th:href="@{/products}"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-clockwise"></i>
             </a>
+
         </div>
 
     </form>
 
-    <div class="row">
-        <div class="col-md-4 mb-4 d-flex" th:each="product: ${products}">
+    <!-- NO PRODUCTS -->
+    <div th:if="${#lists.isEmpty(products)}"
+         class="text-center py-5">
+
+        <i class="bi bi-box-seam text-warning"
+           style="font-size: 48px;"></i>
+
+        <h4 class="mt-3 fw-bold">
+            No products available
+        </h4>
+
+        <p class="text-muted">
+            Please check back later.
+        </p>
+
+    </div>
+
+    <div class="row" th:if="${!#lists.isEmpty(products)}">
+        <div class="col-lg-4 col-md-6 col-sm-6 mb-4 d-flex" th:each="product: ${products}">
             <div class="card product-card shadow-sm w-100 h-100 border-0">
 
                 <div class="product-image-wrapper">
@@ -125,7 +138,7 @@
                         <div class="d-flex gap-2">
 
                             <a th:href="@{'/products/' + ${product.id}}"
-                               class="btn btn-outline-primary btn-sm w-50">
+                               class="btn btn-outline-secondary btn-sm w-50">
                                 View Details
                             </a>
 
@@ -135,7 +148,7 @@
                                 <input type="hidden" name="quantity" value="1">
 
                                 <button type="submit"
-                                        class="btn btn-success btn-sm w-100"
+                                        class="btn btn-warning btn-sm w-100"
                                         th:disabled="${product.quantity == 0}">
                                     <span th:if="${product.quantity > 0}">Add To Cart</span>
                                     <span th:if="${product.quantity == 0}">Out of Stock</span>
@@ -184,54 +197,51 @@
 
     </script>
 
+    <style>
+        body {
+        background-color: #f7f5f2;
+       }
+        .product-card {
+    height: 340px;             /* reduced height */
+    border-radius: 14px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;          /* makes image flush */
+}
+
+.product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+.product-image-wrapper {
+    width: 100%;
+    height: 180px;             /* fixed */
+    overflow: hidden;
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 36px;
+}
+
+.card-body {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+}
+    </style>
+
 </section>
-
-<style>
-
-    .row > div {
-        display: flex;
-    }
-
-    .product-card {
-       display: flex;
-       flex-direction: column;
-        border-radius: 14px;
-        transition: all 0.2s ease;
-        height: 100%;
-    }
-
-    .product-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    }
-
-    .product-image-wrapper {
-        width: 100%;
-        height: 220px;
-        overflow: hidden;
-        background: #f6f7f8;
-    }
-
-    .product-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-
-    .product-desc {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        min-height: 42px;
-    }
-
-    .card-body {
-        display: flex;
-        flex-direction: column;
-    }
-</style>
 
 </html>
