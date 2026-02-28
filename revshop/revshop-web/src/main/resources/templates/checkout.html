@@ -103,6 +103,10 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+		.fade-out {
+		    opacity: 0;
+		    transition: opacity 0.5s ease;
+		}
     </style>
 
     <!-- 🔥 Animated Cancel Message -->
@@ -168,6 +172,33 @@
                 <form th:action="@{/orders/place}" method="post">
 
                     <input type="hidden" name="userId" th:value="${userId}" />
+					
+					<div th:if="${#lists.isEmpty(addresses)}">
+
+					    <!-- If no address exists -->
+					    <span data-bs-toggle="tooltip"
+					          title="Please add an address first">
+
+					        <button type="button"
+					                class="place-order-btn mt-3"
+					                disabled
+					                style="pointer-events: none;">
+					            Place Order
+					        </button>
+
+					    </span>
+
+					</div>
+
+					<div th:if="${!#lists.isEmpty(addresses)}">
+
+					    <!-- If address exists -->
+					    <button type="submit"
+					            class="place-order-btn mt-3">
+					        Place Order
+					    </button>
+
+					</div>
 
                     <div th:each="addr : ${addresses}" class="address-card">
 
@@ -244,9 +275,7 @@
 
                     <input type="hidden" name="userId" th:value="${userId}" />
 
-                    <button type="submit" class="place-order-btn mt-3">
-                        Place Order
-                    </button>
+
                 </form>
 
             </div>
@@ -259,14 +288,19 @@
 
 <!-- 🔥 Auto Disappear Script -->
 <script>
-    setTimeout(function() {
-        const alertBox = document.getElementById("cancelAlert");
-        if (alertBox) {
-            alertBox.style.transition = "opacity 0.5s ease";
-            alertBox.style.opacity = "0";
-            setTimeout(() => alertBox.remove(), 500);
-        }
-    }, 5000);
+document.addEventListener("DOMContentLoaded", function () {
+    const alertBox = document.getElementById("cancelAlert");
+
+    if (alertBox) {
+        setTimeout(function () {
+            alertBox.classList.add("fade-out");
+
+            setTimeout(function () {
+                alertBox.remove();
+            }, 500); // wait for fade animation
+        }, 5000); // stay visible for 5 seconds
+    }
+});
 </script>
 
 </html>
