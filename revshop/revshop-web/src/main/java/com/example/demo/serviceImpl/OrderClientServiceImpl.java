@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.example.demo.dto.OrderResponse;
 import com.example.demo.dto.PlaceOrderRequest;
+import com.example.demo.dto.SellerOrderResponse;
 import com.example.demo.service.OrderClientService;
 
 @Service
@@ -83,5 +84,15 @@ public class OrderClientServiceImpl implements OrderClientService {
             ex.printStackTrace();
             return false;
         }
+    }
+    @Override
+    public List <SellerOrderResponse> getSellerOrders(Long sellerId) {
+
+        String url = "http://localhost:8080/orders/seller/" + sellerId;
+
+        SellerOrderResponse[] response =
+                restTemplate.getForObject(url, SellerOrderResponse[].class);
+
+        return Arrays.asList(response);
     }
 }
