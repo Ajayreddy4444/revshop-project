@@ -9,7 +9,16 @@ public class OrderResponse {
     private LocalDateTime orderDate;
     private Double totalAmount;
     private String status;
-    private List<OrderItemResponse> items;
+    private String imageUrl;
+    public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	private List<OrderItemResponse> items;
 
     public OrderResponse() {}
 
