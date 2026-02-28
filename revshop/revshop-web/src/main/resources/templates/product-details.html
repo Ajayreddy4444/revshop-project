@@ -118,11 +118,8 @@
 
                         <button class="btn btn-success w-100 py-2"
                                 th:disabled="${product.quantity == 0}">
-
-                            <span th:if="${product.quantity > 0}">🛒 Add To Cart</span>
-
-                            <span th:if="${product.quantity == 0}">Out of Stock</span>
-
+                            <i class="bi bi-bag-fill me-2"></i>
+                            Add To Cart
                         </button>
                     </form>
 
