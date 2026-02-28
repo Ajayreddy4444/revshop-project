@@ -15,6 +15,13 @@
         ✔ Added to cart successfully
     </div>
 
+    <!-- ⭐ FAVOURITES FEATURE START -->
+    <div th:if="${param.favAdded}"
+         class="alert alert-danger text-center shadow-sm">
+        ❤️ Added to favourites successfully
+    </div>
+    <!-- ⭐ FAVOURITES FEATURE END -->
+
     <div class="d-flex justify-content-between mb-3">
 
         <a th:href="@{/products}" class="btn btn-outline-secondary btn-sm">
@@ -69,19 +76,16 @@
                 <!-- STOCK STATUS -->
                 <div class="mb-3">
 
-                    <!-- IN STOCK -->
                     <span class="badge bg-success fs-6"
                           th:if="${product.quantity > product.lowStockThreshold}">
                            In Stock
                     </span>
 
-                    <!-- LOW STOCK -->
                     <span class="badge bg-warning text-dark fs-6"
                           th:if="${product.quantity > 0 and product.quantity <= product.lowStockThreshold}">
                               Only <span th:text="${product.quantity}"></span> left!
                     </span>
 
-                    <!-- OUT OF STOCK -->
                     <span class="badge bg-danger fs-6"
                           th:if="${product.quantity == 0 and product.quantity < product.lowStockThreshold}">
                            Out of Stock
@@ -123,6 +127,17 @@
                         </button>
                     </form>
 
+                    <!-- ⭐ FAVOURITES FEATURE START -->
+                    <form th:action="@{/favourite/add}" method="post" class="mt-3">
+                        <input type="hidden" name="productId"
+                               th:value="${product.id}">
+                        <button type="submit"
+                                class="btn btn-outline-danger w-100 py-2">
+                            ❤️ Add to Favourites
+                        </button>
+                    </form>
+                    <!-- ⭐ FAVOURITES FEATURE END -->
+
                 </div>
 
             </div>
@@ -135,33 +150,26 @@
 
         <h3 class="fw-bold">Customer Reviews</h3>
 
-        <!-- Already reviewed -->
         <div class="alert alert-info mt-3"
              th:if="${hasPurchased and hasReviewed}">
             You have already submitted a review for this product.
         </div>
 
-        <!-- No reviews -->
         <div th:if="${#lists.isEmpty(reviews)}">
             <p class="text-muted">No reviews yet.</p>
         </div>
 
-        <!-- Review Cards -->
         <div th:each="review : ${reviews}"
              class="card mt-3 border-0 shadow-sm review-card">
 
             <div class="card-body">
 
                 <div class="d-flex justify-content-between">
-
                     <strong th:text="${review.userName}"></strong>
-
                     <small class="text-muted"
                            th:text="${review.createdAt}"></small>
-
                 </div>
 
-                <!-- Stars -->
                 <div class="text-warning mb-1">
                     <span th:each="i : ${#numbers.sequence(1,5)}">
                         <i class="bi"
@@ -220,7 +228,7 @@
     <script>
         const msg=document.getElementById("successMsg");
         if(msg){
-        setTimeout(()=>{msg.style.display="none";},3000);
+            setTimeout(()=>{msg.style.display="none";},3000);
         }
     </script>
 

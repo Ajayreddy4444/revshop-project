@@ -73,6 +73,16 @@
 		            Register
 		        </a>
 		    </li>
+			<!-- ⭐ FAVOURITES FEATURE START -->
+			<li class="nav-item"
+			    th:if="${session.user != null and session.user.role == 'BUYER'}">
+			    <a class="nav-link text-white"
+			       th:href="@{/favourites}">
+			        <i class="bi bi-heart me-1"></i>
+			        Favourites
+			    </a>
+			</li>
+			<!-- ⭐ FAVOURITES FEATURE END -->
 
 		    <!-- 🔔 BELL (Place BEFORE dropdown) -->
 		    <li class="nav-item" th:if="${session.user != null}">
