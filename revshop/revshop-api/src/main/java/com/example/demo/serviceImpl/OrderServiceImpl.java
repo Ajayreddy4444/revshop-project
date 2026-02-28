@@ -186,7 +186,6 @@ public class OrderServiceImpl implements OrderService {
 
      User user = userRepository.findById(userId)
              .orElseThrow(() -> new RuntimeException("User not found"));
-
      // Get all orders of the user
      List<Order> orders = orderRepository.findByUser(user);
 
