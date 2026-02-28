@@ -7,6 +7,7 @@ import com.example.demo.service.ProductClientService;
 import com.example.demo.service.ReviewClientService;
 import com.example.demo.service.OrderClientService;
 
+import com.example.demo.service.WishlistClientService;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
@@ -24,13 +25,16 @@ public class ProductPageController {
     private final ProductClientService productClientService;
     private final ReviewClientService reviewClientService;
     private final OrderClientService orderClientService;
+    private final WishlistClientService wishlistClientService;
 
     public ProductPageController(ProductClientService productClientService,
                                  ReviewClientService reviewClientService,
-                                 OrderClientService orderClientService) {
+                                 OrderClientService orderClientService,
+                                 WishlistClientService wishlistClientService) {
         this.productClientService = productClientService;
         this.reviewClientService = reviewClientService;
         this.orderClientService = orderClientService;
+        this.wishlistClientService = wishlistClientService;
     }
 
     @GetMapping
@@ -40,12 +44,22 @@ public class ProductPageController {
                               @RequestParam(required = false) Double minPrice,
                               @RequestParam(required = false) Double maxPrice,
                               Model model) {
+        AuthResponse user =
+                (AuthResponse) session.getAttribute("user");
 
-        if (session.getAttribute("user") == null)
+        if (user == null)
             return "redirect:/login";
 
         var products = productClientService.searchProducts(
                 keyword, categoryId, minPrice, maxPrice
+        );
+
+        var wishlistIds = wishlistClientService.getWishlistProductIds(user.getId());
+
+        products.forEach(product ->
+                product.setWishlisted(
+                        wishlistIds.contains(product.getId())
+                )
         );
 
         model.addAttribute("products", products);
@@ -72,9 +86,15 @@ public class ProductPageController {
         AuthResponse user =
                 (AuthResponse) session.getAttribute("user");
 
-        // 1️⃣ Load product
-        model.addAttribute("product",
-                productClientService.getProductById(id));
+        var product = productClientService.getProductById(id);
+
+        var wishlistIds = wishlistClientService.getWishlistProductIds(user.getId());
+
+        product.setWishlisted(
+                wishlistIds.contains(product.getId())
+        );
+
+        model.addAttribute("product", product);
 
         // 2️⃣ Load reviews
         model.addAttribute("reviews",
@@ -121,5 +141,5 @@ public class ProductPageController {
 
         return "redirect:/products/" + id;
     }
-   
+
 }

@@ -122,8 +122,8 @@
                 <li class="nav-item"
                     th:if="${session.user != null and session.user.role == 'BUYER'}">
                     <a class="nav-link text-white fw-semibold"
-                       href="#">
-                        <i class="bi bi-heart me-1"></i>
+                       th:href="@{/wishlist}">
+                        <i class="bi bi-bag-heart-fill"></i>
                         Wishlist
                     </a>
                 </li>
