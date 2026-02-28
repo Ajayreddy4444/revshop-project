@@ -6,120 +6,158 @@ import com.example.demo.dto.RegisterRequest;
 import com.example.demo.service.AuthClientService;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AuthPageController {
 
-private final AuthClientService authClientService;
+    private final AuthClientService authClientService;
 
-public AuthPageController(AuthClientService authClientService) {
-    this.authClientService = authClientService;
-}
+    public AuthPageController(AuthClientService authClientService) {
+        this.authClientService = authClientService;
+    }
 
-@GetMapping("/login")
-public String login(Model model) {
-    model.addAttribute("activePage", "login");
-    return "login";
-}
+    // ================= LOGIN =================
 
-@GetMapping("/register")
-public String register(Model model) {
-    model.addAttribute("activePage", "register");
-    return "register";
-}
-
-@PostMapping("/register")
-public String registerUser(@ModelAttribute RegisterRequest request,
-                           @RequestParam String role,
-                           Model model) {
-
-    try {
-
-        if(role.equalsIgnoreCase("buyer"))
-        	authClientService.registerBuyer(request);
-        else
-        	authClientService.registerSeller(request);
-
-        model.addAttribute("success", "Registration successful! Please login.");
+    @GetMapping("/login")
+    public String login(Model model) {
+        model.addAttribute("loginRequest", new LoginRequest());
         return "login";
+    }
 
-    } catch (Exception e) {
-        model.addAttribute("error", "Registration failed: " + e.getMessage());
+    @PostMapping("/login")
+    public String loginUser(
+            @Valid @ModelAttribute("loginRequest") LoginRequest request,
+            BindingResult bindingResult,
+            HttpSession session,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "login";
+        }
+
+        try {
+
+            AuthResponse response = authClientService.login(request);
+
+            session.setAttribute("user", response);
+            return "redirect:/home";
+
+        } catch (Exception e) {
+
+            model.addAttribute("error", e.getMessage());
+            return "login";
+        }
+    }
+
+    // ================= REGISTER =================
+
+    @GetMapping("/register")
+    public String register(Model model) {
+        model.addAttribute("registerRequest", new RegisterRequest());
         return "register";
     }
-}
 
-@PostMapping("/login")
-public String loginUser(@RequestParam String email,
-                        @RequestParam String password,
-                        HttpSession session,
-                        Model model) {
+    @PostMapping("/register")
+    public String registerUser(
+            @Valid @ModelAttribute("registerRequest") RegisterRequest request,
+            BindingResult bindingResult,
+            @RequestParam String role,
+            RedirectAttributes redirectAttributes,
+            Model model) {
 
-    try {
+        if (bindingResult.hasErrors()) {
+            return "register";
+        }
 
-        LoginRequest req = new LoginRequest();
-        req.setEmail(email);
-        req.setPassword(password);
+        try {
 
-        AuthResponse response = authClientService.login(req);
+            if (role.equalsIgnoreCase("buyer"))
+                authClientService.registerBuyer(request);
+            else
+                authClientService.registerSeller(request);
 
-        session.setAttribute("user", response);
+            redirectAttributes.addFlashAttribute("success",
+                    "Registration successful! Please login.");
 
-        return "redirect:/home";
+            return "redirect:/login";
 
-    } catch (Exception e) {
-        model.addAttribute("error", "Invalid email or password");
-        return "login";
+        } catch (Exception e) {
+
+            model.addAttribute("error", e.getMessage());
+            return "register";
+        }
     }
-}
 
-@GetMapping("/logout")
-public String logout(HttpSession session) {
-    session.invalidate();
-    return "redirect:/";
-}
+    // ================= LOGOUT =================
 
-@GetMapping("/forgot-password")
-public String forgotPasswordPage() {
-    return "forgot-password";
-}
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
 
-@PostMapping("/forgot-password")
-public String processForgotPassword(@RequestParam String email, Model model) {
-    try {
-    	authClientService.forgotPassword(email);
-        model.addAttribute("success", "OTP sent to your email.");
-        model.addAttribute("email", email);
-        return "reset-password";
-    } catch (Exception e) {
-        model.addAttribute("error", e.getMessage());
+    // ================= FORGOT PASSWORD =================
+
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
         return "forgot-password";
     }
-}
 
-@PostMapping("/reset-password")
-public String processResetPassword(@RequestParam String email,
-                                   @RequestParam String otp,
-                                   @RequestParam String newPassword,
-                                   RedirectAttributes redirectAttributes) {
-    try {
-        authClientService.resetPassword(email, otp, newPassword);
+    @PostMapping("/forgot-password")
+    public String processForgotPassword(@RequestParam String email,
+                                        RedirectAttributes redirectAttributes) {
+        try {
 
-        redirectAttributes.addFlashAttribute("success",
-                "Password reset successfully! Please login.");
+            authClientService.forgotPassword(email);
 
-        return "redirect:/login";
+            redirectAttributes.addFlashAttribute("success",
+                    "OTP sent to your email.");
 
-    } catch (Exception e) {
-        redirectAttributes.addFlashAttribute("error", e.getMessage());
-        return "redirect:/reset-password";
+            redirectAttributes.addFlashAttribute("email", email);
+
+            return "redirect:/reset-password";
+
+        } catch (Exception e) {
+
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/forgot-password";
+        }
     }
-}
 
+    // ================= RESET PASSWORD =================
 
+    @GetMapping("/reset-password")
+    public String resetPasswordPage() {
+        return "reset-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String processResetPassword(@RequestParam String email,
+                                       @RequestParam String otp,
+                                       @RequestParam String newPassword,
+                                       RedirectAttributes redirectAttributes) {
+
+        try {
+
+            authClientService.resetPassword(email, otp, newPassword);
+
+            redirectAttributes.addFlashAttribute("success",
+                    "Password reset successfully! Please login.");
+
+            return "redirect:/login";
+
+        } catch (Exception e) {
+
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/reset-password";
+        }
+    }
 }

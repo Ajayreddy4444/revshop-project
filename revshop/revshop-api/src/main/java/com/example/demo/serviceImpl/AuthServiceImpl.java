@@ -6,6 +6,10 @@ import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.PasswordResetToken;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
+import com.example.demo.exception.InvalidOtpException;
+import com.example.demo.exception.InvalidPasswordException;
+import com.example.demo.exception.UserAlreadyExistsException;
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.repository.PasswordResetTokenRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtUtil;
@@ -47,6 +51,8 @@ this.passwordEncoder = passwordEncoder;
 
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             throw new RuntimeException("Email already registered");
+        }if(userRepository.findByEmail(request.getEmail()).isPresent()){
+            throw new UserAlreadyExistsException("Email already registered");
         }
 
         User user = new User(
@@ -68,12 +74,12 @@ this.passwordEncoder = passwordEncoder;
     @Override
     public AuthResponse login(LoginRequest request) {
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    	User user = userRepository.findByEmail(request.getEmail())
+    	        .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
-        }
+    	if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+    	    throw new InvalidPasswordException("Invalid password");
+    	}
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
@@ -95,8 +101,8 @@ this.passwordEncoder = passwordEncoder;
     @Override
     public void forgotPassword(String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    	User user = userRepository.findByEmail(email)
+    	        .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
 
@@ -116,13 +122,13 @@ this.passwordEncoder = passwordEncoder;
     @Override
     public void resetPassword(String email, String otp, String newPassword) {
 
-        PasswordResetToken token = passwordResetTokenRepository
-                .findByEmailAndOtpAndUsedFalse(email, otp)
-                .orElseThrow(() -> new RuntimeException("Invalid OTP"));
+    	PasswordResetToken token = passwordResetTokenRepository
+    	        .findByEmailAndOtpAndUsedFalse(email, otp)
+    	        .orElseThrow(() -> new InvalidOtpException("Invalid OTP"));
 
-        if (token.getExpiryTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP expired");
-        }
+    	if (token.getExpiryTime().isBefore(LocalDateTime.now())) {
+    	    throw new InvalidOtpException("OTP expired");
+    	}
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
