@@ -52,12 +52,18 @@
             font-weight: 600;
         }
     </style>
-
+	<div class="d-flex justify-content-end mb-3">
+			    <a th:href="@{/products}" 
+			       class="btn btn-outline-secondary btn-sm">
+			        🛍 Continue Shopping
+			    </a>
+			</div>
     <div class="success-card">
 
         <div class="success-icon">✔</div>
 
         <h3 class="text-center mb-3">Payment Successful</h3>
+		
 
         <p class="text-center">
             Order ID: <strong th:text="${orderId}"></strong>

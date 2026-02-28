@@ -3,7 +3,12 @@
       th:replace="~{layout/base :: layout('My Orders', ~{::section})}">
 
 <section>
-
+	<div class="d-flex justify-content-end mb-3">
+	    <a th:href="@{/products}" 
+	       class="btn btn-outline-secondary btn-sm">
+	        🛍 Back to Products
+	    </a>
+	</div>
 <h2>My Orders</h2>
 
 <div th:if="${orders == null or #lists.isEmpty(orders)}">
