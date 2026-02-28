@@ -33,13 +33,6 @@
             border-bottom: none;
         }
 
-        .product-img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
         .address-card {
             border: 1px solid #ddd;
             padding: 15px;
@@ -52,23 +45,12 @@
             background-color: #f1f3f5;
             cursor: pointer;
         }
-		
-	      .row {
-		    align-items: flex-start !important;
-		 }
 
-		 .col-lg-4 {
-		     position: sticky;
-		     top: 100px;
-		     height: fit-content;
-		 }
-        .summary-card {				
+        .summary-card {
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             padding: 20px;
             background-color: #ffffff;
-			align-self: flex-start;
-		
         }
 
         .summary-total {
@@ -94,7 +76,6 @@
             transform: scale(1.03);
         }
 
-        /* 🔥 Animated Alert */
         .custom-alert {
             position: fixed;
             top: 20px;
@@ -112,13 +93,36 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-		.fade-out {
-		    opacity: 0;
-		    transition: opacity 0.5s ease;
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+		/* Disabled ecommerce style */
+		.disabled-btn {
+		    background-color: #adb5bd !important;   /* grey */
+		    cursor: not-allowed;
+		    transform: none !important;
+		    box-shadow: none !important;
+		}
+
+		.disabled-btn:hover {
+		    background-color: #adb5bd !important;
+		    transform: none !important;
+		}
+		
+		.row {
+		    align-items: flex-start;
+		}
+
+		.col-lg-4 {
+		    position: sticky;
+		    top: 100px;
+		    align-self: flex-start;
 		}
     </style>
 
-    <!-- 🔥 Animated Cancel Message -->
+    <!-- Cancel Message -->
     <div th:if="${cancelMessage}"
          id="cancelAlert"
          class="custom-alert">
@@ -128,10 +132,10 @@
     <div class="d-flex justify-content-end mb-3">
         <a th:href="@{/cart}"
            class="btn btn-outline-danger btn-sm">
-            <i class="bi bi-arrow-left me-1"></i>
-            Back to Cart
+            ← Back to Cart
         </a>
     </div>
+
     <div class="row">
 
         <!-- LEFT SIDE -->
@@ -139,43 +143,37 @@
 
             <h3 class="checkout-title">Checkout</h3>
 
+            <!-- Order Items -->
             <div class="checkout-card">
-                <h5><i class="bi bi-bag-check-fill text-warning me-2"></i>Order Items</h5>
+                <h5>Order Items</h5>
 
                 <div th:each="item : ${cartItems}"
                      class="order-item d-flex align-items-center">
 
                     <div class="me-3">
                         <img th:src="@{/images/{img}(img=${item.imageUrl})}"
-                             alt="Product Image"
-                             style="width:80px; height:80px; object-fit:cover;"
-                             class="product-image"/>
+                             style="width:80px; height:80px; object-fit:cover;" />
                     </div>
 
                     <div class="flex-grow-1">
                         <strong th:text="${item.productName}"></strong>
-
                         <div class="text-muted">
                             ₹ <span th:text="${item.price}"></span>
-                            ×
-                            <span th:text="${item.quantity}"></span>
+                            × <span th:text="${item.quantity}"></span>
                         </div>
                     </div>
 
                     <div class="fw-bold text-success">
                         ₹ <span th:text="${item.price * item.quantity}"></span>
                     </div>
-
                 </div>
             </div>
 
+            <!-- Address Section -->
             <div class="checkout-card">
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold">
-                        <i class="bi bi-geo-alt-fill text-warning me-2"></i>
-                        Delivery Address
-                    </h5>
+                    <h5>Delivery Address</h5>
 
                     <a th:href="@{/address/add}"
                        class="btn btn-outline-primary btn-sm">
@@ -186,39 +184,11 @@
                 <form th:action="@{/orders/place}" method="post">
 
                     <input type="hidden" name="userId" th:value="${userId}" />
-					
-					<div th:if="${#lists.isEmpty(addresses)}">
 
-					    <!-- If no address exists -->
-					    <span data-bs-toggle="tooltip"
-					          title="Please add an address first">
-
-					        <button type="button"
-					                class="place-order-btn mt-3"
-					                disabled
-					                style="pointer-events: none;">
-					            Place Order
-					        </button>
-
-					    </span>
-
-					</div>
-
-					<div th:if="${!#lists.isEmpty(addresses)}">
-
-					    <!-- If address exists -->
-					    <button type="submit"
-					            class="place-order-btn mt-3">
-					        Place Order
-					    </button>
-
-					</div>
-
-
+                    <!-- Address List -->
                     <div th:each="addr : ${addresses}" class="address-card">
 
                         <div class="form-check">
-
                             <input class="form-check-input"
                                    type="radio"
                                    name="addressId"
@@ -241,33 +211,37 @@
                                 Edit
                             </a>
                         </div>
-
                     </div>
-                    <button type="submit" class="place-order-btn mt-3">
-                        Place Order
-                    </button>
+
+                    <!-- SINGLE Place Order Button -->
+                    <span data-bs-toggle="tooltip"
+                          th:attr="title=${#lists.isEmpty(addresses)} ? 'Please add an address first' : ''">
+
+                        <button type="submit"
+                                class="place-order-btn mt-3"
+								th:classappend="${#lists.isEmpty(addresses)} ? ' disabled-btn' : ''"
+                                th:disabled="${#lists.isEmpty(addresses)}">
+                            Place Order
+                        </button>
+
+                    </span>
+
                 </form>
-
             </div>
-
         </div>
 
         <!-- RIGHT SIDE -->
         <div class="col-lg-4">
-
             <div class="summary-card">
 
                 <h5 class="text-center mb-3">Order Summary</h5>
-
                 <hr>
 
                 <div th:each="item : ${cartItems}"
                      class="d-flex justify-content-between mb-2">
 
                     <span th:text="${item.productName}"></span>
-                    <span>
-                        ₹ <span th:text="${item.price * item.quantity}"></span>
-                    </span>
+                    <span>₹ <span th:text="${item.price * item.quantity}"></span></span>
                 </div>
 
                 <hr>
@@ -286,38 +260,34 @@
                     </span>
                 </p>
 
-                <form th:action="@{/orders/place}"
-                      method="post"
-                      class="d-none d-lg-block">
-
-                    <input type="hidden" name="userId" th:value="${userId}"/>
-
-
-                </form>
-
             </div>
-
         </div>
 
     </div>
 
-</section>
+    <!-- Scripts -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
 
-<!-- 🔥 Auto Disappear Script -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const alertBox = document.getElementById("cancelAlert");
-
-    if (alertBox) {
-        setTimeout(function () {
-            alertBox.classList.add("fade-out");
-
+        // Auto hide cancel message
+        const alertBox = document.getElementById("cancelAlert");
+        if (alertBox) {
             setTimeout(function () {
-                alertBox.remove();
-            }, 500); // wait for fade animation
-        }, 5000); // stay visible for 5 seconds
-    }
-});
-</script>
+                alertBox.classList.add("fade-out");
+                setTimeout(function () {
+                    alertBox.remove();
+                }, 500);
+            }, 5000);
+        }
 
+        // Enable Bootstrap tooltip
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+    });
+    </script>
+
+</section>
 </html>
