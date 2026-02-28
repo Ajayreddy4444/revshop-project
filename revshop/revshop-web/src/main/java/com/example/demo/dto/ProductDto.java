@@ -17,6 +17,7 @@ public class ProductDto {
     private Double discountPercent;
     private double averageRating;
     private int reviewCount;
+    private boolean wishlisted;
 
     public ProductDto() {
     }
@@ -112,6 +113,7 @@ public class ProductDto {
     public void setDiscountPercent(Double discountPercent) {
         this.discountPercent = discountPercent;
     }
+
     public void setAverageRating(double averageRating) {
         this.averageRating = averageRating;
     }
@@ -124,4 +126,11 @@ public class ProductDto {
         this.reviewCount = reviewCount;
     }
 
+    public boolean isWishlisted() {
+        return wishlisted;
+    }
+
+    public void setWishlisted(boolean wishlisted) {
+        this.wishlisted = wishlisted;
+    }
 }

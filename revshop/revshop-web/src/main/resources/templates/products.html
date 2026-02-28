@@ -83,7 +83,18 @@
 
     <div class="row" th:if="${!#lists.isEmpty(products)}">
         <div class="col-lg-4 col-md-6 col-sm-6 mb-4 d-flex" th:each="product: ${products}">
-            <div class="card product-card shadow-sm w-100 h-100 border-0">
+            <div class="card product-card shadow-sm w-100 h-100 border-0 position-relative">
+
+                <div class="wishlist-icon position-absolute top-0 end-0 p-2">
+                    <i class="bi"
+                       th:id="'heart-'+${product.id}"
+                       th:classappend="${product.wishlisted} ?
+                       'bi-heart-fill text-danger' :
+                       'bi-heart text-dark'"
+                       style="font-size:20px; cursor:pointer;"
+                       th:onclick="'toggleWishlist(' + ${product.id} + ')'">
+                    </i>
+                </div>
 
                 <div class="product-image-wrapper">
                     <img th:src="${product.imageUrl != null} ? @{/images/{img}(img=${product.imageUrl})} : @{/images/no-image.jpg}"
@@ -153,11 +164,6 @@
                                     <span th:if="${product.quantity > 0}">Add To Cart</span>
                                     <span th:if="${product.quantity == 0}">Out of Stock</span>
                                 </button>
-
-                                <div class="text-success small mt-1 d-none"
-                                     th:attr="id='badge-'+${product.id}">
-                                    ✔ Added to cart
-                                </div>
                             </form>
 
                         </div>
@@ -179,21 +185,7 @@
                 successMsg.style.display="none";
             },3000);
         }
-
-
-        const params = new URLSearchParams(window.location.search);
-        const pid = params.get("pid");
-
-        if(pid){
-            const badge = document.getElementById("badge-"+pid);
-            if(badge){
-                badge.classList.remove("d-none");
-
-                setTimeout(()=>{
-                    badge.classList.add("d-none");
-                },3000);
-            }
-        }
+        
 
     </script>
 
@@ -239,6 +231,13 @@
     padding: 12px 14px;
     display: flex;
     flex-direction: column;
+}
+        .wishlist-icon i {
+    transition: 0.2s ease;
+}
+
+.wishlist-icon i:hover {
+    transform: scale(1.15);
 }
     </style>
 
