@@ -1,127 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
 <div th:fragment="header">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-black px-4 py-3">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black px-4 py-3">
 
-    <!-- Brand -->
-    <a class="navbar-brand fw-bold fs-4 text-warning" th:href="@{/}">
-        Rev<span class="text-white">Shop</span>
-    </a>
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold fs-4 text-warning" th:href="@{/}">
+            Rev<span class="text-white">Shop</span>
+        </a>
 
-    <button class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+        <div class="collapse navbar-collapse">
 
-    <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- LEFT SIDE -->
+            <div class="d-flex align-items-center gap-4">
 
-		<!-- LEFT SIDE -->
-		<ul class="navbar-nav me-auto align-items-center">
+                <!-- Products (ONLY BUYER) -->
+                <a class="nav-link text-white fw-semibold"
+                   th:if="${session.user != null and session.user.role == 'BUYER'}"
+                   th:href="@{/products}">
+                    <i class="bi bi-bag me-1"></i>
+                    Products
+                </a>
 
-		    <!-- Show ONLY for BUYER -->
-		    <li class="nav-item"
-		        th:if="${session.user != null and session.user.role == 'BUYER'}">
-		        <a class="nav-link text-white"
-		           th:href="@{/}">
-		            <i class="bi bi-bag me-1"></i>
-		            Products
-		        </a>
-		    </li>
+                <!-- Search (ONLY BUYER) -->
+                <form class="d-flex align-items-center"
+                      th:if="${session.user != null and session.user.role == 'BUYER'}"
+                      th:action="@{/products}"
+                      method="get">
 
-		    <!-- Search ONLY for BUYER -->
-		    <li class="nav-item ms-3"
-		        th:if="${session.user != null and session.user.role == 'BUYER'}">
+                    <div class="position-relative">
+                        <input class="form-control form-control-sm pe-4"
+                               type="text"
+                               name="keyword"
+                               placeholder="Search products..."
+                               th:value="${param.keyword}"
+                               style="width:240px;">
 
-		        <form class="d-flex" th:action="@{/search}" method="get">
-		            <input class="form-control form-control-sm me-2"
-		                   type="search"
-		                   name="keyword"
-		                   placeholder="Search products..."
-		                   style="width:200px;">
+                        <!-- Clear X -->
+                        <a th:if="${param.keyword != null}"
+                           th:href="@{/products}"
+                           class="position-absolute top-50 end-0 translate-middle-y me-2 text-secondary"
+                           style="text-decoration:none;">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </a>
+                    </div>
 
-		            <button class="btn btn-warning btn-sm">
-		                <i class="bi bi-search"></i>
-		            </button>
-		        </form>
+                    <button class="btn btn-warning btn-sm ms-2">
+                        <i class="bi bi-search"></i>
+                    </button>
 
-		    </li>
+                </form>
 
-		</ul>
-		
+                <!-- SELLER NAV ITEMS -->
+                <a class="nav-link text-white fw-semibold"
+                   th:if="${session.user != null and session.user.role == 'SELLER'}"
+                   th:href="@{/seller/products}">
+                    <i class="bi bi-box-seam me-1"></i>
+                    Products
+                </a>
 
-		<!-- RIGHT SIDE -->
-		<ul class="navbar-nav align-items-center gap-3">
+                <a class="nav-link text-white fw-semibold"
+                   th:if="${session.user != null and session.user.role == 'SELLER'}"
+                   th:href="@{/seller/products/new}">
+                    <i class="bi bi-plus-square me-1"></i>
+                    Add Product
+                </a>
 
-		    <!-- NOT LOGGED IN -->
-		    <li class="nav-item" th:if="${session.user == null}">
-		        <a th:href="@{/login}"
-		           th:class="${activePage == 'login'} 
-		           ? 'btn btn-warning' 
+                <a class="nav-link text-white fw-semibold"
+                   th:if="${session.user != null and session.user.role == 'SELLER'}"
+                   th:href="@{/}">
+                    <i class="bi bi-receipt me-1"></i>
+                    Orders
+                </a>
+
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <ul class="navbar-nav ms-auto align-items-center gap-4">
+
+                <!-- LOGIN / REGISTER (ONLY WHEN NOT LOGGED IN) -->
+                <li class="nav-item" th:if="${session.user == null}">
+                    <a th:href="@{/login}"
+                       th:class="${activePage == 'login'}
+		           ? 'btn btn-warning'
 		           : 'btn btn-outline-light'">
-		            <i class="bi bi-box-arrow-in-right me-1"></i>
-		            Login
-		        </a>
-		    </li>
+                        <i class="bi bi-box-arrow-in-right me-1"></i>
+                        Login
+                    </a>
+                </li>
 
-		    <li class="nav-item" th:if="${session.user == null}">
-		        <a th:href="@{/register}"
-		           th:class="${activePage == 'register'} 
-		           ? 'btn btn-warning' 
+                <li class="nav-item" th:if="${session.user == null}">
+                    <a th:href="@{/register}"
+                       th:class="${activePage == 'register'}
+		           ? 'btn btn-warning'
 		           : 'btn btn-outline-light'">
-		            <i class="bi bi-person-plus me-1"></i>
-		            Register
-		        </a>
-		    </li>
+                        <i class="bi bi-person-plus me-1"></i>
+                        Register
+                    </a>
+                </li>
 
-		    <!-- 🔔 BELL (Place BEFORE dropdown) -->
-		    <li class="nav-item" th:if="${session.user != null}">
-		        <a class="nav-link text-white position-relative" href="#">
-		            <i class="bi bi-bell fs-5"></i>
+                <!-- BUYER NAV ITEMS -->
+                <li class="nav-item"
+                    th:if="${session.user != null and session.user.role == 'BUYER'}">
+                    <a class="nav-link text-white fw-semibold"
+                       th:href="@{/cart}">
+                        <i class="bi bi-cart3 me-1"></i>
+                        Cart
+                    </a>
+                </li>
 
-		            <span class="position-absolute badge rounded-pill bg-danger"
-		                  style="top: 2px; right: -5px; font-size: 10px;">
-		                3
-		            </span>
-		        </a>
-		    </li>
+                <li class="nav-item"
+                    th:if="${session.user != null and session.user.role == 'BUYER'}">
+                    <a class="nav-link text-white fw-semibold"
+                       href="#">
+                        <i class="bi bi-box-seam me-1"></i>
+                        Orders
+                    </a>
+                </li>
 
-		    <!-- USER DROPDOWN -->
-		    <li class="nav-item dropdown" th:if="${session.user != null}">
+                <li class="nav-item"
+                    th:if="${session.user != null and session.user.role == 'BUYER'}">
+                    <a class="nav-link text-white fw-semibold"
+                       href="#">
+                        <i class="bi bi-heart me-1"></i>
+                        Wishlist
+                    </a>
+                </li>
 
-		        <a class="nav-link dropdown-toggle text-white"
-		           href="#"
-		           role="button"
-		           data-bs-toggle="dropdown">
-		            <i class="bi bi-person-circle me-1"></i>
-		            <span th:text="${session.user.name}"></span>
-		        </a>
+                <!-- Notification (ANY LOGGED USER) -->
+                <li class="nav-item position-relative"
+                    th:if="${session.user != null}">
+                    <a class="nav-link text-white" href="#">
+                        <i class="bi bi-bell fs-5"></i>
+                        <span class="position-absolute badge rounded-pill bg-danger"
+                              style="top: 2px; right: -5px; font-size: 10px;">
+                        3
+                    </span>
+                    </a>
+                </li>
 
-		        <ul class="dropdown-menu dropdown-menu-end">
-		            <li>
-		                <a class="dropdown-item" th:href="@{/home}">
-		                    <i class="bi bi-speedometer2 me-2"></i>
-		                    Dashboard
-		                </a>
-		            </li>
+                <!-- Profile Dropdown -->
+                <li class="nav-item dropdown"
+                    th:if="${session.user != null}">
 
-		            <li><hr class="dropdown-divider"></li>
+                    <a class="nav-link dropdown-toggle text-white"
+                       data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span th:text="${session.user.name}"></span>
+                    </a>
 
-		            <li>
-		                <a class="dropdown-item text-danger" th:href="@{/logout}">
-		                    <i class="bi bi-box-arrow-right me-2"></i>
-		                    Logout
-		                </a>
-		            </li>
-		        </ul>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item text-danger"
+                               th:href="@{/logout}">
+                                <i class="bi bi-box-arrow-right me-2"></i>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-		    </li>
+            </ul>
 
-		</ul>
+        </div>
 
-
-    </div>
-
-</nav>
+    </nav>
 
 </div>
+</html>
