@@ -116,7 +116,7 @@ public class AuthClientServiceImpl implements AuthClientService {
         }
     }
 
-    // 🔥 Extract error message from backend JSON
+    // ✅ CLEAN ERROR EXTRACTION (NO <br>)
     private String extractErrorMessage(HttpClientErrorException ex) {
 
         String response = ex.getResponseBodyAsString();
@@ -125,7 +125,7 @@ public class AuthClientServiceImpl implements AuthClientService {
             return "Something went wrong";
         }
 
-        // Remove curly braces
+        // Remove JSON formatting characters
         response = response.replace("{", "")
                            .replace("}", "")
                            .replace("\"", "");
@@ -138,11 +138,11 @@ public class AuthClientServiceImpl implements AuthClientService {
             if (pair.contains(":")) {
                 String[] keyValue = pair.split(":", 2);
                 if (keyValue.length == 2) {
-                    message.append(keyValue[1].trim()).append("<br>");
+                    message.append(keyValue[1].trim()).append(" ");
                 }
             }
         }
 
-        return message.toString();
+        return message.toString().trim();
     }
 }

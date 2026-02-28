@@ -36,7 +36,6 @@ public class AuthPageController {
             @Valid @ModelAttribute("loginRequest") LoginRequest request,
             BindingResult bindingResult,
             HttpSession session,
-            RedirectAttributes redirectAttributes,
             Model model) {
 
         if (bindingResult.hasErrors()) {
@@ -44,14 +43,13 @@ public class AuthPageController {
         }
 
         try {
-
             AuthResponse response = authClientService.login(request);
 
             session.setAttribute("user", response);
+
             return "redirect:/home";
 
         } catch (Exception e) {
-
             model.addAttribute("error", e.getMessage());
             return "login";
         }
@@ -69,9 +67,8 @@ public class AuthPageController {
     public String registerUser(
             @Valid @ModelAttribute("registerRequest") RegisterRequest request,
             BindingResult bindingResult,
-            @RequestParam String role,
             RedirectAttributes redirectAttributes,
-            Model model) {
+            Model model){
 
         if (bindingResult.hasErrors()) {
             return "register";
@@ -79,10 +76,11 @@ public class AuthPageController {
 
         try {
 
-            if (role.equalsIgnoreCase("buyer"))
+            if ("BUYER".equalsIgnoreCase(request.getRole())) {
                 authClientService.registerBuyer(request);
-            else
+            } else {
                 authClientService.registerSeller(request);
+            }
 
             redirectAttributes.addFlashAttribute("success",
                     "Registration successful! Please login.");
@@ -103,48 +101,38 @@ public class AuthPageController {
         session.invalidate();
         return "redirect:/";
     }
-
-    // ================= FORGOT PASSWORD =================
-
+    
+    
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
         return "forgot-password";
     }
 
     @PostMapping("/forgot-password")
-    public String processForgotPassword(@RequestParam String email,
-                                        RedirectAttributes redirectAttributes) {
+    public String processForgotPassword(@RequestParam String email, Model model) {
         try {
-
-            authClientService.forgotPassword(email);
-
-            redirectAttributes.addFlashAttribute("success",
-                    "OTP sent to your email.");
-
-            redirectAttributes.addFlashAttribute("email", email);
-
-            return "redirect:/reset-password";
-
+        	authClientService.forgotPassword(email);
+            model.addAttribute("success", "OTP sent to your email.");
+            model.addAttribute("email", email);
+            return "reset-password";
         } catch (Exception e) {
-
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/forgot-password";
+            model.addAttribute("error", e.getMessage());
+            return "forgot-password";
         }
     }
 
-    // ================= RESET PASSWORD =================
-
     @GetMapping("/reset-password")
-    public String resetPasswordPage() {
+    public String resetPasswordPage(@RequestParam(required = false) String email,
+                                    Model model) {
+        model.addAttribute("email", email);
         return "reset-password";
     }
-
+    
     @PostMapping("/reset-password")
     public String processResetPassword(@RequestParam String email,
                                        @RequestParam String otp,
                                        @RequestParam String newPassword,
                                        RedirectAttributes redirectAttributes) {
-
         try {
 
             authClientService.resetPassword(email, otp, newPassword);
@@ -157,7 +145,8 @@ public class AuthPageController {
         } catch (Exception e) {
 
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/reset-password";
+
+            return "redirect:/reset-password?email=" + email;
         }
     }
 }

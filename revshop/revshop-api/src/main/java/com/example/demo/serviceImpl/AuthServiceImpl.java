@@ -43,15 +43,13 @@ this.emailService = emailService;
 this.passwordEncoder = passwordEncoder;
 }
     
-
     @Override
     public AuthResponse register(RegisterRequest request, String roleStr) {
 
         Role role = Role.valueOf(roleStr.toUpperCase());
 
-        if(userRepository.findByEmail(request.getEmail()).isPresent()){
-            throw new RuntimeException("Email already registered");
-        }if(userRepository.findByEmail(request.getEmail()).isPresent()){
+        // ✅ CHECK ONLY ONCE
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("Email already registered");
         }
 
@@ -131,8 +129,7 @@ this.passwordEncoder = passwordEncoder;
     	}
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
+        		.orElseThrow(() -> new UserNotFoundException("User not found"));
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 

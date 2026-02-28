@@ -8,14 +8,10 @@
 
         <h2 class="mb-4 text-center">Create Account</h2>
 
-        <!-- 🔥 Global Backend Error (Supports Multiple Messages) -->
-        <div th:if="${error}" class="alert alert-danger text-center">
-            <span th:utext="${error}"></span>
-        </div>
-
-        <!-- 🔥 Success Message -->
-        <div th:if="${success}" class="alert alert-success text-center">
-            <span th:text="${success}"></span>
+        <!-- Business Error -->
+        <div th:if="${error}"
+             class="alert alert-danger text-center auto-hide">
+            <span th:text="${error}"></span>
         </div>
 
         <form method="post"
@@ -27,12 +23,11 @@
                 <input type="text"
                        th:field="*{name}"
                        class="form-control"
-                       placeholder="Full Name">
-
-                <div class="text-danger mt-1"
-                     th:if="${#fields.hasErrors('name')}"
-                     th:errors="*{name}">
-                </div>
+                       required
+                       minlength="3"
+                       maxlength="30"
+                       th:classappend="${#fields.hasErrors('name')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('name')} ? ${#fields.errors('name')[0]} : 'Full Name'">
             </div>
 
             <!-- Email -->
@@ -40,25 +35,20 @@
                 <input type="email"
                        th:field="*{email}"
                        class="form-control"
-                       placeholder="Email">
-
-                <div class="text-danger mt-1"
-                     th:if="${#fields.hasErrors('email')}"
-                     th:errors="*{email}">
-                </div>
+                       required
+                       th:classappend="${#fields.hasErrors('email')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : 'Email'">
             </div>
 
             <!-- Phone -->
             <div class="mb-3">
-                <input type="text"
+                <input type="tel"
                        th:field="*{phone}"
                        class="form-control"
-                       placeholder="Phone">
-
-                <div class="text-danger mt-1"
-                     th:if="${#fields.hasErrors('phone')}"
-                     th:errors="*{phone}">
-                </div>
+                       required
+                       pattern="[0-9]{10}"
+                       th:classappend="${#fields.hasErrors('phone')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('phone')} ? ${#fields.errors('phone')[0]} : 'Phone'">
             </div>
 
             <!-- Password -->
@@ -66,12 +56,10 @@
                 <input type="password"
                        th:field="*{password}"
                        class="form-control"
-                       placeholder="Password">
-
-                <div class="text-danger mt-1"
-                     th:if="${#fields.hasErrors('password')}"
-                     th:errors="*{password}">
-                </div>
+                       required
+                       minlength="6"
+                       th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('password')} ? ${#fields.errors('password')[0]} : 'Password'">
             </div>
 
             <!-- Role -->
@@ -81,7 +69,7 @@
                 <div class="form-check form-check-inline">
                     <input class="form-check-input"
                            type="radio"
-                           name="role"
+                           th:field="*{role}"
                            value="BUYER"
                            required>
                     <label class="form-check-label">Buyer</label>
@@ -90,7 +78,7 @@
                 <div class="form-check form-check-inline">
                     <input class="form-check-input"
                            type="radio"
-                           name="role"
+                           th:field="*{role}"
                            value="SELLER"
                            required>
                     <label class="form-check-label">Seller</label>
@@ -104,17 +92,38 @@
 
         </form>
 
-        <div class="mt-4 text-center">
-            <small>
-                Already have an account?
-                <a th:href="@{/login}" class="text-warning fw-semibold">
-                    Login
-                </a>
-            </small>
-        </div>
-
     </div>
 
 </section>
+
+<!-- Auto Reset Script (Only for Backend Blank Errors) -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        setTimeout(function () {
+
+            const defaultPlaceholders = {
+                name: "Full Name",
+                email: "Email",
+                phone: "Phone",
+                password: "Password"
+            };
+
+            document.querySelectorAll('.is-invalid').forEach(function (input) {
+                input.classList.remove('is-invalid');
+
+                if (defaultPlaceholders[input.name]) {
+                    input.placeholder = defaultPlaceholders[input.name];
+                }
+            });
+
+            document.querySelectorAll('.auto-hide').forEach(function (alert) {
+                alert.remove();
+            });
+
+        }, 2000);
+
+    });
+</script>
 
 </html>
