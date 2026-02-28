@@ -3,7 +3,13 @@
       th:replace="~{layout/base :: layout('My Orders', ~{::section})}">
 
 <section class="orders-container">
-
+	<div class="d-flex justify-content-end mb-3">
+		    <a th:href="@{/products}" 
+		       class="btn btn-outline-secondary btn-sm">
+		        🛍 Back to Products
+		    </a>
+		</div>
+	<h2>My Orders</h2>
 <style>
 .orders-container {
     max-width: 1000px;

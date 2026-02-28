@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.dto.PlaceOrderRequestDTO;
+import com.example.demo.dto.SellerOrderResponseDTO;
 import com.example.demo.dto.OrderResponseDTO;
 import com.example.demo.service.OrderService;
 
@@ -62,5 +63,9 @@ public class OrderController {
                 orderService.hasUserPurchasedProduct(userId, productId);
 
         return ResponseEntity.ok(result);
+    }
+    @GetMapping("/seller/{sellerId}")
+    public List<SellerOrderResponseDTO> getSellerOrders(@PathVariable Long sellerId) {
+        return orderService.getOrdersForSeller(sellerId);
     }
 }

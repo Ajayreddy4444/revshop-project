@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.dto.OrderItemResponseDTO;
 import com.example.demo.dto.OrderResponseDTO;
 import com.example.demo.dto.PlaceOrderRequestDTO;
+import com.example.demo.dto.SellerOrderResponseDTO;
 import com.example.demo.entity.*;
 import com.example.demo.repository.*;
 import com.example.demo.service.OrderService;
@@ -23,18 +24,20 @@ public class OrderServiceImpl implements OrderService {
     private final AddressRepository addressRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
-
+    private final OrderItemRepository orderItemRepository; 
     public OrderServiceImpl(UserRepository userRepository,
                             OrderRepository orderRepository,
                             AddressRepository addressRepository,
                             CartRepository cartRepository,
                             CartItemRepository cartItemRepository,
+                            OrderItemRepository orderItemRepository,
                             ProductRepository productRepository) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.addressRepository = addressRepository;
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     @Override
@@ -201,5 +204,33 @@ public class OrderServiceImpl implements OrderService {
      }
 
      return false; // Product never purchased
+ }
+ @Override
+ public List<SellerOrderResponseDTO> getOrdersForSeller(Long sellerId) {
+
+     List<OrderItem> orderItems =
+             orderItemRepository.findByProduct_Seller_Id(sellerId);
+
+     List<SellerOrderResponseDTO> response = new ArrayList<>();
+
+     for (OrderItem item : orderItems) {
+
+         SellerOrderResponseDTO dto = new SellerOrderResponseDTO();
+
+         dto.setOrderId(item.getOrder().getId());
+         dto.setOrderDate(item.getOrder().getOrderDate());
+         dto.setStatus(item.getOrder().getStatus());
+
+         dto.setProductName(item.getProduct().getName());
+         dto.setQuantity(item.getQuantity());
+         dto.setSubtotal(item.getSubtotal());
+
+         dto.setBuyerName(item.getOrder().getUser().getName());
+         dto.setBuyerEmail(item.getOrder().getUser().getEmail());
+
+         response.add(dto);
+     }
+
+     return response;
  }
 }
