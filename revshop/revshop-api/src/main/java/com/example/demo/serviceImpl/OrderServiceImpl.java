@@ -23,7 +23,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final AddressRepository addressRepository;
     private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository; 
     public OrderServiceImpl(UserRepository userRepository,
@@ -37,7 +36,6 @@ public class OrderServiceImpl implements OrderService {
         this.orderRepository = orderRepository;
         this.addressRepository = addressRepository;
         this.cartRepository = cartRepository;
-        this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
         this.orderItemRepository = orderItemRepository;
     }
@@ -91,7 +89,7 @@ public class OrderServiceImpl implements OrderService {
             double subtotal = product.getPrice() * requestedQty;
 
             // 🔥 Reduce Product Stock
-            product.setQuantity(availableStock - requestedQty);
+            //product.setQuantity(availableStock - requestedQty);
             // No need to call save() — JPA auto flushes inside @Transactional
 
             // 🔥 Create Order Item
@@ -111,9 +109,9 @@ public class OrderServiceImpl implements OrderService {
 
         // 6️⃣ Save Order (Cascade should save OrderItems)
         Order savedOrder = orderRepository.save(order);
-
-        // 7️⃣ Clear Cart
-        cartItemRepository.deleteAll(cartItems);
+//
+//        // 7️⃣ Clear Cart
+//        cartItemRepository.deleteAll(cartItems);
 
         return convertToDTO(savedOrder);
     }
@@ -167,10 +165,12 @@ public class OrderServiceImpl implements OrderService {
             for (OrderItem item : order.getItems()) {
 
                 OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
+                itemDTO.setProductId(item.getProduct().getId()); // ✅ CORRECT
                 itemDTO.setProductName(item.getProduct().getName());
                 itemDTO.setQuantity(item.getQuantity());
                 itemDTO.setPriceAtPurchase(item.getPriceAtPurchase());
                 itemDTO.setSubtotal(item.getSubtotal());
+                itemDTO.setImageUrl(item.getProduct().getImageUrl());
 
                 itemDTOs.add(itemDTO);
             }
@@ -189,7 +189,6 @@ public class OrderServiceImpl implements OrderService {
 
      User user = userRepository.findById(userId)
              .orElseThrow(() -> new RuntimeException("User not found"));
-
      // Get all orders of the user
      List<Order> orders = orderRepository.findByUser(user);
 
