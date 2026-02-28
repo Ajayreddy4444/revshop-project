@@ -2,143 +2,145 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Order Confirmed', ~{::section})}">
 
-	<section class="container mt-5">
+<section class="container mt-5">
 
-	<style>
-	.success-card {
-	    background: #ffffff;
-	    padding: 45px;
-	    border-radius: 18px;
-	    box-shadow: 0 12px 35px rgba(0,0,0,0.08);
-	    max-width: 750px;
-	    margin: auto;
-	}
+    <style>
+        .success-card {
+            background: #ffffff;
+            padding: 45px;
+            border-radius: 18px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+            max-width: 750px;
+            margin: auto;
+        }
 
-	.success-header {
-	    text-align: center;
-	    margin-bottom: 35px;
-	}
+        .success-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
 
-	.success-icon {
-	    font-size: 55px;
-	    color: #28a745;
-	    margin-bottom: 10px;
-	}
+        .success-icon {
+            font-size: 55px;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
 
-	.summary-box {
-	    background: #f8f9fa;
-	    padding: 30px;
-	    border-radius: 15px;
-	    margin-top: 25px;
-	}
+        .summary-box {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 25px;
+        }
 
-	.summary-row {
-	    display: flex;
-	    justify-content: space-between;
-	    margin-bottom: 12px;
-	    font-size: 16px;
-	}
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
 
-	.summary-row span:first-child {
-	    color: #555;
-	}
+        .summary-row span:first-child {
+            color: #555;
+        }
 
-	.total-row {
-	    font-size: 20px;
-	    font-weight: 700;
-	    color: #28a745;
-	    border-top: 1px solid #ddd;
-	    padding-top: 15px;
-	    margin-top: 15px;
-	}
+        .total-row {
+            font-size: 20px;
+            font-weight: 700;
+            color: #28a745;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
 
-	.product-img {
-	    width: 60px;
-	    height: 60px;
-	    object-fit: cover;
-	    border-radius: 8px;
-	}
+        .product-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
 
-	.view-orders-btn {
-	    display: inline-block;
-	    margin-top: 35px;
-	    padding: 13px 30px;
-	    background: linear-gradient(135deg, #2874f0, #1b5fd1);
-	    color: white;
-	    font-weight: 600;
-	    font-size: 15px;
-	    border-radius: 30px;
-	    text-decoration: none;
-	}
-	</style>
+        .view-orders-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, #2874f0, #1b5fd1);
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            border-radius: 10px;
+            text-decoration: none;
+        }
+    </style>
 
-	<!-- Continue Shopping -->
-	<div class="d-flex justify-content-end mb-3">
-	    <a th:href="@{/products}" 
-	       class="btn btn-outline-secondary btn-sm">
-	        🛍 Continue Shopping
-	    </a>
-	</div>
+    <!-- Continue Shopping -->
+    <div class="d-flex justify-content-end mb-3">
+        <a th:href="@{/products}"
+           class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-bag me-1"></i>
+            Continue Shopping
+        </a>
+    </div>
 
-	<div class="success-card">
+    <div class="success-card">
 
-	    <!-- Header -->
-	    <div class="success-header">
-	        <div class="success-icon">✔</div>
-	        <h2>Order Confirmed!</h2>
-	        <p>Thank you for your purchase.</p>
-	    </div>
+        <!-- Header -->
+        <div class="success-header">
+            <div class="success-icon">✔</div>
+            <h2>Order Confirmed!</h2>
+            <p>Thank you for your purchase.</p>
+        </div>
 
-	    <!-- Ordered Items -->
-	    <div th:each="item : ${orderItems}" 
-	         class="d-flex align-items-center mb-3">
+        <!-- Ordered Items -->
+        <div th:each="item : ${orderItems}"
+             class="d-flex align-items-center mb-3">
 
-	        <div class="me-3">
-	            <img th:src="@{${item.imageUrl}}" class="product-img">
-	        </div>
+            <div class="me-3">
+                <img th:src="@{${item.imageUrl}}" class="product-img">
+            </div>
 
-	        <div class="flex-grow-1">
-	            <strong th:text="${item.productName}"></strong>
-	            <div class="text-muted">
-	                ₹ <span th:text="${item.price}"></span>
-	                × <span th:text="${item.quantity}"></span>
-	            </div>
-	        </div>
+            <div class="flex-grow-1">
+                <strong th:text="${item.productName}"></strong>
+                <div class="text-muted">
+                    ₹ <span th:text="${item.price}"></span>
+                    × <span th:text="${item.quantity}"></span>
+                </div>
+            </div>
 
-	        <div class="fw-bold text-success">
-	            ₹ <span th:text="${item.price * item.quantity}"></span>
-	        </div>
+            <div class="fw-bold text-success">
+                ₹ <span th:text="${item.price * item.quantity}"></span>
+            </div>
 
-	    </div> <!-- CLOSES th:each -->
+        </div> <!-- CLOSES th:each -->
 
-	    <!-- Summary -->
-	    <div class="summary-box">
+        <!-- Summary -->
+        <div class="summary-box">
 
-	        <div class="summary-row">
-	            <span>Order ID</span>
-	            <span th:text="${orderId}"></span>
-	        </div>
+            <div class="summary-row">
+                <span>Order ID</span>
+                <span th:text="${orderId}"></span>
+            </div>
 
-	        <div class="summary-row">
-	            <span>Payment Method</span>
-	            <span th:text="${paymentMethod}"></span>
-	        </div>
+            <div class="summary-row">
+                <span>Payment Method</span>
+                <span th:text="${paymentMethod}"></span>
+            </div>
 
-	        <div class="summary-row total-row">
-	            <span>Total Paid</span>
-	            <span>₹ <span th:text="${amount}"></span></span>
-	        </div>
+            <div class="summary-row total-row">
+                <span>Total Paid</span>
+                <span>₹ <span th:text="${amount}"></span></span>
+            </div>
 
-	    </div>
+        </div>
 
-	    <div class="text-center">
-	        <a th:href="@{/orders/my-orders}" 
-	           class="view-orders-btn">
-	            🛒 View My Orders
-	        </a>
-	    </div>
+        <div class="text-center">
+            <a th:href="@{/orders/my-orders}"
+               class="view-orders-btn">
+                <i class="bi bi-box-seam me-2"></i>
+                View My Orders
+            </a>
+        </div>
 
-	</div>
+    </div>
 
-	</section>
+</section>
 </html>

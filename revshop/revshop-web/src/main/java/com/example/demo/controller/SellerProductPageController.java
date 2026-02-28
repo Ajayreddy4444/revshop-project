@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.ProductDto;
 import com.example.demo.dto.ProductRequest;
 import com.example.demo.service.ProductClientService;
+import com.example.demo.service.ReviewClientService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,9 +20,11 @@ import java.nio.file.StandardCopyOption;
 public class SellerProductPageController {
 
     private final ProductClientService productClientService;
+    private final ReviewClientService reviewClientService;
 
-    public SellerProductPageController(ProductClientService productClientService) {
+    public SellerProductPageController(ProductClientService productClientService, ReviewClientService reviewClientService) {
         this.productClientService = productClientService;
+        this.reviewClientService = reviewClientService;
     }
 
     @GetMapping("/products/new")
@@ -207,12 +210,22 @@ public class SellerProductPageController {
                                      HttpSession session,
                                      Model model) {
 
-        if (session.getAttribute("user") == null)
+        var user = (com.example.demo.dto.AuthResponse)
+                session.getAttribute("user");
+
+        if (user == null)
             return "redirect:/login";
+
+        if (!"SELLER".equalsIgnoreCase(user.getRole()))
+            return "redirect:/products";
 
         ProductDto product = productClientService.getProductById(id);
 
+        var reviews =
+                reviewClientService.getReviewsByProduct(id);
+
         model.addAttribute("product", product);
+        model.addAttribute("reviews", reviews);
 
         return "seller-product-details";
     }

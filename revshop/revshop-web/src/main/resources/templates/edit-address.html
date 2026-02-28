@@ -4,7 +4,7 @@
 
 <section class="container address-container">
 
-    
+
     <style>
         .address-container {
             min-height: 85vh;
@@ -22,6 +22,7 @@
             width: 100%;
             max-width: 500px;
             animation: fadeIn 0.4s ease-in-out;
+            margin-bottom: 4px;
         }
 
         .address-title {
@@ -87,47 +88,47 @@
 
         <h2 class="address-title">Edit Address</h2>
 
-        <form th:action="@{/address/update}" 
-              th:object="${address}" 
+        <form th:action="@{/address/update}"
+              th:object="${address}"
               method="post">
 
             <!-- IMPORTANT: hidden ID -->
-            <input type="hidden" th:field="*{addressId}" />
+            <input type="hidden" th:field="*{addressId}"/>
 
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" th:field="*{fullName}" 
-                       class="form-control" required />
+                <input type="text" th:field="*{fullName}"
+                       class="form-control" required/>
             </div>
 
             <div class="form-group">
                 <label>Phone Number</label>
-                <input type="text" th:field="*{phoneNumber}" 
-                       class="form-control" required />
+                <input type="text" th:field="*{phoneNumber}"
+                       class="form-control" required/>
             </div>
 
             <div class="form-group">
                 <label>Address Line</label>
-                <input type="text" th:field="*{addressLine}" 
-                       class="form-control" required />
+                <input type="text" th:field="*{addressLine}"
+                       class="form-control" required/>
             </div>
 
             <div class="form-group">
                 <label>City</label>
-                <input type="text" th:field="*{city}" 
-                       class="form-control" required />
+                <input type="text" th:field="*{city}"
+                       class="form-control" required/>
             </div>
 
             <div class="form-group">
                 <label>State</label>
-                <input type="text" th:field="*{state}" 
-                       class="form-control" required />
+                <input type="text" th:field="*{state}"
+                       class="form-control" required/>
             </div>
 
             <div class="form-group">
                 <label>Pincode</label>
-                <input type="text" th:field="*{pincode}" 
-                       class="form-control" required />
+                <input type="text" th:field="*{pincode}"
+                       class="form-control" required/>
             </div>
 
             <button type="submit" class="update-btn">
