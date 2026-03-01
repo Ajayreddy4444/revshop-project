@@ -7,8 +7,11 @@ import java.util.List;
 
 public interface NotificationService {
 
-    // Create order notification
+    // Create order notification for buyer
     void createOrderNotification(User user, Long orderId, String address);
+
+    // ✅ Create order notification for seller
+    void createSellerOrderNotification(User seller, Long orderId, String productName);
 
     // Get all notifications of a user
     List<Notification> getUserNotifications(User user);
@@ -19,6 +22,6 @@ public interface NotificationService {
     // Mark single notification as seen
     void markAsSeen(Long notificationId);
 
-    // ✅ NEW: Mark all notifications as seen
+    // Mark all notifications as seen
     void markAllAsSeen(User user);
 }

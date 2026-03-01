@@ -11,53 +11,66 @@ import java.util.List;
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
-	@Autowired
-	private NotificationRepository notificationRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
-	@Override
-	public void createOrderNotification(User user, Long orderId, String address) {
+    // Buyer Notification
+    @Override
+    public void createOrderNotification(User user, Long orderId, String address) {
 
-		Notification notification = new Notification();
-		notification.setUser(user);
-		notification.setTitle("Order Placed Successfully");
-		notification.setMessage("Order ID: " + orderId + " | Shipping Address: " + address);
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setTitle("Order Placed Successfully");
+        notification.setMessage("Order ID: " + orderId + " | Shipping Address: " + address);
 
-		notificationRepository.save(notification);
-	}
+        notificationRepository.save(notification);
+    }
 
-	@Override
-	public List<Notification> getUserNotifications(User user) {
-		return notificationRepository.findByUserOrderByCreatedAtDesc(user);
-	}
+    // ✅ Seller Notification
+    @Override
+    public void createSellerOrderNotification(User seller, Long orderId, String productName) {
 
-	@Override
-	public long getUnreadCount(User user) {
-		return notificationRepository.countByUserAndSeenFalse(user);
-	}
+        Notification notification = new Notification();
+        notification.setUser(seller);
+        notification.setTitle("New Order for Your Product");
+        notification.setMessage("Order ID: " + orderId + " | Product: " + productName);
 
-	@Override
-	public void markAsSeen(Long notificationId) {
+        notificationRepository.save(notification);
+    }
 
-		Notification notification = notificationRepository.findById(notificationId).orElse(null);
+    @Override
+    public List<Notification> getUserNotifications(User user) {
+        return notificationRepository.findByUserOrderByCreatedAtDesc(user);
+    }
 
-		if (notification != null) {
-			notification.setSeen(true);
-			notificationRepository.save(notification);
-		}
-	}
+    @Override
+    public long getUnreadCount(User user) {
+        return notificationRepository.countByUserAndSeenFalse(user);
+    }
 
-	// ✅ NEW METHOD
-	@Override
-	public void markAllAsSeen(User user) {
+    @Override
+    public void markAsSeen(Long notificationId) {
 
-		List<Notification> notifications = notificationRepository.findByUserOrderByCreatedAtDesc(user);
+        Notification notification = notificationRepository.findById(notificationId).orElse(null);
 
-		for (Notification notification : notifications) {
-			if (!notification.isSeen()) {
-				notification.setSeen(true);
-			}
-		}
+        if (notification != null) {
+            notification.setSeen(true);
+            notificationRepository.save(notification);
+        }
+    }
 
-		notificationRepository.saveAll(notifications);
-	}
+    // ✅ Mark All as Seen
+    @Override
+    public void markAllAsSeen(User user) {
+
+        List<Notification> notifications = notificationRepository.findByUserOrderByCreatedAtDesc(user);
+
+        for (Notification notification : notifications) {
+            if (!notification.isSeen()) {
+                notification.setSeen(true);
+            }
+        }
+
+        notificationRepository.saveAll(notifications);
+    }
 }

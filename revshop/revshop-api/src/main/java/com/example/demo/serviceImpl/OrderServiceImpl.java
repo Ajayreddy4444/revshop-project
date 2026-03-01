@@ -115,14 +115,26 @@ public class OrderServiceImpl implements OrderService {
         // 6️⃣ Save Order
         Order savedOrder = orderRepository.save(order);
 
-        // 7️⃣ Create Notification
+        // 7️⃣ Notify Buyer
         notificationService.createOrderNotification(
                 user,
                 savedOrder.getId(),
                 "Order successfully placed"
         );
 
-        // 8️⃣ Clear Cart
+        // 8️⃣ Notify Sellers
+        for (OrderItem item : savedOrder.getItems()) {
+            User seller = item.getProduct().getSeller();
+            if (seller != null) {
+                notificationService.createSellerOrderNotification(
+                        seller,
+                        savedOrder.getId(),
+                        item.getProduct().getName()
+                );
+            }
+        }
+
+        // 9️⃣ Clear Cart
         cartItemRepository.deleteAll(cartItems);
 
         return convertToDTO(savedOrder);
@@ -130,7 +142,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void updateOrderStatus(Long orderId, OrderStatus status) {
-
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
@@ -139,7 +150,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponseDTO getOrderById(Long orderId) {
-
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
@@ -148,12 +158,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponseDTO> getOrderByUser(Long userId) {
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<Order> orders = orderRepository.findByUser(user);
-
         List<OrderResponseDTO> responseList = new ArrayList<>();
 
         for (Order order : orders) {
@@ -164,7 +172,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderResponseDTO convertToDTO(Order order) {
-
         OrderResponseDTO dto = new OrderResponseDTO();
         dto.setOrderId(order.getId());
         dto.setOrderDate(order.getOrderDate());
@@ -172,10 +179,8 @@ public class OrderServiceImpl implements OrderService {
         dto.setStatus(order.getStatus());
 
         List<OrderItemResponseDTO> itemDTOs = new ArrayList<>();
-
         if (order.getItems() != null) {
             for (OrderItem item : order.getItems()) {
-
                 OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
                 itemDTO.setProductId(item.getProduct().getId());
                 itemDTO.setProductName(item.getProduct().getName());
@@ -183,7 +188,6 @@ public class OrderServiceImpl implements OrderService {
                 itemDTO.setPriceAtPurchase(item.getPriceAtPurchase());
                 itemDTO.setSubtotal(item.getSubtotal());
                 itemDTO.setImageUrl(item.getProduct().getImageUrl());
-
                 itemDTOs.add(itemDTO);
             }
         }
@@ -192,13 +196,8 @@ public class OrderServiceImpl implements OrderService {
         return dto;
     }
 
-    // ============================================================
-    // ✅ Check If User Purchased Specific Product
-    // ============================================================
-
     @Override
     public boolean hasUserPurchasedProduct(Long userId, Long productId) {
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -211,26 +210,18 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
         }
-
         return false;
     }
 
-    // ============================================================
-    // ✅ Get Orders For Seller
-    // ============================================================
-
     @Override
     public List<SellerOrderResponseDTO> getOrdersForSeller(Long sellerId) {
-
         List<OrderItem> orderItems =
                 orderItemRepository.findByProduct_Seller_Id(sellerId);
 
         List<SellerOrderResponseDTO> response = new ArrayList<>();
 
         for (OrderItem item : orderItems) {
-
             SellerOrderResponseDTO dto = new SellerOrderResponseDTO();
-
             dto.setOrderId(item.getOrder().getId());
             dto.setOrderDate(item.getOrder().getOrderDate());
             dto.setStatus(item.getOrder().getStatus());
@@ -238,10 +229,8 @@ public class OrderServiceImpl implements OrderService {
             dto.setProductName(item.getProduct().getName());
             dto.setQuantity(item.getQuantity());
             dto.setSubtotal(item.getSubtotal());
-
             dto.setBuyerName(item.getOrder().getUser().getName());
             dto.setBuyerEmail(item.getOrder().getUser().getEmail());
-
             response.add(dto);
         }
 
