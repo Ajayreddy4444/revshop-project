@@ -6,6 +6,7 @@ public class ProductRequest {
     private Double price;
     private Double mrp;
     private Integer quantity;
+    private Double discountPercent;
     private Integer lowStockThreshold;
     private String imageUrl;
     private Long categoryId;
@@ -72,5 +73,13 @@ public class ProductRequest {
 
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public Double getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(Double discountPercent) {
+        this.discountPercent = discountPercent;
     }
 }

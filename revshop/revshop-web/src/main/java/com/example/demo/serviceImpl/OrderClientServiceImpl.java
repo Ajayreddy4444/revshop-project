@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.example.demo.dto.OrderResponse;
 import com.example.demo.dto.PlaceOrderRequest;
+import com.example.demo.dto.SellerOrderResponse;
 import com.example.demo.service.OrderClientService;
 
 @Service
@@ -39,10 +40,11 @@ public class OrderClientServiceImpl implements OrderClientService {
             );
 
         } catch (RestClientException ex) {
-            ex.printStackTrace();
-            return null;
+            throw new RuntimeException("API call failed", ex);
         }
-    }
+            
+        }
+    
 
     // ================== GET ORDERS BY USER ==================
     @Override
@@ -83,5 +85,20 @@ public class OrderClientServiceImpl implements OrderClientService {
             ex.printStackTrace();
             return false;
         }
+    }
+    @Override
+    public List<SellerOrderResponse> getSellerOrders(Long sellerId) {
+
+        String url = baseUrl + "/orders/seller/" + sellerId;
+        // baseUrl is probably http://localhost:8080/api
+
+        SellerOrderResponse[] response =
+                restTemplate.getForObject(url, SellerOrderResponse[].class);
+
+        if (response == null) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.asList(response);
     }
 }

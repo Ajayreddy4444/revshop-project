@@ -7,6 +7,9 @@ target/
 *.jar
 *.war
 
+# Ignore uploaded files
+uploads/
+
 # Eclipse / STS
 .project
 .classpath

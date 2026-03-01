@@ -2,53 +2,172 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('My Orders', ~{::section})}">
 
-<section>
+<section class="orders-container">
+    <div class="d-flex justify-content-end mb-3">
+        <a th:href="@{/products}"
+           class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Products
+        </a>
+    </div>
 
-<h2>My Orders</h2>
+    <style>
+        .orders-container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 30px;
+        }
 
-<div th:if="${orders == null or #lists.isEmpty(orders)}">
-    <p>No orders found.</p>
-</div>
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
 
-<div th:each="order : ${orders}">
+        .order-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
 
-    <hr/>
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
 
-    <p><strong>Order ID:</strong>
-        <span th:text="${order.orderId}"></span>
-    </p>
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            background: #e6f4ea;
+            color: #2e7d32;
+        }
 
-    <p><strong>Order Date:</strong>
-        <span th:text="${order.orderDate}"></span>
-    </p>
+        .order-item {
+            display: flex;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
 
-    <p><strong>Total Amount:</strong>
-        ₹ <span th:text="${order.totalAmount}"></span>
-    </p>
+        .product-image {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
 
-    <p><strong>Status:</strong>
-        <span th:text="${order.status}"></span>
-    </p>
+        .item-details {
+            flex: 1;
+        }
 
-    <h4>Items:</h4>
+        .product-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
 
-    <table border="1">
-        <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Subtotal</th>
-        </tr>
+        .price-row {
+            display: flex;
+            gap: 25px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
 
-        <tr th:each="item : ${order.items}">
-            <td th:text="${item.productName}"></td>
-            <td th:text="${item.quantity}"></td>
-            <td th:text="${item.priceAtPurchase}"></td>
-            <td th:text="${item.subtotal}"></td>
-        </tr>
-    </table>
+        .view-btn {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #2874f0;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 13px;
+            transition: 0.3s;
+        }
 
-</div>
+        .view-btn:hover {
+            background: #1b5fd1;
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: gray;
+        }
+    </style>
+
+    <h2 class="page-title">My Orders</h2>
+
+    <div th:if="${orders == null or #lists.isEmpty(orders)}" class="empty-orders">
+        No orders found.
+    </div>
+
+    <div th:each="order : ${orders}" class="order-card">
+
+        <!-- Order Header -->
+        <div class="order-header">
+            <div>
+                <strong>Order ID:</strong>
+                <span th:text="${order.orderId}"></span>
+            </div>
+
+            <div>
+                <strong>Date:</strong>
+                <span th:text="${order.orderDate}"></span>
+            </div>
+
+            <div>
+                <strong>Total:</strong>
+                ₹ <span th:text="${order.totalAmount}"></span>
+            </div>
+
+            <div>
+            <span class="status-badge"
+                  th:text="${order.status}"></span>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div th:each="item : ${order.items}" class="order-item">
+
+            <!-- Product Image -->
+            <img th:src="@{/images/{img}(img=${item.imageUrl})}"
+
+                 alt="Product Image"
+                 style="width:80px; height:80px; object-fit:cover;"
+                 class="product-image"/>
+
+            <!-- Product Details -->
+            <div class="item-details">
+
+                <div class="product-title"
+                     th:text="${item.productName}"></div>
+
+                <div class="price-row">
+                    <span>Qty: <b th:text="${item.quantity}"></b></span>
+                    <span>Price: ₹ <b th:text="${item.priceAtPurchase}"></b></span>
+                    <span>Subtotal: ₹ <b th:text="${item.subtotal}"></b></span>
+                </div>
+
+                <!-- View Product Button -->
+                <a th:href="@{/products/{id}(id=${item.productId})}"
+                   class="view-btn">
+                    View Product
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </section>
 </html>

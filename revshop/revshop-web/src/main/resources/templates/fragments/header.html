@@ -1,52 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
 <div th:fragment="header">
-    <header style="display:flex; justify-content:space-between; align-items:center; padding:10px 20px;">
 
-        <h2>RevShop</h2>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black px-4 py-3">
 
-        <!-- Bell Icon -->
-        <div style="position:relative; cursor:pointer;"
-             onclick="window.location.href='/notifications'">
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold fs-4 text-warning" th:href="@{/}">
+            Rev<span class="text-white">Shop</span>
+        </a>
 
-            <i class="fa fa-bell" style="font-size:22px;"></i>
+        <div class="collapse navbar-collapse">
 
-            <!-- Notification Badge -->
-            <span id="notificationCount"
-                  style="display:none;
-                         position:absolute;
-                         top:-5px;
-                         right:-8px;
-                         background:red;
-                         color:white;
-                         font-size:12px;
-                         padding:3px 6px;
-                         border-radius:50%;">
-            </span>
+            <!-- LEFT SIDE -->
+            <div class="d-flex align-items-center gap-4">
+
+                <!-- Products (BUYER) -->
+                <a class="nav-link text-white fw-semibold"
+                   th:if="${session.user != null and session.user.role == 'BUYER'}"
+                   th:href="@{/products}">
+                    <i class="bi bi-bag me-1"></i>
+                    Products
+                </a>
+
+                <!-- Search (BUYER) -->
+                <form class="d-flex align-items-center"
+                      th:if="${session.user != null and session.user.role == 'BUYER'}"
+                      th:action="@{/products}"
+                      method="get">
+
+                    <div class="position-relative">
+                        <input class="form-control form-control-sm pe-4"
+                               type="text"
+                               name="keyword"
+                               placeholder="Search products..."
+                               th:value="${param.keyword}"
+                               style="width:240px;">
+
+                        <a th:if="${param.keyword != null}"
+                           th:href="@{/products}"
+                           class="position-absolute top-50 end-0 translate-middle-y me-2 text-secondary"
+                           style="text-decoration:none;">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </a>
+                    </div>
+
+                    <button class="btn btn-warning btn-sm ms-2">
+                        <i class="bi bi-search"></i>
+                    </button>
+
+                </form>
+
+                <!-- SELLER NAV -->
+                <a class="nav-link text-white fw-semibold"
+                   th:if="${session.user != null and session.user.role == 'SELLER'}"
+                   th:href="@{/seller/products}">
+                    <i class="bi bi-box-seam me-1"></i>
+                    Products
+                </a>
+
+                <a class="nav-link text-white fw-semibold"
+                   th:if="${session.user != null and session.user.role == 'SELLER'}"
+                   th:href="@{/seller/products/new}">
+                    <i class="bi bi-plus-square me-1"></i>
+                    Add Product
+                </a>
+
+                <a class="nav-link text-white fw-semibold"
+                   th:if="${session.user != null and session.user.role == 'SELLER'}"
+                   th:href="@{/seller/categories/seller/orders}">
+                    <i class="bi bi-receipt me-1"></i>
+                    Orders
+                </a>
+
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <ul class="navbar-nav ms-auto align-items-center gap-4">
+
+                <!-- LOGIN / REGISTER -->
+                <li class="nav-item" th:if="${session.user == null}">
+                    <a th:href="@{/login}"
+                       th:class="${activePage == 'login'} ? 'btn btn-warning' : 'btn btn-outline-light'">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>
+                        Login
+                    </a>
+                </li>
+
+                <li class="nav-item" th:if="${session.user == null}">
+                    <a th:href="@{/register}"
+                       th:class="${activePage == 'register'} ? 'btn btn-warning' : 'btn btn-outline-light'">
+                        <i class="bi bi-person-plus me-1"></i>
+                        Register
+                    </a>
+                </li>
+
+                <!-- BUYER -->
+                <li class="nav-item"
+                    th:if="${session.user != null and session.user.role == 'BUYER'}">
+                    <a class="nav-link text-white fw-semibold"
+                       th:href="@{/cart}">
+                        <i class="bi bi-cart3 me-1"></i>
+                        Cart
+                    </a>
+                </li>
+
+                <li class="nav-item"
+                    th:if="${session.user != null and session.user.role == 'BUYER'}">
+                    <a class="nav-link text-white fw-semibold"
+                       th:href="@{/orders/my-orders}">
+                        <i class="bi bi-box-seam me-1"></i>
+                        Orders
+                    </a>
+                </li>
+
+                <li class="nav-item"
+                    th:if="${session.user != null and session.user.role == 'BUYER'}">
+                    <a class="nav-link text-white fw-semibold"
+                       th:href="@{/wishlist}">
+                        <i class="bi bi-bag-heart-fill"></i>
+                        Wishlist
+                    </a>
+                </li>
+
+                <!-- 🔔 Notification (ALL LOGGED USERS) -->
+                <li class="nav-item position-relative"
+                    th:if="${session.user != null}">
+
+                    <a class="nav-link text-white"
+                       th:href="@{/notifications}">
+
+                        <i class="bi bi-bell fs-5"></i>
+
+                        <!-- Dynamic Badge -->
+                        <span id="notificationCount"
+                              class="position-absolute badge rounded-pill bg-danger"
+                              style="top: 2px; right: -5px; font-size: 10px; display:none;">
+                        </span>
+
+                    </a>
+                </li>
+
+                <!-- PROFILE -->
+                <li class="nav-item dropdown"
+                    th:if="${session.user != null}">
+
+                    <a class="nav-link dropdown-toggle text-white"
+                       data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span th:text="${session.user.name}"></span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item text-danger"
+                               th:href="@{/logout}">
+                                <i class="bi bi-box-arrow-right me-2"></i>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+
         </div>
 
-    </header>
+    </nav>
 
+    <!-- 🔔 Notification Count Script -->
     <script th:inline="javascript">
 
-        const headerUserId = /*[[${session.userId}]]*/ null;
+        const headerUserId = /*[[${session.user != null ? session.user.id : null}]]*/ null;
 
         function loadHeaderNotificationCount() {
 
             if (!headerUserId) return;
 
-            fetch(`http://localhost:8080/api/notifications/${headerUserId}`)
+            fetch(`/api/notifications/${headerUserId}`)
                 .then(res => res.json())
                 .then(data => {
 
                     if (!data) return;
 
                     const unread = data.filter(n => !n.seen).length;
-
                     const badge = document.getElementById("notificationCount");
 
                     if (!badge) return;
 
                     if (unread > 0) {
-                        badge.style.display = "block";
+                        badge.style.display = "inline-block";
                         badge.innerText = unread;
                     } else {
                         badge.style.display = "none";
@@ -60,3 +203,4 @@
     </script>
 
 </div>
+</html>

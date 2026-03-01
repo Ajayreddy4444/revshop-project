@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.dto.OrderItemResponseDTO;
 import com.example.demo.dto.OrderResponseDTO;
 import com.example.demo.dto.PlaceOrderRequestDTO;
+import com.example.demo.dto.SellerOrderResponseDTO;
 import com.example.demo.entity.*;
 import com.example.demo.repository.*;
 import com.example.demo.service.OrderService;
@@ -23,24 +24,28 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final AddressRepository addressRepository;
     private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
+    private final CartItemRepository cartItemRepository;
+    private final OrderItemRepository orderItemRepository;
     private final NotificationService notificationService;
-    
+
     public OrderServiceImpl(UserRepository userRepository,
                             OrderRepository orderRepository,
                             ProductRepository productRepository,
                             NotificationService notificationService,
                             AddressRepository addressRepository,
                             CartRepository cartRepository,
-                            CartItemRepository cartItemRepository) {
+                            CartItemRepository cartItemRepository,
+                            OrderItemRepository orderItemRepository) {
+
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
         this.notificationService = notificationService;
         this.addressRepository = addressRepository;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
-        this.productRepository = productRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     @Override
@@ -54,6 +59,7 @@ public class OrderServiceImpl implements OrderService {
         Address address = addressRepository.findById(request.getAddressId())
                 .orElseThrow(() -> new RuntimeException("Address not found"));
 
+        // 3️⃣ Fetch Cart
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
@@ -73,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
         double totalAmount = 0.0;
         List<OrderItem> orderItems = new ArrayList<>();
 
-        // 5️⃣ Process Each Cart Item
+        // 5️⃣ Process Cart Items
         for (CartItem cartItem : cartItems) {
 
             Product product = productRepository.findById(cartItem.getProductId())
@@ -82,7 +88,6 @@ public class OrderServiceImpl implements OrderService {
             int availableStock = product.getQuantity();
             int requestedQty = cartItem.getQuantity();
 
-            // 🔒 Stock Validation
             if (availableStock < requestedQty) {
                 throw new RuntimeException(
                         "Insufficient stock for product: " + product.getName());
@@ -90,11 +95,9 @@ public class OrderServiceImpl implements OrderService {
 
             double subtotal = product.getPrice() * requestedQty;
 
-            // 🔥 Reduce Product Stock
-            product.setQuantity(availableStock - requestedQty);
-            // No need to call save() — JPA auto flushes inside @Transactional
+            // 🔥 Reduce stock (optional if needed)
+            // product.setQuantity(availableStock - requestedQty);
 
-            // 🔥 Create Order Item
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
@@ -109,19 +112,17 @@ public class OrderServiceImpl implements OrderService {
         order.setItems(orderItems);
         order.setTotalAmount(totalAmount);
 
-        // 6️⃣ Save Order (Cascade should save OrderItems)
+        // 6️⃣ Save Order
         Order savedOrder = orderRepository.save(order);
 
+        // 7️⃣ Create Notification
         notificationService.createOrderNotification(
                 user,
                 savedOrder.getId(),
                 "Order successfully placed"
         );
-    
-        cart.getItems().clear();
-        cartRepository.save(cart);
 
-        // 7️⃣ Clear Cart
+        // 8️⃣ Clear Cart
         cartItemRepository.deleteAll(cartItems);
 
         return convertToDTO(savedOrder);
@@ -176,10 +177,12 @@ public class OrderServiceImpl implements OrderService {
             for (OrderItem item : order.getItems()) {
 
                 OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
+                itemDTO.setProductId(item.getProduct().getId());
                 itemDTO.setProductName(item.getProduct().getName());
                 itemDTO.setQuantity(item.getQuantity());
                 itemDTO.setPriceAtPurchase(item.getPriceAtPurchase());
                 itemDTO.setSubtotal(item.getSubtotal());
+                itemDTO.setImageUrl(item.getProduct().getImageUrl());
 
                 itemDTOs.add(itemDTO);
             }
@@ -188,31 +191,60 @@ public class OrderServiceImpl implements OrderService {
         dto.setItems(itemDTOs);
         return dto;
     }
-    
- // ============================================================
- // ✅ UPDATED: Check If User Purchased Specific Product
- // Used by review module to restrict reviews
- // ============================================================
- @Override
- public boolean hasUserPurchasedProduct(Long userId, Long productId) {
 
-     User user = userRepository.findById(userId)
-             .orElseThrow(() -> new RuntimeException("User not found"));
+    // ============================================================
+    // ✅ Check If User Purchased Specific Product
+    // ============================================================
 
-     // Get all orders of the user
-     List<Order> orders = orderRepository.findByUser(user);
+    @Override
+    public boolean hasUserPurchasedProduct(Long userId, Long productId) {
 
-     // Check each order and its items
-     for (Order order : orders) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-         for (OrderItem item : order.getItems()) {
+        List<Order> orders = orderRepository.findByUser(user);
 
-             if (item.getProduct().getId().equals(productId)) {
-                 return true; // Product found in any order
-             }
-         }
-     }
+        for (Order order : orders) {
+            for (OrderItem item : order.getItems()) {
+                if (item.getProduct().getId().equals(productId)) {
+                    return true;
+                }
+            }
+        }
 
-     return false; // Product never purchased
- }
+        return false;
+    }
+
+    // ============================================================
+    // ✅ Get Orders For Seller
+    // ============================================================
+
+    @Override
+    public List<SellerOrderResponseDTO> getOrdersForSeller(Long sellerId) {
+
+        List<OrderItem> orderItems =
+                orderItemRepository.findByProduct_Seller_Id(sellerId);
+
+        List<SellerOrderResponseDTO> response = new ArrayList<>();
+
+        for (OrderItem item : orderItems) {
+
+            SellerOrderResponseDTO dto = new SellerOrderResponseDTO();
+
+            dto.setOrderId(item.getOrder().getId());
+            dto.setOrderDate(item.getOrder().getOrderDate());
+            dto.setStatus(item.getOrder().getStatus());
+            dto.setImageUrl(item.getProduct().getImageUrl());
+            dto.setProductName(item.getProduct().getName());
+            dto.setQuantity(item.getQuantity());
+            dto.setSubtotal(item.getSubtotal());
+
+            dto.setBuyerName(item.getOrder().getUser().getName());
+            dto.setBuyerEmail(item.getOrder().getUser().getEmail());
+
+            response.add(dto);
+        }
+
+        return response;
+    }
 }

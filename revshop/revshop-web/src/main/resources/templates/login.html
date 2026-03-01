@@ -2,26 +2,101 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Login', ~{::section})}">
 
-<section style="max-width:400px;margin:auto;text-align:center">
-    
-    <h2>Login</h2>
+<section class="auth-wrapper">
 
-    <p style="color:green; font-weight:bold;" th:if="${success}" th:text="${success}"></p>
+    <div class="auth-card">
 
-    <p style="color:red; font-weight:bold;" th:if="${error}" th:text="${error}"></p>
+        <h2 class="mb-4 text-center">Welcome Back</h2>
 
-    <form method="post" th:action="@{/login}">
-
-        <input type="email" name="email" placeholder="Email" required><br><br>
-
-        <input type="password" name="password" placeholder="Password" required><br><br>
-        
-        <div style="margin-bottom:10px;">
-            <a th:href="@{/forgot-password}">Forgot Password?</a>
+        <!-- Success Message -->
+        <div th:if="${success}" 
+             class="alert alert-success text-center auto-hide">
+            <span th:text="${success}"></span>
         </div>
 
-        <button type="submit">Login</button>
-    </form>
+        <!-- Global Backend Error (Wrong Credentials etc.) -->
+        <div th:if="${error}" 
+             class="alert alert-danger text-center auto-hide">
+            <span th:utext="${error}"></span>
+        </div>
+
+        <form method="post"
+              th:action="@{/login}"
+              th:object="${loginRequest}">
+
+            <!-- Email -->
+            <div class="mb-3">
+                <input type="email"
+                       th:field="*{email}"
+                       class="form-control"
+                       required
+                       th:classappend="${#fields.hasErrors('email')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : 'Email address'">
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <input type="password"
+                       th:field="*{password}"
+                       class="form-control"
+                       required
+                       th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('password')} ? ${#fields.errors('password')[0]} : 'Password'">
+            </div>
+
+            <div class="mb-3 text-end">
+                <a th:href="@{/forgot-password}"
+                   class="text-decoration-none">
+                    Forgot Password?
+                </a>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-warning w-100 fw-semibold">
+                Login
+            </button>
+
+        </form>
+
+        <div class="mt-4 text-center">
+            <small>
+                Don’t have an account?
+                <a th:href="@{/register}" class="text-warning fw-semibold">
+                    Register
+                </a>
+            </small>
+        </div>
+
+    </div>
 
 </section>
+
+<!-- Auto Reset Script (2 seconds) -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        setTimeout(function () {
+
+            const defaultPlaceholders = {
+                email: "Email address",
+                password: "Password"
+            };
+
+            document.querySelectorAll('.is-invalid').forEach(function (input) {
+                input.classList.remove('is-invalid');
+
+                if (defaultPlaceholders[input.name]) {
+                    input.placeholder = defaultPlaceholders[input.name];
+                }
+            });
+
+            document.querySelectorAll('.auto-hide').forEach(function (alert) {
+                alert.remove();
+            });
+
+        }, 2000);
+
+    });
+</script>
+
 </html>

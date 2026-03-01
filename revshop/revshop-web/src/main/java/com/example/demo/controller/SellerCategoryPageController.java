@@ -1,24 +1,31 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.AuthResponse;
 import com.example.demo.dto.Category;
+import com.example.demo.dto.SellerOrderResponse;
+import com.example.demo.service.OrderClientService;
 import com.example.demo.service.ProductClientService;
 import jakarta.servlet.http.HttpSession;
+
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/seller/categories")
 public class SellerCategoryPageController {
     private final ProductClientService productClientService;
+    private final OrderClientService orderClientService;
 
-    public SellerCategoryPageController(ProductClientService productClientService) {
+    public SellerCategoryPageController(ProductClientService productClientService,
+    		                              OrderClientService orderClientService) {
         this.productClientService = productClientService;
+        this.orderClientService=orderClientService;
     }
 
     @GetMapping("/new")
@@ -47,5 +54,21 @@ public class SellerCategoryPageController {
             );
             return "redirect:/seller/categories/new";
         }
+    }
+    @GetMapping("/seller/orders")
+    public String viewSellerOrders(HttpSession session, Model model) {
+
+        AuthResponse seller =
+                (AuthResponse) session.getAttribute("user");
+
+        if (seller == null) return "redirect:/login";
+
+        // ✅ CORRECT CALL
+        List<SellerOrderResponse> orders =
+                orderClientService.getSellerOrders(seller.getId());
+
+        model.addAttribute("orders", orders);
+
+        return "seller-orders";
     }
 }

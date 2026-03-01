@@ -2,67 +2,168 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Products', ~{::section})}">
 
-<section class="container mt-4">
+<section class="container mt-3 mb-4 ">
 
-    <!-- SUCCESS MESSAGE -->
+
     <div id="successMsg"
          th:if="${param.added}"
          class="alert alert-success text-center">
         ✔ Added to cart successfully
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Available Products</h2>
-
-        <a th:href="@{/cart}">
-            <button class="btn btn-dark">🛒 View Cart Items</button>
-        </a>
+    <div class="mb-3 text-center">
+        <h2 class="fw-bold">
+            <i class="bi bi-shop me-2 text-warning"></i>
+            Shop Now
+        </h2>
     </div>
 
-    <div class="row">
-        <div class="col-md-4 mb-4" th:each="product: ${products}">
-            <div class="card h-100 shadow-sm">
+    <form method="get"
+          th:action="@{/products}"
+          class="d-flex align-items-center justify-content-between mb-4">
 
-                <img th:src="@{'/images/' + ${product.imageUrl}}"
-                     class="card-img-top"
-                     style="height:200px;object-fit:cover;">
+        <!-- LEFT SIDE -->
+        <select name="categoryId"
+                class="form-select form-select-sm"
+                style="width:180px;">
+            <option value="">All Categories</option>
+            <option th:each="c : ${categories}"
+                    th:value="${c.id}"
+                    th:text="${c.name}"
+                    th:selected="${c.id == categoryId}">
+            </option>
+        </select>
+
+        <!-- RIGHT SIDE -->
+        <div class="d-flex align-items-center gap-2">
+
+            <input type="number"
+                   name="minPrice"
+                   th:value="${minPrice}"
+                   class="form-control form-control-sm"
+                   placeholder="Min"
+                   style="width:110px;">
+
+            <input type="number"
+                   name="maxPrice"
+                   th:value="${maxPrice}"
+                   class="form-control form-control-sm"
+                   placeholder="Max"
+                   style="width:110px;">
+
+            <button class="btn btn-warning btn-sm">
+                <i class="bi bi-search"></i>
+            </button>
+
+            <a th:href="@{/products}"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-clockwise"></i>
+            </a>
+
+        </div>
+
+    </form>
+
+    <!-- NO PRODUCTS -->
+    <div th:if="${#lists.isEmpty(products)}"
+         class="text-center py-5">
+
+        <i class="bi bi-box-seam text-warning"
+           style="font-size: 48px;"></i>
+
+        <h4 class="mt-3 fw-bold">
+            No products available
+        </h4>
+
+        <p class="text-muted">
+            Please check back later.
+        </p>
+
+    </div>
+
+    <div class="row" th:if="${!#lists.isEmpty(products)}">
+        <div class="col-lg-4 col-md-6 col-sm-6 mb-4 d-flex" th:each="product: ${products}">
+            <div class="card product-card shadow-sm w-100 h-100 border-0 position-relative">
+
+                <div class="wishlist-icon position-absolute top-0 end-0 p-2">
+                    <i class="bi"
+                       th:id="'heart-'+${product.id}"
+                       th:classappend="${product.wishlisted} ?
+                       'bi-heart-fill text-danger' :
+                       'bi-heart text-dark'"
+                       style="font-size:20px; cursor:pointer;"
+                       th:onclick="'toggleWishlist(' + ${product.id} + ')'">
+                    </i>
+                </div>
+
+                <div class="product-image-wrapper">
+                    <img th:src="${product.imageUrl != null} ? @{/images/{img}(img=${product.imageUrl})} : @{/images/no-image.jpg}"
+                         class="product-img">
+                </div>
 
                 <div class="card-body d-flex flex-column">
 
-                    <h5 th:text="${product.name}"></h5>
-                    <p class="text-muted" th:text="${product.description}"></p>
+                    <h5 class="fw-semibold text-truncate"
+                        th:text="${product.name}"></h5>
 
+                    <p class="text-muted small product-desc"
+                       th:text="${product.description}"></p>
+
+                    <div>
+                        <span class="text-muted text-decoration-line-through"
+                              th:if="${product.mrp != null}">
+                            ₹ <span th:text="${product.mrp}"></span>
+                        </span>
+
+                        <span class="badge bg-danger ms-2"
+                              th:if="${product.discountPercent != null && product.discountPercent > 0}">
+                              <span th:text="${product.discountPercent}"></span>% OFF
+                        </span>
+                    </div>
+                    <div class="fw-bold text-success fs-5 mb-2">
+                        ₹ <span th:text="${product.price}"></span>
+                    </div>
+                    <div class="mb-2">
+
+                        <!-- IN STOCK -->
+                        <span class="badge bg-success"
+                              th:if="${product.quantity > product.lowStockThreshold}">
+                                 In Stock
+                        </span>
+
+                        <!-- LOW STOCK -->
+                        <span class="badge bg-warning text-dark"
+                              th:if="${product.quantity > 0 and product.quantity <= product.lowStockThreshold}">
+                                   Only <span th:text="${product.quantity}"></span> left
+                        </span>
+
+                        <!-- OUT OF STOCK -->
+                        <span class="badge bg-danger"
+                              th:if="${product.quantity == 0}">
+                                   Out of Stock
+                        </span>
+
+                    </div>
                     <div class="mt-auto">
 
-                        <div>
-                            <span class="fw-bold text-success"
-                                  th:text="'₹ ' + ${product.price}"></span>
-                        </div>
-
-                        <div class="d-flex gap-2 mt-2">
+                        <div class="d-flex gap-2">
 
                             <a th:href="@{'/products/' + ${product.id}}"
-                               class="btn btn-primary btn-sm w-50">
+                               class="btn btn-outline-secondary btn-sm w-50">
                                 View Details
                             </a>
 
                             <form th:action="@{/cart/add}" method="post" class="w-50">
-
                                 <input type="hidden" name="productId"
                                        th:value="${product.id}">
                                 <input type="hidden" name="quantity" value="1">
 
                                 <button type="submit"
-                                        class="btn btn-success btn-sm w-100">
-                                    Add To Cart
+                                        class="btn btn-warning btn-sm w-100"
+                                        th:disabled="${product.quantity == 0}">
+                                    <span th:if="${product.quantity > 0}">Add To Cart</span>
+                                    <span th:if="${product.quantity == 0}">Out of Stock</span>
                                 </button>
-
-                                <!-- INLINE BADGE -->
-                                <div class="text-success small mt-1 d-none"
-                                     th:attr="id='badge-'+${product.id}">
-                                    ✔ Added to cart
-                                </div>
-
                             </form>
 
                         </div>
@@ -74,33 +175,71 @@
         </div>
     </div>
 
-    <!-- ⭐⭐⭐ IMPORTANT: SCRIPT MUST BE INSIDE SECTION ⭐⭐⭐ -->
+
     <script>
 
-        // hide green top message after 3 sec
+
         const successMsg = document.getElementById("successMsg");
         if(successMsg){
             setTimeout(()=>{
                 successMsg.style.display="none";
             },3000);
         }
-
-        // show inline badge under clicked product
-        const params = new URLSearchParams(window.location.search);
-        const pid = params.get("pid");
-
-        if(pid){
-            const badge = document.getElementById("badge-"+pid);
-            if(badge){
-                badge.classList.remove("d-none");
-
-                setTimeout(()=>{
-                    badge.classList.add("d-none");
-                },3000);
-            }
-        }
+        
 
     </script>
+
+    <style>
+        body {
+        background-color: #f7f5f2;
+       }
+        .product-card {
+    height: 340px;             /* reduced height */
+    border-radius: 14px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;          /* makes image flush */
+}
+
+.product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+.product-image-wrapper {
+    width: 100%;
+    height: 180px;             /* fixed */
+    overflow: hidden;
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 36px;
+}
+
+.card-body {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+}
+        .wishlist-icon i {
+    transition: 0.2s ease;
+}
+
+.wishlist-icon i:hover {
+    transform: scale(1.15);
+}
+    </style>
 
 </section>
 

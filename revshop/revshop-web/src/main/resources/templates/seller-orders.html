@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Seller Orders', ~{::section})}">
+
+<section class="container mt-5">
+
+    <style>
+        .page-title {
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .order-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            transition: 0.2s ease;
+            height: 100%;
+        }
+
+        .order-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        }
+
+        .order-id {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #28a745;
+        }
+
+        .buyer-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .product-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .status-created {
+            background-color: #6c757d;
+        }
+
+        .status-paid {
+            background-color: #0d6efd;
+        }
+
+        .status-shipped {
+            background-color: #fd7e14;
+        }
+
+        .status-delivered {
+            background-color: #28a745;
+        }
+
+        .status-cancelled {
+            background-color: #dc3545;
+        }
+
+    </style>
+
+    <h3 class="page-title">📦 Orders Received</h3>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(orders)}"
+         class="alert alert-info text-center">
+        No orders received yet.
+    </div>
+
+    <div class="row g-4" th:each="order : ${orders}">
+
+        <div class="col-md-6 col-lg-4">
+
+            <div class="order-card">
+
+                <!-- Top Section -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                    <div class="order-id">
+                        Order #<span th:text="${order.orderId}"></span>
+                    </div>
+
+					<span class="badge"
+					      th:text="${order.status}"
+					      th:classappend="${
+					          order.status == 'CREATED' ? ' status-created' :
+					          order.status == 'PAID' ? ' status-paid' :
+					          ' status-cancelled'
+					      }">
+					</span>
+
+                </div>
+
+                <!-- Product Section -->
+                <div class="d-flex align-items-center mb-3">
+
+					
+
+					<img th:if="${order.imageUrl != null}"
+					     th:src="@{'/images/' + ${order.imageUrl}}"
+					     class="product-img me-3"/>
+
+					    <div>                   
+                            <div class="fw-semibold"
+                             th:text="${order.productName}"></div>
+
+                        <small class="text-muted">
+                            Qty: <span th:text="${order.quantity}"></span>
+                        </small>
+                    </div>
+
+                </div>
+
+                <!-- Amount -->
+                <div class="amount mb-3">
+                    ₹ <span th:text="${order.subtotal}"></span>
+                </div>
+
+                <!-- Buyer Info -->
+                <div class="buyer-box mb-3">
+                    <div class="fw-semibold mb-1">Buyer Details</div>
+                    <div th:text="${order.buyerName}"></div>
+                    <div class="text-muted small"
+                         th:text="${order.buyerEmail}"></div>
+                </div>
+
+                <!-- Order Date -->
+                <div class="text-muted small">
+                    Ordered on:
+                    <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy, hh:mm a')}"></span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</html>

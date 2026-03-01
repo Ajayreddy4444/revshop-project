@@ -3,6 +3,7 @@ package com.example.demo.service;
 import java.util.List;
 import com.example.demo.dto.OrderResponseDTO;
 import com.example.demo.dto.PlaceOrderRequestDTO;
+import com.example.demo.dto.SellerOrderResponseDTO;
 import com.example.demo.entity.OrderStatus;
 
 public interface OrderService {
@@ -13,7 +14,7 @@ public interface OrderService {
 	void updateOrderStatus(Long orderId, OrderStatus status);
 	//updated
 	boolean hasUserPurchasedProduct(Long userId, Long productId);
-	
+	List<SellerOrderResponseDTO> getOrdersForSeller(Long sellerId);
 	
 
 }

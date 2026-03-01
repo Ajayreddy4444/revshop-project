@@ -2,33 +2,128 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Register', ~{::section})}">
 
-<section style="max-width:450px;margin:auto;text-align:center">
-    <h2>Create Account</h2>
+<section class="auth-wrapper">
 
-    <form method="post" th:action="@{/register}">
-        
-        <input name="name" placeholder="Full Name" required><br><br>
+    <div class="auth-card">
 
-        <input type="email" name="email" placeholder="Email" required><br><br>
+        <h2 class="mb-4 text-center">Create Account</h2>
 
-        <input name="phone" placeholder="Phone" required><br><br>
+        <!-- Business Error -->
+        <div th:if="${error}"
+             class="alert alert-danger text-center auto-hide">
+            <span th:text="${error}"></span>
+        </div>
 
-        <input type="password" name="password" placeholder="Password" required><br><br>
+        <form method="post"
+              th:action="@{/register}"
+              th:object="${registerRequest}">
 
-        <label><b>Register As</b></label><br><br>
+            <!-- Name -->
+            <div class="mb-3">
+                <input type="text"
+                       th:field="*{name}"
+                       class="form-control"
+                       required
+                       minlength="3"
+                       maxlength="30"
+                       th:classappend="${#fields.hasErrors('name')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('name')} ? ${#fields.errors('name')[0]} : 'Full Name'">
+            </div>
 
-        <input type="radio" name="role" value="buyer" required> Buyer
-        &nbsp;&nbsp;&nbsp;
-        <input type="radio" name="role" value="seller" required> Seller
-        <br><br>
+            <!-- Email -->
+            <div class="mb-3">
+                <input type="email"
+                       th:field="*{email}"
+                       class="form-control"
+                       required
+                       th:classappend="${#fields.hasErrors('email')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : 'Email'">
+            </div>
 
-        <button type="submit">Register</button>
+            <!-- Phone -->
+            <div class="mb-3">
+                <input type="tel"
+                       th:field="*{phone}"
+                       class="form-control"
+                       required
+                       pattern="[0-9]{10}"
+                       th:classappend="${#fields.hasErrors('phone')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('phone')} ? ${#fields.errors('phone')[0]} : 'Phone'">
+            </div>
 
-    </form>
+            <!-- Password -->
+            <div class="mb-3">
+                <input type="password"
+                       th:field="*{password}"
+                       class="form-control"
+                       required
+                       minlength="6"
+                       th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('password')} ? ${#fields.errors('password')[0]} : 'Password'">
+            </div>
 
-    <p style="color:red" th:text="${error}"></p>
-    <p style="color:green" th:text="${success}"></p>
+            <!-- Role -->
+            <div class="mb-3 text-center">
+                <label class="fw-semibold mb-2 d-block">Register As</label>
+
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input"
+                           type="radio"
+                           th:field="*{role}"
+                           value="BUYER"
+                           required>
+                    <label class="form-check-label">Buyer</label>
+                </div>
+
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input"
+                           type="radio"
+                           th:field="*{role}"
+                           value="SELLER"
+                           required>
+                    <label class="form-check-label">Seller</label>
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-warning w-100 fw-semibold">
+                Register
+            </button>
+
+        </form>
+
+    </div>
 
 </section>
+
+<!-- Auto Reset Script (Only for Backend Blank Errors) -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        setTimeout(function () {
+
+            const defaultPlaceholders = {
+                name: "Full Name",
+                email: "Email",
+                phone: "Phone",
+                password: "Password"
+            };
+
+            document.querySelectorAll('.is-invalid').forEach(function (input) {
+                input.classList.remove('is-invalid');
+
+                if (defaultPlaceholders[input.name]) {
+                    input.placeholder = defaultPlaceholders[input.name];
+                }
+            });
+
+            document.querySelectorAll('.auto-hide').forEach(function (alert) {
+                alert.remove();
+            });
+
+        }, 2000);
+
+    });
+</script>
 
 </html>

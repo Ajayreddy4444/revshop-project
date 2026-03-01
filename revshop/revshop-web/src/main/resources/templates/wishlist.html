@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Wishlist', ~{::section})}">
+
+<section class="container mt-4 mb-5" style="max-width: 950px;">
+
+    <h2 class="fw-bold mb-3">
+        <i class="bi bi-bag-heart-fill text-warning me-2"></i>
+        My Wishlist
+    </h2>
+
+    <div id="successMsg"
+         class="alert alert-success text-center shadow-sm"
+         style="display:none;">
+        ✔ Added to cart successfully
+    </div>
+
+    <!-- EMPTY -->
+    <div id="emptyWishlist"
+         th:if="${#lists.isEmpty(products)}"
+         class="text-center py-5">
+
+        <h4 class="mb-3 text-muted">
+            Your wishlist is empty
+        </h4>
+
+        <a th:href="@{/products}"
+           class="btn btn-warning btn-sm">
+            <i class="bi bi-shop me-1"></i>
+            Browse Products
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-3 border-0"
+         th:id="'wishlist-item-' + ${product.id}"
+         th:each="product : ${products}">
+
+        <div class="row align-items-center py-3 px-2">
+
+            <!-- IMAGE -->
+            <div class="col-md-2 text-center">
+                <img th:src="@{'/images/' + ${product.imageUrl}}"
+                     style="height:100px; object-fit:cover;">
+            </div>
+
+            <!-- DETAILS -->
+            <div class="col-md-4">
+                <h5 class="mb-2" th:text="${product.name}"></h5>
+
+                <!-- STOCK STATUS -->
+                <div class="mb-2">
+
+                    <!-- IN STOCK -->
+                    <span class="badge bg-success"
+                          th:if="${product.quantity > product.lowStockThreshold}">
+            In Stock
+        </span>
+
+                    <!-- LOW STOCK -->
+                    <span class="badge bg-warning text-dark"
+                          th:if="${product.quantity > 0 and product.quantity <= product.lowStockThreshold}">
+            Only <span th:text="${product.quantity}"></span> left!
+        </span>
+
+                    <!-- OUT OF STOCK -->
+                    <span class="badge bg-danger"
+                          th:if="${product.quantity == 0}">
+            Out of Stock
+        </span>
+
+                </div>
+            </div>
+
+            <!-- PRICE BLOCK -->
+            <div class="col-md-3 text-md-center">
+
+                <div class="fw-bold text-danger fs-5">
+                    ₹ <span th:text="${product.price}"></span>
+                </div>
+
+                <div class="text-muted text-decoration-line-through small"
+                     th:if="${product.mrp != null}">
+                    ₹ <span th:text="${product.mrp}"></span>
+                </div>
+
+                <div class="text-success small"
+                     th:if="${product.discountPercent > 0}">
+                    <span th:text="${product.discountPercent}"></span>% OFF
+                </div>
+
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="col-md-3 text-md-end">
+
+                <div class="d-flex justify-content-md-end gap-2">
+
+                    <button class="btn btn-success btn-sm"
+                            th:disabled="${product.quantity == 0}"
+                            th:onclick="'addToCartFromWishlist(' + ${product.id} + ')'">
+                        <i class="bi bi-bag-fill me-1"></i>
+                        Add to Cart
+                    </button>
+
+                    <button class="btn btn-outline-danger btn-sm"
+                            th:onclick="'removeFromWishlist(' + ${product.id} + ')'">
+                        <i class="bi bi-trash"></i>
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <script>
+        function removeFromWishlist(productId) {
+
+            fetch('/wishlist/remove/' + productId, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+
+                    const item = document.getElementById("wishlist-item-" + productId);
+
+                    if (item) {
+                        item.style.transition = "opacity 0.3s ease";
+                        item.style.opacity = "0";
+
+                        setTimeout(() => {
+                            item.remove();
+
+                            // 🔥 Check if wishlist is now empty
+                            const remainingItems =
+                                document.querySelectorAll('[id^="wishlist-item-"]');
+
+                            if (remainingItems.length === 0) {
+                                location.reload();
+                            }
+
+                        }, 300);
+                    }
+                }
+            });
+        }
+
+        function addToCartFromWishlist(productId) {
+
+    fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'productId=' + productId + '&quantity=1'
+    })
+    .then(response => {
+        if (response.ok) {
+
+            const msg = document.getElementById("successMsg");
+            msg.style.display = "block";
+
+            setTimeout(() => {
+                msg.style.display = "none";
+            }, 3000);
+        }
+    });
+}
+    </script>
+
+</section>
+</html>

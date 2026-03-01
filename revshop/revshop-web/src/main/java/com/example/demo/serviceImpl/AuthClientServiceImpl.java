@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -24,70 +25,128 @@ public class AuthClientServiceImpl implements AuthClientService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
+        try {
 
-        HttpEntity<LoginRequest> entity = new HttpEntity<>(request);
-       
-        ResponseEntity<AuthResponse> response =
-                restTemplate.postForEntity(
-                        baseUrl + "/auth/login",
-                        entity,
-                        AuthResponse.class
-                );
+            HttpEntity<LoginRequest> entity = new HttpEntity<>(request);
 
-        return response.getBody();
+            ResponseEntity<AuthResponse> response =
+                    restTemplate.postForEntity(
+                            baseUrl + "/auth/login",
+                            entity,
+                            AuthResponse.class
+                    );
+
+            return response.getBody();
+
+        } catch (HttpClientErrorException ex) {
+            throw new RuntimeException(extractErrorMessage(ex));
+        }
     }
 
     @Override
     public AuthResponse registerBuyer(RegisterRequest request) {
+        try {
 
-        HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
-      
-        ResponseEntity<AuthResponse> response =
-                restTemplate.postForEntity(
-                       baseUrl + "/auth/register/buyer",
-                        entity,
-                        AuthResponse.class
-                );
+            HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
 
-        return response.getBody();
+            ResponseEntity<AuthResponse> response =
+                    restTemplate.postForEntity(
+                            baseUrl + "/auth/register/buyer",
+                            entity,
+                            AuthResponse.class
+                    );
+
+            return response.getBody();
+
+        } catch (HttpClientErrorException ex) {
+            throw new RuntimeException(extractErrorMessage(ex));
+        }
     }
 
     @Override
     public AuthResponse registerSeller(RegisterRequest request) {
+        try {
 
-        HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
-      
-        ResponseEntity<AuthResponse> response =
-                restTemplate.postForEntity(
-                        baseUrl + "/auth/register/seller",
-                        entity,
-                        AuthResponse.class
-                );
+            HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
 
-        return response.getBody();
+            ResponseEntity<AuthResponse> response =
+                    restTemplate.postForEntity(
+                            baseUrl + "/auth/register/seller",
+                            entity,
+                            AuthResponse.class
+                    );
+
+            return response.getBody();
+
+        } catch (HttpClientErrorException ex) {
+            throw new RuntimeException(extractErrorMessage(ex));
+        }
     }
-    
+
     @Override
     public void forgotPassword(String email) {
+        try {
 
-        String url = "http://localhost:8080/api/auth/forgot-password";
+            Map<String, String> request = Map.of("email", email);
 
-        Map<String, String> request = Map.of("email", email);
+            restTemplate.postForObject(
+                    baseUrl + "/auth/forgot-password",
+                    request,
+                    String.class
+            );
 
-        restTemplate.postForObject(url, request, String.class);
+        } catch (HttpClientErrorException ex) {
+            throw new RuntimeException(extractErrorMessage(ex));
+        }
     }
 
     @Override
     public void resetPassword(String email, String otp, String newPassword) {
+        try {
 
-        String url = "http://localhost:8080/api/auth/reset-password";
+            Map<String, String> request = Map.of(
+                    "email", email,
+                    "otp", otp,
+                    "newPassword", newPassword
+            );
 
-        Map<String, String> request = Map.of(
-                "email", email,
-                "otp", otp,
-                "newPassword", newPassword
-        );
+            restTemplate.postForObject(
+                    baseUrl + "/auth/reset-password",
+                    request,
+                    String.class
+            );
 
-        restTemplate.postForObject(url, request, String.class);
+        } catch (HttpClientErrorException ex) {
+            throw new RuntimeException(extractErrorMessage(ex));
+        }
+    }
+
+    // ✅ CLEAN ERROR EXTRACTION
+    private String extractErrorMessage(HttpClientErrorException ex) {
+
+        String response = ex.getResponseBodyAsString();
+
+        if (response == null || response.isEmpty()) {
+            return "Something went wrong";
+        }
+
+        response = response.replace("{", "")
+                           .replace("}", "")
+                           .replace("\"", "");
+
+        StringBuilder message = new StringBuilder();
+
+        String[] pairs = response.split(",");
+
+        for (String pair : pairs) {
+            if (pair.contains(":")) {
+                String[] keyValue = pair.split(":", 2);
+                if (keyValue.length == 2) {
+                    message.append(keyValue[1].trim()).append(" ");
+                }
+            }
+        }
+
+        return message.toString().trim();
     }
 }
