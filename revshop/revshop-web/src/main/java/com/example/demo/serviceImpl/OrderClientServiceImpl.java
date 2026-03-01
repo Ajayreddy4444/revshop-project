@@ -87,12 +87,17 @@ public class OrderClientServiceImpl implements OrderClientService {
         }
     }
     @Override
-    public List <SellerOrderResponse> getSellerOrders(Long sellerId) {
+    public List<SellerOrderResponse> getSellerOrders(Long sellerId) {
 
-        String url = "http://localhost:8080/orders/seller/" + sellerId;
+        String url = baseUrl + "/orders/seller/" + sellerId;
+        // baseUrl is probably http://localhost:8080/api
 
         SellerOrderResponse[] response =
                 restTemplate.getForObject(url, SellerOrderResponse[].class);
+
+        if (response == null) {
+            return Collections.emptyList();
+        }
 
         return Arrays.asList(response);
     }

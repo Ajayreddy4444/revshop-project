@@ -67,12 +67,12 @@
                     Add Product
                 </a>
 
-                <a class="nav-link text-white fw-semibold"
-                   th:if="${session.user != null and session.user.role == 'SELLER'}"
-                   th:href="@{/}">
-                    <i class="bi bi-receipt me-1"></i>
-                    Orders
-                </a>
+				<a class="nav-link text-white fw-semibold"
+				   th:if="${session.user != null and session.user.role == 'SELLER'}"
+				   th:href="@{/seller/categories/seller/orders}">
+				    <i class="bi bi-receipt me-1"></i>
+				    Orders
+				</a>
 
             </div>
 
@@ -110,14 +110,14 @@
                     </a>
                 </li>
 
-                <li class="nav-item"
-                    th:if="${session.user != null and session.user.role == 'BUYER'}">
-                    <a class="nav-link text-white fw-semibold"
-                       href="#">
-                        <i class="bi bi-box-seam me-1"></i>
-                        Orders
-                    </a>
-                </li>
+				<li class="nav-item"
+				    th:if="${session.user != null and session.user.role == 'BUYER'}">
+				    <a class="nav-link text-white fw-semibold"
+				       th:href="@{/orders/my-orders}">
+				        <i class="bi bi-box-seam me-1"></i>
+				        Orders
+				    </a>
+				</li>
 
                 <li class="nav-item"
                     th:if="${session.user != null and session.user.role == 'BUYER'}">
