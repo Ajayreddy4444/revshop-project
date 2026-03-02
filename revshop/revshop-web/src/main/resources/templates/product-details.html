@@ -109,9 +109,10 @@
                 </div>
 
                 <!-- Push button to bottom -->
-                <div class="mt-auto">
+                <div class="mt-auto d-flex gap-2">
 
-                    <form th:action="@{/cart/add}" method="post">
+                    <!-- Add To Cart -->
+                    <form th:action="@{/cart/add}" method="post" class="flex-fill">
                         <input type="hidden" name="productId"
                                th:value="${product.id}">
                         <input type="hidden" name="quantity" value="1">
@@ -122,6 +123,20 @@
                             Add To Cart
                         </button>
                     </form>
+
+                    <!-- Wishlist Heart -->
+                    <button type="button"
+                            class="btn btn-outline-danger"
+                            th:onclick="'toggleWishlist(' + ${product.id} + ')'">
+
+                        <i class="bi"
+                           th:id="'heart-'+${product.id}"
+                           th:classappend="${product.wishlisted} ?
+                           'bi-heart-fill text-danger' :
+                           'bi-heart'">
+                        </i>
+
+                    </button>
 
                 </div>
 
@@ -262,6 +277,9 @@
         .badge {
             font-size: 0.8rem;
         }
+        .btn-outline-danger {
+    border-radius: 8px;
+}
 
     </style>
 

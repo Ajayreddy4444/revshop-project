@@ -6,34 +6,42 @@
 
     <div class="auth-card">
 
-        <h2 class="mb-4">Welcome Back</h2>
+        <h2 class="mb-4 text-center">Welcome Back</h2>
 
-        <p class="text-success fw-bold"
-           th:if="${success}"
-           th:text="${success}">
-        </p>
+        <!-- Success Message -->
+        <div th:if="${success}" 
+             class="alert alert-success text-center auto-hide">
+            <span th:text="${success}"></span>
+        </div>
 
-        <p class="text-danger fw-bold"
-           th:if="${error}"
-           th:text="${error}">
-        </p>
+        <!-- Global Backend Error (Wrong Credentials etc.) -->
+        <div th:if="${error}" 
+             class="alert alert-danger text-center auto-hide">
+            <span th:utext="${error}"></span>
+        </div>
 
-        <form method="post" th:action="@{/login}">
+        <form method="post"
+              th:action="@{/login}"
+              th:object="${loginRequest}">
 
+            <!-- Email -->
             <div class="mb-3">
                 <input type="email"
-                       name="email"
+                       th:field="*{email}"
                        class="form-control"
-                       placeholder="Email address"
-                       required>
+                       required
+                       th:classappend="${#fields.hasErrors('email')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : 'Email address'">
             </div>
 
+            <!-- Password -->
             <div class="mb-3">
                 <input type="password"
-                       name="password"
+                       th:field="*{password}"
                        class="form-control"
-                       placeholder="Password"
-                       required>
+                       required
+                       th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''"
+                       th:placeholder="${#fields.hasErrors('password')} ? ${#fields.errors('password')[0]} : 'Password'">
             </div>
 
             <div class="mb-3 text-end">
@@ -50,7 +58,7 @@
 
         </form>
 
-        <div class="mt-4">
+        <div class="mt-4 text-center">
             <small>
                 Don’t have an account?
                 <a th:href="@{/register}" class="text-warning fw-semibold">
@@ -62,5 +70,33 @@
     </div>
 
 </section>
+
+<!-- Auto Reset Script (2 seconds) -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        setTimeout(function () {
+
+            const defaultPlaceholders = {
+                email: "Email address",
+                password: "Password"
+            };
+
+            document.querySelectorAll('.is-invalid').forEach(function (input) {
+                input.classList.remove('is-invalid');
+
+                if (defaultPlaceholders[input.name]) {
+                    input.placeholder = defaultPlaceholders[input.name];
+                }
+            });
+
+            document.querySelectorAll('.auto-hide').forEach(function (alert) {
+                alert.remove();
+            });
+
+        }, 2000);
+
+    });
+</script>
 
 </html>
