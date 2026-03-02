@@ -19,6 +19,8 @@ public class ProductSpecification {
 
             List<Predicate> predicates = new ArrayList<>();
 
+            predicates.add(cb.equal(root.get("active"), true));
+
             if (keyword != null && !keyword.isBlank()) {
                 predicates.add(cb.like(
                         cb.lower(root.get("name")),
