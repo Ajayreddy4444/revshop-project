@@ -9,7 +9,13 @@ public class SellerOrderResponseDTO {
 	private Long orderId;
 	private LocalDateTime orderDate;
 	private OrderStatus status;
-
+	private String imageUrl;
+	public String getImageUrl() {
+		return imageUrl;
+	}
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
 	private String productName;
 	private Integer quantity;
 	private Double subtotal;

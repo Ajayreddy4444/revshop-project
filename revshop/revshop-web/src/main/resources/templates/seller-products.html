@@ -2,16 +2,23 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('My Products', ~{::section})}">
 
-<section class="container mt-4">
+<section class="container mt-3 mb-4">
 
     <link rel="stylesheet" th:href="@{/css/seller-products.css}">
 
-    <a th:href="@{/}"
-       class="btn btn-outline-secondary">
-        ← Back to Home
-    </a>
 
-    <h2 class="mt-4 mb-4">📦 My Products</h2>
+    <div class="text-center mb-3">
+
+        <h2 class="fw-bold">
+            <i class="bi bi-box-seam-fill text-warning me-2"></i>
+            Manage Your Products
+        </h2>
+
+        <p class="text-muted mt-2 mb-4">
+            View, update, and organize your products
+        </p>
+
+    </div>
 
     <div th:if="${successMessage}"
          class="alert alert-success shadow-sm border-0 fade show"
@@ -42,7 +49,7 @@
     </div>
     <div th:if="${!#lists.isEmpty(products)}"
          class="row g-4">
-        <div class="col-md-4 d-flex" th:each="product : ${products}">
+        <div class="col-lg-3 col-md-4 col-sm-6 d-flex" th:each="product : ${products}">
             <div class="card shadow-sm w-100 product-card"
                  th:classappend="${product.lowStockThreshold != null and product.quantity <= product.lowStockThreshold}
                      ? 'border-danger' : 'border-light'">
@@ -51,7 +58,7 @@
                 ? @{'/images/' + ${product.imageUrl}}
                 : @{'/images/no-image.jpg'}"
                      class="card-img-top"
-                     style="height:220px; object-fit:cover;">
+                     style="height:170px; object-fit:cover;">
 
                 <div class="card-body d-flex flex-column">
 
@@ -78,12 +85,12 @@
                     <div class="mt-auto">
 
                         <a th:href="@{'/seller/products/' + ${product.id}}"
-                           class="btn btn-sm btn-outline-secondary w-100 mb-3">
+                           class="btn btn-sm btn-outline-secondary w-100 mb-2">
                             View Details
                         </a>
 
                         <!-- EDIT + DELETE -->
-                        <div class="d-flex gap-2 mb-3">
+                        <div class="d-flex gap-2 mb-2">
 
                             <a th:href="@{'/seller/products/edit/' + ${product.id}}"
                                class="btn btn-sm btn-outline-primary w-100">
@@ -157,6 +164,12 @@
             </div>
         </div>
     </div>
+
+    <style>
+        body {
+        background-color: #f7f5f2;
+       }
+    </style>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {

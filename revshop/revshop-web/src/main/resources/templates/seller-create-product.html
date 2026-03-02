@@ -2,12 +2,22 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Product Form', ~{::section})}">
 
-<section class="container mt-5 d-flex justify-content-center">
+<section class="container mt-4 mb-3 d-flex justify-content-center">
 
     <div class="card shadow-sm border-0 p-4" style="width: 100%; max-width: 650px;">
 
-        <h3 class="text-center mb-4"
-            th:text="${product.id == null} ? '➕ Add Product' : '✏ Update Product'">
+        <h3 class="text-center mb-3 fw-bold">
+
+            <span th:if="${product.id == null}">
+               <i class="bi bi-bag-plus-fill text-warning me-2"></i>
+                        Add Product
+            </span>
+
+            <span th:if="${product.id != null}">
+               <i class="bi bi-pencil-square text-warning me-2"></i>
+                Update Product
+            </span>
+
         </h3>
 
         <div th:if="${errorMessage}"
@@ -101,11 +111,14 @@
 
                 <a th:href="@{/seller/products}"
                    class="btn btn-outline-secondary">
-                    ← Back
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back
                 </a>
 
-                <a th:href="@{/seller/categories/new}" class="btn btn-outline-secondary">
-                    + Add Category
+                <a th:href="@{/seller/categories/new}"
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-tags-fill me-1"></i>
+                    Add Category
                 </a>
 
                 <button type="submit"

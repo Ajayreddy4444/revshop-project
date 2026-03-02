@@ -30,8 +30,8 @@
     box-shadow: 0 0 0 1px rgba(220,53,69,0.08);
 }
 
-.card-body {
-    padding: 14px 16px;
+.product-card .card-body {
+    padding: 12px 14px;
 }
 
 .price {
@@ -58,4 +58,9 @@
 .btn-warning {
     border-radius: 8px;
     font-weight: 600;
+}
+
+.product-card p {
+    font-size: 0.85rem;
+    line-height: 1.3;
 }

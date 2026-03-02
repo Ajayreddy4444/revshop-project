@@ -91,25 +91,28 @@
                         Order #<span th:text="${order.orderId}"></span>
                     </div>
 
-                    <span class="badge"
-                          th:text="${order.status}"
-                          th:classappend="
-                            ${order.status.name() == 'CREATED'} ? 'status-created' :
-                            ${order.status.name() == 'PAID'} ? 'status-paid' :
-                            'status-cancelled'">
-                    </span>
+					<span class="badge"
+					      th:text="${order.status}"
+					      th:classappend="${
+					          order.status == 'CREATED' ? ' status-created' :
+					          order.status == 'PAID' ? ' status-paid' :
+					          ' status-cancelled'
+					      }">
+					</span>
 
                 </div>
 
                 <!-- Product Section -->
                 <div class="d-flex align-items-center mb-3">
 
-                    <img th:src="@{/images/{img}(img=${order.imageUrl})}"
-                         alt="Product"
-                         class="product-img me-3"/>
+					
 
-                    <div>
-                        <div class="fw-semibold"
+					<img th:if="${order.imageUrl != null}"
+					     th:src="@{'/images/' + ${order.imageUrl}}"
+					     class="product-img me-3"/>
+
+					    <div>                   
+                            <div class="fw-semibold"
                              th:text="${order.productName}"></div>
 
                         <small class="text-muted">

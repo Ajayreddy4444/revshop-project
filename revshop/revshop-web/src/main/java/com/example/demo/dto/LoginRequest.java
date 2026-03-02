@@ -1,8 +1,13 @@
 package com.example.demo.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class LoginRequest {
 
+	@NotBlank(message = "Please enter your email")
     private String email;
+
+    @NotBlank(message = "Please enter your password")
     private String password;
 
     public LoginRequest() {}
