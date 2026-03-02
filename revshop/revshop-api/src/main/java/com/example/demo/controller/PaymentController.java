@@ -1,11 +1,8 @@
+package com.example.demo.controller;
 
-	package com.example.demo.controller;
-
-	import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.demo.dto.PaymentRequestDTO;
-import com.example.demo.entity.OrderStatus;
 import com.example.demo.entity.Payment;
 import com.example.demo.service.OrderService;
 import com.example.demo.service.PaymentService;
@@ -15,11 +12,9 @@ import com.example.demo.service.PaymentService;
 	public class PaymentController {
 
 	    private final PaymentService paymentService;
-	     private final OrderService orderService;
-	    public PaymentController(PaymentService paymentService,
+	     public PaymentController(PaymentService paymentService,
 	    		OrderService orderService) {
-	        this.paymentService = paymentService;   
-	        this.orderService = orderService;
+	        this.paymentService = paymentService;
 	    }
 	    @PostMapping("/cancel/{orderId}")
 	    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
@@ -28,8 +23,7 @@ import com.example.demo.service.PaymentService;
 
 	        return ResponseEntity.ok("Order cancelled successfully");
 	    }
-	    
-	
+	    	
 	@PostMapping("/process")
 	public Payment processPayment(@RequestBody PaymentRequestDTO request) {
 
