@@ -21,53 +21,67 @@ public class Notification {
     @JoinColumn(name = "user_id")
     private User user;
 
-	public Long getId() {
-		return id;
-	}
+    // ✅ New field to differentiate notification types (info, warning, etc.)
+    @Column(length = 50)
+    private String type = "info"; // default type
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    // ============================
+    // Getters and Setters
+    // ============================
 
-	public String getTitle() {
-		return title;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public boolean isSeen() {
-		return seen;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public void setSeen(boolean seen) {
-		this.seen = seen;
-	}
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public boolean isSeen() {
+        return seen;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setSeen(boolean seen) {
+        this.seen = seen;
+    }
 
-	public User getUser() {
-		return user;
-	}
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-    // getters and setters
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

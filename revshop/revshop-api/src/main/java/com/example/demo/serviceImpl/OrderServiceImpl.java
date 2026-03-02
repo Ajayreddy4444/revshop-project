@@ -95,8 +95,29 @@ public class OrderServiceImpl implements OrderService {
 
             double subtotal = product.getPrice() * requestedQty;
 
-            // 🔥 Reduce stock (optional if needed)
-            // product.setQuantity(availableStock - requestedQty);
+            // 🔥 Reduce stock temporarily (only validation here)
+            int newStock = availableStock - requestedQty;
+            product.setQuantity(newStock);
+            productRepository.save(product);
+
+            // 🔔 Low Stock Notification (THIS IS OK TO KEEP)
+            if (product.getLowStockThreshold() != null &&
+                newStock <= product.getLowStockThreshold()) {
+
+                User seller = product.getSeller();
+                if (seller != null) {
+                    String warningMessage =
+                            "⚠️ Low Stock Alert! Product: "
+                            + product.getName()
+                            + " | Remaining Qty: "
+                            + newStock;
+
+                    notificationService.createLowStockNotification(
+                            seller,
+                            warningMessage
+                    );
+                }
+            }
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
@@ -115,26 +136,9 @@ public class OrderServiceImpl implements OrderService {
         // 6️⃣ Save Order
         Order savedOrder = orderRepository.save(order);
 
-        // 7️⃣ Notify Buyer
-        notificationService.createOrderNotification(
-                user,
-                savedOrder.getId(),
-                "Order successfully placed"
-        );
+        // ❌ NO ORDER NOTIFICATION HERE ANYMORE
 
-        // 8️⃣ Notify Sellers
-        for (OrderItem item : savedOrder.getItems()) {
-            User seller = item.getProduct().getSeller();
-            if (seller != null) {
-                notificationService.createSellerOrderNotification(
-                        seller,
-                        savedOrder.getId(),
-                        item.getProduct().getName()
-                );
-            }
-        }
-
-        // 9️⃣ Clear Cart
+        // 7️⃣ Clear Cart
         cartItemRepository.deleteAll(cartItems);
 
         return convertToDTO(savedOrder);
@@ -179,6 +183,7 @@ public class OrderServiceImpl implements OrderService {
         dto.setStatus(order.getStatus());
 
         List<OrderItemResponseDTO> itemDTOs = new ArrayList<>();
+
         if (order.getItems() != null) {
             for (OrderItem item : order.getItems()) {
                 OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
@@ -215,6 +220,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<SellerOrderResponseDTO> getOrdersForSeller(Long sellerId) {
+
         List<OrderItem> orderItems =
                 orderItemRepository.findByProduct_Seller_Id(sellerId);
 

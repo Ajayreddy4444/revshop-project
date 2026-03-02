@@ -5,17 +5,11 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.entity.Cart;
-import com.example.demo.entity.Order;
-import com.example.demo.entity.OrderItem;
-import com.example.demo.entity.OrderStatus;
-import com.example.demo.entity.Payment;
-import com.example.demo.entity.PaymentMethod;
-import com.example.demo.entity.PaymentStatus;
-import com.example.demo.entity.Product;
+import com.example.demo.entity.*;
 import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.PaymentRepository;
+import com.example.demo.service.NotificationService;
 import com.example.demo.service.PaymentService;
 
 @Service
@@ -23,14 +17,18 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
-    private final CartRepository cartRepository;   // 🔥 ADDED
+    private final CartRepository cartRepository;
+    private final NotificationService notificationService;   // ✅ ADDED
 
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                               OrderRepository orderRepository,
-                              CartRepository cartRepository) {   // 🔥 ADDED
+                              CartRepository cartRepository,
+                              NotificationService notificationService) {
+
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
-        this.cartRepository = cartRepository;   // 🔥 ADDED
+        this.cartRepository = cartRepository;
+        this.notificationService = notificationService;   // ✅ ADDED
     }
 
     @Override
@@ -52,7 +50,7 @@ public class PaymentServiceImpl implements PaymentService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // 2️⃣ Simulate payment result (replace later with real gateway result)
+        // 2️⃣ Simulate payment result
         PaymentStatus paymentStatus = PaymentStatus.SUCCESS;
 
         // 3️⃣ Create Payment record
@@ -90,11 +88,27 @@ public class PaymentServiceImpl implements PaymentService {
             Cart cart = cartRepository.findByUserId(order.getUser().getId())
                     .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-            cart.getItems().clear();   // orphanRemoval must be true
+            cart.getItems().clear();
+
+            // 🔔 Notify Buyer (ONLY HERE)
+            notificationService.createOrderNotification(
+                    order.getUser(),
+                    order.getId(),
+                    "Order successfully placed"
+            );
+
+            // 🔔 Notify Sellers (ONLY HERE)
+            order.getItems().forEach(item -> {
+                if (item.getProduct().getSeller() != null) {
+                    notificationService.createSellerOrderNotification(
+                            item.getProduct().getSeller(),
+                            order.getId(),
+                            item.getProduct().getName()
+                    );
+                }
+            });
 
         } else {
-
-            // ❌ Payment failed → Cancel order
             order.setStatus(OrderStatus.CANCELLED);
         }
 
@@ -102,6 +116,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         return payment;
     }
+
     @Override
     @Transactional
     public void cancelOrder(Long orderId) {

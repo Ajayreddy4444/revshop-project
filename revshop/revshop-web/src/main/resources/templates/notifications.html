@@ -43,7 +43,7 @@
                         card.style.cursor = "pointer";
                         card.style.border = "1px solid #e0e0e0";
 
-                        // 🔥 Unseen notification style (Ecommerce look)
+                        // 🔥 Unseen notification style
                         if (!n.seen) {
                             card.style.backgroundColor = "#f3f3f3";  // soft grey
                             unreadCount++;
@@ -51,11 +51,15 @@
                             card.style.backgroundColor = "#ffffff";
                         }
 
+                        // Check type for styling
+                        const titleStyle = n.type === 'warning' ? 'color:red; font-weight:600;' : (!n.seen ? 'font-weight:600;' : '');
+                        const messageStyle = n.type === 'warning' ? 'color:red;' : (!n.seen ? 'font-weight:600;' : '');
+
                         card.innerHTML = `
-                            <div style="${!n.seen ? 'font-weight:600;' : ''}">
+                            <div style="${titleStyle}">
                                 ${n.title ?? ''}
                             </div>
-                            <div style="margin-top:5px; ${!n.seen ? 'font-weight:600;' : ''}">
+                            <div style="margin-top:5px; ${messageStyle}">
                                 ${n.message ?? ''}
                             </div>
                             <small style="color:gray;">

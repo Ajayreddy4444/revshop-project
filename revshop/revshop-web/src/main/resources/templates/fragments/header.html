@@ -81,7 +81,7 @@
                 <!-- LOGIN / REGISTER -->
                 <li class="nav-item" th:if="${session.user == null}">
                     <a th:href="@{/login}"
-                       th:class="${activePage == 'login'} ? 'btn btn-warning' : 'btn btn-outline-light'">
+                       class="btn btn-outline-light">
                         <i class="bi bi-box-arrow-in-right me-1"></i>
                         Login
                     </a>
@@ -89,13 +89,13 @@
 
                 <li class="nav-item" th:if="${session.user == null}">
                     <a th:href="@{/register}"
-                       th:class="${activePage == 'register'} ? 'btn btn-warning' : 'btn btn-outline-light'">
+                       class="btn btn-outline-light">
                         <i class="bi bi-person-plus me-1"></i>
                         Register
                     </a>
                 </li>
 
-                <!-- BUYER -->
+                <!-- BUYER LINKS -->
                 <li class="nav-item"
                     th:if="${session.user != null and session.user.role == 'BUYER'}">
                     <a class="nav-link text-white fw-semibold"
@@ -127,12 +127,12 @@
                 <li class="nav-item position-relative"
                     th:if="${session.user != null}">
 
-                    <a class="nav-link text-white"
+                    <a class="nav-link text-white position-relative"
                        th:href="@{/notifications}">
 
                         <i class="bi bi-bell fs-5"></i>
 
-                        <!-- Dynamic Badge -->
+                        <!-- 🔔 Badge -->
                         <span id="notificationCount"
                               class="position-absolute badge rounded-pill bg-danger"
                               style="top: 2px; right: -5px; font-size: 10px; display:none;">
@@ -168,39 +168,6 @@
 
     </nav>
 
-    <!-- 🔔 Notification Count Script -->
-    <script th:inline="javascript">
-
-        const headerUserId = /*[[${session.user != null ? session.user.id : null}]]*/ null;
-
-        function loadHeaderNotificationCount() {
-
-            if (!headerUserId) return;
-
-            fetch(`/api/notifications/${headerUserId}`)
-                .then(res => res.json())
-                .then(data => {
-
-                    if (!data) return;
-
-                    const unread = data.filter(n => !n.seen).length;
-                    const badge = document.getElementById("notificationCount");
-
-                    if (!badge) return;
-
-                    if (unread > 0) {
-                        badge.style.display = "inline-block";
-                        badge.innerText = unread;
-                    } else {
-                        badge.style.display = "none";
-                    }
-                })
-                .catch(() => {});
-        }
-
-        window.addEventListener("load", loadHeaderNotificationCount);
-
-    </script>
-
 </div>
+
 </html>
