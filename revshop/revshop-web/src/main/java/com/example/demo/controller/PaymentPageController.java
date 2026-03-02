@@ -4,9 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.example.demo.dto.PaymentRequest;
-import com.example.demo.service.OrderClientService;
 import com.example.demo.service.PaymentClientService;
 
 @Controller
@@ -19,7 +17,7 @@ public class PaymentPageController {
 	        
 	    }
 
-    // 🔹 Show Payment Page
+    // Show Payment Page
     @GetMapping
     public String showPaymentPage(@RequestParam Long orderId,
                                   @RequestParam Double amount,
@@ -31,7 +29,7 @@ public class PaymentPageController {
         return "payment";
     }
 
-    // 🔹 Process Payment
+    // Process Payment
     @PostMapping("/process")
     public String processPayment(@RequestParam Long orderId,
                                  @RequestParam Double amount,
@@ -56,7 +54,6 @@ public class PaymentPageController {
     public String cancelOrder(@RequestParam Long orderId,
                               RedirectAttributes redirectAttributes) {
 
-        //orderService.updateOrderStatus(orderId, OrderStatus.CANCELLED);
     	  paymentClientService.cancelOrder(orderId);
         redirectAttributes.addFlashAttribute(
             "cancelMessage",

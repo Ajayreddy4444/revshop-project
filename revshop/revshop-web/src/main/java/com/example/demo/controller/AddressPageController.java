@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.demo.dto.AuthResponse;
 import com.example.demo.dto.AddressRequest;
 import com.example.demo.dto.AddressResponse;
@@ -20,20 +19,20 @@ public class AddressPageController {
         this.addressClientService = addressClientService;
     }
 
-    // 🔹 Get logged-in user from session
+    // Get logged-in user from session
     private Long getLoggedInUserId(HttpSession session) {
         AuthResponse user = (AuthResponse) session.getAttribute("user");
         return user != null ? user.getId() : null;
     }
 
-    // 🔹 Show Add Address Page
+    //  Show Add Address Page
     @GetMapping("/add")
     public String showAddAddressPage(Model model) {
         model.addAttribute("address", new AddressRequest());
         return "add-address";
     }
 
-    // 🔹 Save New Address
+    // Save New Address
     @PostMapping("/save")
     public String saveAddress(@ModelAttribute AddressRequest request,
                               HttpSession session) {
@@ -51,7 +50,7 @@ public class AddressPageController {
         return "redirect:/orders/checkout";
     }
 
-    // 🔹 Show Edit Address Page
+    //  Show Edit Address Page
     @GetMapping("/edit/{id}")
     public String editAddress(@PathVariable Long id,
                               HttpSession session,
@@ -70,7 +69,7 @@ public class AddressPageController {
         return "edit-address";
     }
 
-    // 🔹 Update Address
+    // Update Address
     @PostMapping("/update")
     public String updateAddress(@ModelAttribute AddressRequest request,
                                 HttpSession session) {
