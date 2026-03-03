@@ -23,161 +23,124 @@ import com.example.demo.service.PaymentService;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-    private final PaymentRepository paymentRepository;
-    private final OrderRepository orderRepository;
-    private final CartRepository cartRepository;
-    private final NotificationService notificationService;
+	private final PaymentRepository paymentRepository;
+	private final OrderRepository orderRepository;
+	private final CartRepository cartRepository;
+	private final NotificationService notificationService;
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository,
-                              OrderRepository orderRepository,
-                              CartRepository cartRepository,
-                              NotificationService notificationService) {
+	public PaymentServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository,
+			CartRepository cartRepository, NotificationService notificationService) {
 
-        this.paymentRepository = paymentRepository;
-        this.orderRepository = orderRepository;
-        this.cartRepository = cartRepository;
-        this.notificationService = notificationService;
-    }
+		this.paymentRepository = paymentRepository;
+		this.orderRepository = orderRepository;
+		this.cartRepository = cartRepository;
+		this.notificationService = notificationService;
+	}
 
-    @Override
-    @Transactional
-    public Payment processPayment(Long orderId,
-                                  Double amount,
-                                  PaymentMethod method) {
+	@Override
+	@Transactional
+	public Payment processPayment(Long orderId, Double amount, PaymentMethod method) {
 
-        System.out.println("PAYMENT EXECUTED for order " + orderId);
+		if (orderId == null)
+			throw new IllegalArgumentException("Order ID cannot be null");
 
-        if (orderId == null)
-            throw new IllegalArgumentException("Order ID cannot be null");
+		if (amount == null || amount <= 0)
+			throw new IllegalArgumentException("Invalid payment amount");
 
-        if (amount == null || amount <= 0)
-            throw new IllegalArgumentException("Invalid payment amount");
+		if (method == null)
+			throw new IllegalArgumentException("Payment method must be selected");
 
-        if (method == null)
-            throw new IllegalArgumentException("Payment method must be selected");
+		// Fetch Order
+		Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // Fetch Order
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+		// Simulate payment result
+		PaymentStatus paymentStatus = PaymentStatus.SUCCESS;
 
-        // Simulate payment result
-        PaymentStatus paymentStatus = PaymentStatus.SUCCESS;
+		// Create Payment record
+		Payment payment = new Payment();
+		payment.setOrderId(orderId);
+		payment.setAmount(amount);
+		payment.setPaymentMethod(method);
+		payment.setStatus(paymentStatus);
+		payment.setPaymentDate(LocalDateTime.now());
 
-        // Create Payment record
-        Payment payment = new Payment();
-        payment.setOrderId(orderId);
-        payment.setAmount(amount);
-        payment.setPaymentMethod(method);
-        payment.setStatus(paymentStatus);
-        payment.setPaymentDate(LocalDateTime.now());
+		paymentRepository.save(payment);
 
-        paymentRepository.save(payment);
+		if (paymentStatus == PaymentStatus.SUCCESS) {
 
-        // Handle order + stock + cart
-        if (paymentStatus == PaymentStatus.SUCCESS) {
+			order.setStatus(OrderStatus.PAID);
 
-            // Mark order as PAID
-            order.setStatus(OrderStatus.PAID);
+			// Reduce stock + Low stock check
+			for (OrderItem item : order.getItems()) {
 
-            // Reduce stock + Low stock check
-            for (OrderItem item : order.getItems()) {
+				Product product = item.getProduct();
+				int updatedStock = product.getQuantity() - item.getQuantity();
 
-                Product product = item.getProduct();
+				if (updatedStock < 0) {
+					throw new RuntimeException("Insufficient stock for product: " + product.getName());
+				}
 
-                int updatedStock = product.getQuantity() - item.getQuantity();
+				product.setQuantity(updatedStock);
 
-                if (updatedStock < 0) {
-                    throw new RuntimeException("Insufficient stock for product: "
-                            + product.getName());
-                }
+				// Low Stock Alert
+				if (product.getLowStockThreshold() != null && updatedStock <= product.getLowStockThreshold()) {
 
-                product.setQuantity(updatedStock);
+					if (product.getSeller() != null) {
 
-                // 🔔 LOW STOCK ALERT FIXED HERE
-                if (product.getLowStockThreshold() != null &&
-                    updatedStock <= product.getLowStockThreshold()) {
+						String warningMessage = "Product: " + product.getName() + "\nRemaining Qty: " + updatedStock;
 
-                    if (product.getSeller() != null) {
+						notificationService.createLowStockNotification(product.getSeller(), warningMessage);
+					}
+				}
+			}
 
-                        String warningMessage =
-                                "⚠️ Low Stock Alert!\n"
-                                + "Product: " + product.getName()
-                                + "\nRemaining Qty: " + updatedStock;
+			// Clear Cart
+			Cart cart = cartRepository.findByUserId(order.getUser().getId())
+					.orElseThrow(() -> new RuntimeException("Cart not found"));
 
-                        notificationService.createLowStockNotification(
-                                product.getSeller(),
-                                warningMessage
-                        );
-                    }
-                }
-            }
+			cart.getItems().clear();
 
-            // Clear Cart
-            Cart cart = cartRepository.findByUserId(order.getUser().getId())
-                    .orElseThrow(() -> new RuntimeException("Cart not found"));
+			// Format timestamp
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
 
-            cart.getItems().clear();
+			String formattedDate = order.getOrderDate().format(formatter);
 
-            // Format timestamp
-            DateTimeFormatter formatter =
-                    DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
+			// Notify Buyer
+			String buyerMessage = "Your order has been placed successfully.\n" + "Order ID: " + order.getId() + " at "
+					+ formattedDate;
 
-            String formattedDate =
-                    order.getOrderDate().format(formatter);
+			notificationService.createOrderNotification(order.getUser(), order.getId(), buyerMessage);
 
-            // Notify Buyer
-            String buyerMessage =
-                    "Your order has been placed successfully.\n"
-                    + "Order ID: " + order.getId()
-                    + " at " + formattedDate;
+			// 🔥 UPDATED SELLER MESSAGE FORMAT
+			order.getItems().forEach(item -> {
+				if (item.getProduct().getSeller() != null) {
 
-            notificationService.createOrderNotification(
-                    order.getUser(),
-                    order.getId(),
-                    buyerMessage
-            );
+					String sellerMessage = "Order ID: " + order.getId() + " | " + formattedDate;
 
-            // Notify Sellers (Order received)
-            order.getItems().forEach(item -> {
-                if (item.getProduct().getSeller() != null) {
+					notificationService.createSellerOrderNotification(item.getProduct().getSeller(), order.getId(),
+							sellerMessage);
+				}
+			});
 
-                    String sellerMessage =
-                            "New order received.\n"
-                            + "Order ID: " + order.getId()
-                            + " at " + formattedDate;
+		} else {
+			order.setStatus(OrderStatus.CANCELLED);
+		}
 
-                    notificationService.createSellerOrderNotification(
-                            item.getProduct().getSeller(),
-                            order.getId(),
-                            sellerMessage
-                    );
-                }
-            });
+		orderRepository.save(order);
 
-        } else {
+		return payment;
+	}
 
-            // Payment failed
-            order.setStatus(OrderStatus.CANCELLED);
-        }
+	@Override
+	@Transactional
+	public void cancelOrder(Long orderId) {
 
-        orderRepository.save(order);
+		Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
 
-        return payment;
-    }
+		if (order.getStatus() == OrderStatus.PAID) {
+			throw new IllegalStateException("Cannot cancel a paid order");
+		}
 
-    @Override
-    @Transactional
-    public void cancelOrder(Long orderId) {
-
-        System.out.println("CANCEL CALLED for orderId = " + orderId);
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        if (order.getStatus() == OrderStatus.PAID) {
-            throw new IllegalStateException("Cannot cancel a paid order");
-        }
-
-        order.setStatus(OrderStatus.CANCELLED);
-    }
+		order.setStatus(OrderStatus.CANCELLED);
+	}
 }
