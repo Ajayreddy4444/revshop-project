@@ -15,7 +15,7 @@
             <!-- LEFT SIDE -->
             <div class="d-flex align-items-center gap-4">
 
-                <!-- Products (ONLY BUYER) -->
+                <!-- Products (BUYER) -->
                 <a class="nav-link text-white fw-semibold"
                    th:if="${session.user != null and session.user.role == 'BUYER'}"
                    th:href="@{/products}">
@@ -23,7 +23,7 @@
                     Products
                 </a>
 
-                <!-- Search (ONLY BUYER) -->
+                <!-- Search (BUYER) -->
                 <form class="d-flex align-items-center"
                       th:if="${session.user != null and session.user.role == 'BUYER'}"
                       th:action="@{/products}"
@@ -37,7 +37,6 @@
                                th:value="${param.keyword}"
                                style="width:240px;">
 
-                        <!-- Clear X -->
                         <a th:if="${param.keyword != null}"
                            th:href="@{/products}"
                            class="position-absolute top-50 end-0 translate-middle-y me-2 text-secondary"
@@ -52,7 +51,7 @@
 
                 </form>
 
-                <!-- SELLER NAV ITEMS -->
+                <!-- SELLER NAV -->
                 <a class="nav-link text-white fw-semibold"
                    th:if="${session.user != null and session.user.role == 'SELLER'}"
                    th:href="@{/seller/products}">
@@ -67,24 +66,22 @@
                     Add Product
                 </a>
 
-				<a class="nav-link text-white fw-semibold"
-				   th:if="${session.user != null and session.user.role == 'SELLER'}"
-				   th:href="@{/seller/categories/seller/orders}">
-				    <i class="bi bi-receipt me-1"></i>
-				    Orders
-				</a>
+                <a class="nav-link text-white fw-semibold"
+                   th:if="${session.user != null and session.user.role == 'SELLER'}"
+                   th:href="@{/seller/categories/seller/orders}">
+                    <i class="bi bi-receipt me-1"></i>
+                    Orders
+                </a>
 
             </div>
 
             <!-- RIGHT SIDE -->
             <ul class="navbar-nav ms-auto align-items-center gap-4">
 
-                <!-- LOGIN / REGISTER (ONLY WHEN NOT LOGGED IN) -->
+                <!-- LOGIN / REGISTER -->
                 <li class="nav-item" th:if="${session.user == null}">
                     <a th:href="@{/login}"
-                       th:class="${activePage == 'login'}
-		           ? 'btn btn-warning'
-		           : 'btn btn-outline-light'">
+                       class="btn btn-outline-light">
                         <i class="bi bi-box-arrow-in-right me-1"></i>
                         Login
                     </a>
@@ -92,15 +89,13 @@
 
                 <li class="nav-item" th:if="${session.user == null}">
                     <a th:href="@{/register}"
-                       th:class="${activePage == 'register'}
-		           ? 'btn btn-warning'
-		           : 'btn btn-outline-light'">
+                       class="btn btn-outline-light">
                         <i class="bi bi-person-plus me-1"></i>
                         Register
                     </a>
                 </li>
 
-                <!-- BUYER NAV ITEMS -->
+                <!-- BUYER LINKS -->
                 <li class="nav-item"
                     th:if="${session.user != null and session.user.role == 'BUYER'}">
                     <a class="nav-link text-white fw-semibold"
@@ -110,14 +105,14 @@
                     </a>
                 </li>
 
-				<li class="nav-item"
-				    th:if="${session.user != null and session.user.role == 'BUYER'}">
-				    <a class="nav-link text-white fw-semibold"
-				       th:href="@{/orders/my-orders}">
-				        <i class="bi bi-box-seam me-1"></i>
-				        Orders
-				    </a>
-				</li>
+                <li class="nav-item"
+                    th:if="${session.user != null and session.user.role == 'BUYER'}">
+                    <a class="nav-link text-white fw-semibold"
+                       th:href="@{/orders/my-orders}">
+                        <i class="bi bi-box-seam me-1"></i>
+                        Orders
+                    </a>
+                </li>
 
                 <li class="nav-item"
                     th:if="${session.user != null and session.user.role == 'BUYER'}">
@@ -128,19 +123,25 @@
                     </a>
                 </li>
 
-                <!-- Notification (ANY LOGGED USER) -->
+                <!-- 🔔 Notification (ALL LOGGED USERS) -->
                 <li class="nav-item position-relative"
                     th:if="${session.user != null}">
-                    <a class="nav-link text-white" href="#">
+
+                    <a class="nav-link text-white position-relative"
+                       th:href="@{/notifications}">
+
                         <i class="bi bi-bell fs-5"></i>
-                        <span class="position-absolute badge rounded-pill bg-danger"
-                              style="top: 2px; right: -5px; font-size: 10px;">
-                        3
-                    </span>
+
+                        <!-- 🔔 Badge -->
+                        <span id="notificationCount"
+                              class="position-absolute badge rounded-pill bg-danger"
+                              style="top: 2px; right: -5px; font-size: 10px; display:none;">
+                        </span>
+
                     </a>
                 </li>
 
-                <!-- Profile Dropdown -->
+                <!-- PROFILE -->
                 <li class="nav-item dropdown"
                     th:if="${session.user != null}">
 
@@ -168,4 +169,5 @@
     </nav>
 
 </div>
+
 </html>

@@ -46,6 +46,7 @@ public class AuthPageController {
             AuthResponse response = authClientService.login(request);
 
             session.setAttribute("user", response);
+            session.setAttribute("userId", response.getId());
 
             return "redirect:/home";
 
@@ -101,8 +102,9 @@ public class AuthPageController {
         session.invalidate();
         return "redirect:/";
     }
-    
-    
+
+    // ================= FORGOT PASSWORD =================
+
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
         return "forgot-password";
@@ -111,7 +113,7 @@ public class AuthPageController {
     @PostMapping("/forgot-password")
     public String processForgotPassword(@RequestParam String email, Model model) {
         try {
-        	authClientService.forgotPassword(email);
+            authClientService.forgotPassword(email);
             model.addAttribute("success", "OTP sent to your email.");
             model.addAttribute("email", email);
             return "reset-password";
@@ -127,7 +129,7 @@ public class AuthPageController {
         model.addAttribute("email", email);
         return "reset-password";
     }
-    
+
     @PostMapping("/reset-password")
     public String processResetPassword(@RequestParam String email,
                                        @RequestParam String otp,
