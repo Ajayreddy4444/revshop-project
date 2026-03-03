@@ -34,14 +34,27 @@ public class PaymentPageController {
     public String processPayment(@RequestParam Long orderId,
                                  @RequestParam Double amount,
                                  @RequestParam String paymentMethod,
+                                 @RequestParam(required = false) String cardNumber,
+                                 @RequestParam(required = false) String cvv,
+                                 @RequestParam(required = false) String upiId,
                                  Model model) {
 
         PaymentRequest request = new PaymentRequest();
         request.setOrderId(orderId);
         request.setAmount(amount);
         request.setPaymentMethod(paymentMethod);
+        request.setCardNumber(cardNumber);
+        request.setCvv(cvv);
+        request.setUpiId(upiId);
 
-        paymentClientService.processPayment(request);
+        try {
+            paymentClientService.processPayment(request);
+        } catch (RuntimeException ex) {
+            model.addAttribute("orderId", orderId);
+            model.addAttribute("amount", amount);
+            model.addAttribute("paymentError", ex.getMessage());
+            return "payment";
+        }
 
         // Send orderId to success page
         model.addAttribute("orderId", orderId);
@@ -52,13 +65,22 @@ public class PaymentPageController {
     }
     @PostMapping("/cancel")
     public String cancelOrder(@RequestParam Long orderId,
+                              @RequestParam Double amount,
                               RedirectAttributes redirectAttributes) {
 
-    	  paymentClientService.cancelOrder(orderId);
-        redirectAttributes.addFlashAttribute(
-            "cancelMessage",
-            "Order has been cancelled successfully!"
-        );
+        try {
+            paymentClientService.cancelOrder(orderId);
+            redirectAttributes.addFlashAttribute(
+                    "cancelMessage",
+                    "Order has been cancelled successfully!"
+            );
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute(
+                    "paymentError",
+                    ex.getMessage()
+            );
+            return "redirect:/payment?orderId=" + orderId + "&amount=" + amount;
+        }
 
         return "redirect:/orders/checkout";
     }
