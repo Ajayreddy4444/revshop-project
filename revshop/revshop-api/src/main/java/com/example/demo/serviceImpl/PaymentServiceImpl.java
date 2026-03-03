@@ -128,7 +128,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         } else {
 
-            //  Payment failed → Cancel order
+     
             order.setStatus(OrderStatus.CANCELLED);
         }
 
