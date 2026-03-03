@@ -1,6 +1,7 @@
 package com.example.demo.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
-    private final NotificationService notificationService;   // ✅ ADDED
+    private final NotificationService notificationService;
 
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                               OrderRepository orderRepository,
@@ -28,7 +29,7 @@ public class PaymentServiceImpl implements PaymentService {
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
-        this.notificationService = notificationService;   // ✅ ADDED
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -90,20 +91,38 @@ public class PaymentServiceImpl implements PaymentService {
 
             cart.getItems().clear();
 
-            // 🔔 Notify Buyer (ONLY HERE)
+            // ✅ Format timestamp
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
+
+            String formattedDate =
+                    order.getOrderDate().format(formatter);
+
+            // 🔔 Notify Buyer
+            String buyerMessage =
+                    "Your order has been placed successfully.\n"
+                    + "Order ID: " + order.getId()
+                    + " at " + formattedDate;
+
             notificationService.createOrderNotification(
                     order.getUser(),
                     order.getId(),
-                    "Order successfully placed"
+                    buyerMessage
             );
 
-            // 🔔 Notify Sellers (ONLY HERE)
+            // 🔔 Notify Sellers
             order.getItems().forEach(item -> {
                 if (item.getProduct().getSeller() != null) {
+
+                    String sellerMessage =
+                            "New order received.\n"
+                            + "Order ID: " + order.getId()
+                            + " at " + formattedDate;
+
                     notificationService.createSellerOrderNotification(
                             item.getProduct().getSeller(),
                             order.getId(),
-                            item.getProduct().getName()
+                            sellerMessage
                     );
                 }
             });
