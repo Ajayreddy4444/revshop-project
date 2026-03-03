@@ -14,6 +14,9 @@ import com.example.demo.entity.Payment;
 import com.example.demo.entity.PaymentMethod;
 import com.example.demo.entity.PaymentStatus;
 import com.example.demo.entity.Product;
+import com.example.demo.exception.InvalidPaymentRequestException;
+import com.example.demo.exception.OrderAlreadyPaidException;
+import com.example.demo.exception.OrderNotFoundException;
 import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.PaymentRepository;
@@ -23,124 +26,189 @@ import com.example.demo.service.PaymentService;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-	private final PaymentRepository paymentRepository;
-	private final OrderRepository orderRepository;
-	private final CartRepository cartRepository;
-	private final NotificationService notificationService;
+    private final PaymentRepository paymentRepository;
+    private final OrderRepository orderRepository;
+    private final CartRepository cartRepository;
+    private final NotificationService notificationService;
 
-	public PaymentServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository,
-			CartRepository cartRepository, NotificationService notificationService) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository,
+                              OrderRepository orderRepository,
+                              CartRepository cartRepository,
+                              NotificationService notificationService) {
 
-		this.paymentRepository = paymentRepository;
-		this.orderRepository = orderRepository;
-		this.cartRepository = cartRepository;
-		this.notificationService = notificationService;
-	}
+        this.paymentRepository = paymentRepository;
+        this.orderRepository = orderRepository;
+        this.cartRepository = cartRepository;
+        this.notificationService = notificationService;
+    }
 
-	@Override
-	@Transactional
-	public Payment processPayment(Long orderId, Double amount, PaymentMethod method) {
+    @Override
+    @Transactional
+    public Payment processPayment(Long orderId,
+                                  Double amount,
+                                  PaymentMethod method,
+                                  String cardNumber,
+                                  String cvv,
+                                  String upiId) {
 
-		if (orderId == null)
-			throw new IllegalArgumentException("Order ID cannot be null");
+        if (orderId == null)
+            throw new InvalidPaymentRequestException("Order ID is required");
 
-		if (amount == null || amount <= 0)
-			throw new IllegalArgumentException("Invalid payment amount");
+        if (amount == null || amount <= 0)
+            throw new InvalidPaymentRequestException("Amount must be greater than 0");
 
-		if (method == null)
-			throw new IllegalArgumentException("Payment method must be selected");
+        if (method == null)
+            throw new InvalidPaymentRequestException("Payment method is required");
 
-		// Fetch Order
-		Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        validatePaymentDetails(method, cardNumber, cvv, upiId);
 
-		// Simulate payment result
-		PaymentStatus paymentStatus = PaymentStatus.SUCCESS;
+        // Fetch Order
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
 
-		// Create Payment record
-		Payment payment = new Payment();
-		payment.setOrderId(orderId);
-		payment.setAmount(amount);
-		payment.setPaymentMethod(method);
-		payment.setStatus(paymentStatus);
-		payment.setPaymentDate(LocalDateTime.now());
+        if (order.getStatus() == OrderStatus.PAID)
+            throw new OrderAlreadyPaidException("Payment already completed for this order");
 
-		paymentRepository.save(payment);
+        if (order.getStatus() == OrderStatus.CANCELLED)
+            throw new InvalidPaymentRequestException("Cannot pay for a cancelled order");
 
-		if (paymentStatus == PaymentStatus.SUCCESS) {
+        Double orderAmount = order.getTotalAmount();
 
-			order.setStatus(OrderStatus.PAID);
+        if (orderAmount == null || orderAmount <= 0)
+            throw new InvalidPaymentRequestException("Invalid order amount");
 
-			// Reduce stock + Low stock check
-			for (OrderItem item : order.getItems()) {
+        if (Double.compare(orderAmount, amount) != 0)
+            throw new InvalidPaymentRequestException("Payment amount does not match order total");
 
-				Product product = item.getProduct();
-				int updatedStock = product.getQuantity() - item.getQuantity();
+        // Simulate payment success
+        PaymentStatus paymentStatus = PaymentStatus.SUCCESS;
 
-				if (updatedStock < 0) {
-					throw new RuntimeException("Insufficient stock for product: " + product.getName());
-				}
+        Payment payment = new Payment();
+        payment.setOrderId(orderId);
+        payment.setAmount(orderAmount);
+        payment.setPaymentMethod(method);
+        payment.setStatus(paymentStatus);
+        payment.setPaymentDate(LocalDateTime.now());
 
-				product.setQuantity(updatedStock);
+        paymentRepository.save(payment);
 
-				// Low Stock Alert
-				if (product.getLowStockThreshold() != null && updatedStock <= product.getLowStockThreshold()) {
+        if (paymentStatus == PaymentStatus.SUCCESS) {
 
-					if (product.getSeller() != null) {
+            order.setStatus(OrderStatus.PAID);
 
-						String warningMessage = "Product: " + product.getName() + "\nRemaining Qty: " + updatedStock;
+            // Reduce stock + Low stock alert
+            for (OrderItem item : order.getItems()) {
 
-						notificationService.createLowStockNotification(product.getSeller(), warningMessage);
-					}
-				}
-			}
+                Product product = item.getProduct();
+                int updatedStock = product.getQuantity() - item.getQuantity();
 
-			// Clear Cart
-			Cart cart = cartRepository.findByUserId(order.getUser().getId())
-					.orElseThrow(() -> new RuntimeException("Cart not found"));
+                if (updatedStock < 0) {
+                    throw new InvalidPaymentRequestException(
+                            "Insufficient stock for product: " + product.getName());
+                }
 
-			cart.getItems().clear();
+                product.setQuantity(updatedStock);
 
-			// Format timestamp
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
+                if (product.getLowStockThreshold() != null &&
+                    updatedStock <= product.getLowStockThreshold() &&
+                    product.getSeller() != null) {
 
-			String formattedDate = order.getOrderDate().format(formatter);
+                    String warningMessage =
+                            "Product: " + product.getName() +
+                            "\nRemaining Qty: " + updatedStock;
 
-			// Notify Buyer
-			String buyerMessage = "Your order has been placed successfully.\n" + "Order ID: " + order.getId() + " at "
-					+ formattedDate;
+                    notificationService.createLowStockNotification(
+                            product.getSeller(),
+                            warningMessage
+                    );
+                }
+            }
 
-			notificationService.createOrderNotification(order.getUser(), order.getId(), buyerMessage);
+            // Clear cart
+            Cart cart = cartRepository.findByUserId(order.getUser().getId())
+                    .orElseThrow(() -> new InvalidPaymentRequestException("Cart not found"));
 
-			// 🔥 UPDATED SELLER MESSAGE FORMAT
-			order.getItems().forEach(item -> {
-				if (item.getProduct().getSeller() != null) {
+            cart.getItems().clear();
 
-					String sellerMessage = "Order ID: " + order.getId() + " | " + formattedDate;
+            // Format date
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
 
-					notificationService.createSellerOrderNotification(item.getProduct().getSeller(), order.getId(),
-							sellerMessage);
-				}
-			});
+            String formattedDate =
+                    order.getOrderDate().format(formatter);
 
-		} else {
-			order.setStatus(OrderStatus.CANCELLED);
-		}
+            // Buyer notification
+            String buyerMessage =
+                    "Your order has been placed successfully.\n"
+                    + "Order ID: " + order.getId()
+                    + " at " + formattedDate;
 
-		orderRepository.save(order);
+            notificationService.createOrderNotification(
+                    order.getUser(),
+                    order.getId(),
+                    buyerMessage
+            );
 
-		return payment;
-	}
+            // Seller notification (NEW FORMAT)
+            order.getItems().forEach(item -> {
+                if (item.getProduct().getSeller() != null) {
 
-	@Override
-	@Transactional
-	public void cancelOrder(Long orderId) {
+                    String sellerMessage =
+                            "Order ID: "
+                            + order.getId()
+                            + " | "
+                            + formattedDate;
 
-		Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+                    notificationService.createSellerOrderNotification(
+                            item.getProduct().getSeller(),
+                            order.getId(),
+                            sellerMessage
+                    );
+                }
+            });
 
-		if (order.getStatus() == OrderStatus.PAID) {
-			throw new IllegalStateException("Cannot cancel a paid order");
-		}
+        } else {
+            order.setStatus(OrderStatus.CANCELLED);
+        }
 
-		order.setStatus(OrderStatus.CANCELLED);
-	}
+        orderRepository.save(order);
+
+        return payment;
+    }
+
+    private void validatePaymentDetails(PaymentMethod method,
+                                        String cardNumber,
+                                        String cvv,
+                                        String upiId) {
+
+        if (method == PaymentMethod.CARD) {
+
+            if (cardNumber == null || !cardNumber.trim().matches("^\\d{16}$"))
+                throw new InvalidPaymentRequestException(
+                        "Card number must be exactly 16 digits");
+
+            if (cvv == null || !cvv.trim().matches("^\\d{3}$"))
+                throw new InvalidPaymentRequestException(
+                        "CVV must be exactly 3 digits");
+        }
+
+        if (method == PaymentMethod.UPI) {
+
+            if (upiId == null || !upiId.trim().matches("^[\\w.-]+@[\\w.-]+$"))
+                throw new InvalidPaymentRequestException("Invalid UPI ID");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void cancelOrder(Long orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
+
+        if (order.getStatus() == OrderStatus.PAID)
+            throw new InvalidPaymentRequestException("Cannot cancel a paid order");
+
+        order.setStatus(OrderStatus.CANCELLED);
+    }
 }

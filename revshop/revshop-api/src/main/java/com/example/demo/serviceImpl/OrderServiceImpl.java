@@ -12,6 +12,7 @@ import com.example.demo.dto.OrderResponseDTO;
 import com.example.demo.dto.PlaceOrderRequestDTO;
 import com.example.demo.dto.SellerOrderResponseDTO;
 import com.example.demo.entity.*;
+import com.example.demo.exception.OrderNotFoundException;
 import com.example.demo.repository.*;
 import com.example.demo.service.OrderService;
 
@@ -116,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateOrderStatus(Long orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
 
         order.setStatus(status);
     }
@@ -124,7 +125,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDTO getOrderById(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
 
         return convertToDTO(order);
     }

@@ -91,6 +91,7 @@
     <div class="payment-card">
 
         <h3 class="payment-title text-center">Secure Payment</h3>
+        <div th:if="${paymentError}" class="alert alert-danger" th:text="${paymentError}"></div>
 
         <div class="order-summary">
             <p><strong>Order ID:</strong> <span th:text="${orderId}"></span></p>
@@ -158,6 +159,7 @@
         <!-- Cancel Form -->
         <form th:action="@{/payment/cancel}" method="post" class="action-buttons">
             <input type="hidden" name="orderId" th:value="${orderId}"/>
+            <input type="hidden" name="amount" th:value="${amount}"/>
             <button type="submit" class="cancel-btn">
                 Cancel
             </button>

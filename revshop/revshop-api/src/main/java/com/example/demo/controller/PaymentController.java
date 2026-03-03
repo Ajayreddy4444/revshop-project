@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.dto.PaymentRequestDTO;
@@ -25,12 +26,15 @@ import com.example.demo.service.PaymentService;
 	    }
 	    	
 	@PostMapping("/process")
-	public Payment processPayment(@RequestBody PaymentRequestDTO request) {
+	public Payment processPayment(@Valid @RequestBody PaymentRequestDTO request) {
 
 	    return paymentService.processPayment(
 	            request.getOrderId(),
 	            request.getAmount(),
-	            request.getPaymentMethod()
+	            request.getPaymentMethod(),
+	            request.getCardNumber(),
+	            request.getCvv(),
+	            request.getUpiId()
 	    );
 	}
 	}	
