@@ -37,13 +37,31 @@
             <!-- Name -->
             <div class="mb-3">
                 <label class="form-label">Product Name</label>
-                <input type="text" th:field="*{name}" class="form-control" required>
+                <input type="text"
+                       th:field="*{name}"
+                       class="form-control"
+                       required
+                       minlength="4"
+                       pattern="^[A-Za-z ]+$"
+                       title="Name must contain only letters and be at least 4 characters long">
+
+                <div class="invalid-feedback">
+                    Name must contain only letters and be at least 4 characters long.
+                </div>
             </div>
 
             <!-- Description -->
             <div class="mb-3">
                 <label class="form-label">Description</label>
-                <textarea th:field="*{description}" class="form-control" rows="2"></textarea>
+                <textarea th:field="*{description}"
+                          class="form-control"
+                          minlength="10"
+                          pattern="^[A-Za-z0-9 ,.]+$"
+                          required></textarea>
+
+                <div class="invalid-feedback">
+                    Description must be at least 10 characters and contain only letters and numbers.
+                </div>
             </div>
 
             <!-- Price Row -->
@@ -53,7 +71,13 @@
                     <input type="number"
                            th:field="*{mrp}"
                            class="form-control"
-                           required>
+                           required
+                           min="0.01"
+                           step="0.01">
+
+                    <div class="invalid-feedback">
+                        MRP must be greater than 0.
+                    </div>
                 </div>
 
                 <div class="col-md-6 mb-3">
@@ -63,8 +87,11 @@
                            class="form-control"
                            min="0"
                            max="100"
-                           step="0.01"
-                           placeholder="Enter discount %">
+                           step="0.01">
+
+                    <div class="invalid-feedback">
+                        Discount must be between 0 and 100.
+                    </div>
                 </div>
             </div>
 
@@ -72,7 +99,15 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Quantity</label>
-                    <input type="number" th:field="*{quantity}" class="form-control" min="0" required>
+                    <input type="number"
+                           th:field="*{quantity}"
+                           class="form-control"
+                           min="1"
+                           required>
+
+                    <div class="invalid-feedback">
+                        Quantity must be greater than 0.
+                    </div>
                 </div>
 
                 <div class="col-md-6 mb-3">
@@ -80,15 +115,19 @@
                     <input type="number"
                            th:field="*{lowStockThreshold}"
                            class="form-control"
-                           min="0"
-                           placeholder="Example: 5">
+                           min="1"
+                           required>
+
+                    <div class="invalid-feedback">
+                        Low stock must be greater than 0 and less than quantity.
+                    </div>
                 </div>
             </div>
 
             <!-- Image Upload -->
             <div class="mb-3">
                 <label class="form-label">Product Image</label>
-                <input type="file" name="imageFile" class="form-control" required>
+                <input type="file" th:field="*{imageFile}" class="form-control" required>
             </div>
 
 
@@ -143,8 +182,41 @@
                 setTimeout(() => el.remove(), 400);
             }, time);
         }
-
         autoHide("errorAlert", 3500);   // error disappears after 3.5s
+
+         const form = document.querySelector(".needs-validation");
+    const quantityInput = document.querySelector("[name='quantity']");
+    const lowStockInput = document.querySelector("[name='lowStockThreshold']");
+
+    function validateLowStock() {
+        const quantity = parseInt(quantityInput.value);
+        const lowStock = parseInt(lowStockInput.value);
+
+        if (!lowStock || lowStock <= 0) {
+            lowStockInput.setCustomValidity("Low stock must be greater than 0");
+        } else if (lowStock >= quantity) {
+            lowStockInput.setCustomValidity("Low stock must be less than quantity");
+        } else {
+            lowStockInput.setCustomValidity("");
+        }
+    }
+
+    // Validate when typing
+    quantityInput.addEventListener("input", validateLowStock);
+    lowStockInput.addEventListener("input", validateLowStock);
+
+    // Validate on submit
+    form.addEventListener("submit", function (event) {
+
+        validateLowStock(); // always re-check
+
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        form.classList.add("was-validated");
+    });
     </script>
 
 </section>

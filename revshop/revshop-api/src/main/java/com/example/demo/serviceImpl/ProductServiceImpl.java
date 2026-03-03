@@ -5,6 +5,8 @@ import com.example.demo.dto.ProductResponse;
 import com.example.demo.entity.Category;
 import com.example.demo.entity.Product;
 import com.example.demo.entity.User;
+import com.example.demo.exception.BadRequestException;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.*;
 import com.example.demo.service.ProductService;
 import com.example.demo.specification.ProductSpecification;
@@ -51,7 +53,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         return mapToDto(product);
     }
@@ -59,10 +61,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse createProduct(ProductRequest productRequest, Long sellerId) {
         Category category = categoryRepository.findById(productRequest.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         User seller = userRepository.findById(sellerId)
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Seller not found"));
 
         Product product = new Product();
         product.setName(productRequest.getName());
@@ -83,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
             double discount = product.getDiscountPercent() == null ? 0 : product.getDiscountPercent();
 
             if (discount < 0 || discount > 100) {
-                throw new RuntimeException("Discount must be between 0 and 100");
+                throw new BadRequestException("Discount must be between 0 and 100");
             }
 
             double finalPrice = product.getMrp() - (product.getMrp() * discount / 100);
@@ -118,13 +120,13 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse updateProduct(Long id, ProductRequest request) {
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         if (request.getQuantity() == null || request.getQuantity() < 0) {
-            throw new RuntimeException("Quantity must be >= 0");
+            throw new BadRequestException("Quantity must be >= 0");
         }
 
         product.setName(request.getName());
@@ -140,7 +142,7 @@ public class ProductServiceImpl implements ProductService {
             double discount = product.getDiscountPercent() == null ? 0 : product.getDiscountPercent();
 
             if (discount < 0 || discount > 100) {
-                throw new RuntimeException("Discount must be between 0 and 100");
+                throw new BadRequestException("Discount must be between 0 and 100");
             }
 
             double finalPrice = product.getMrp() - (product.getMrp() * discount / 100);
@@ -156,10 +158,10 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse updateStock(Long id, Integer quantity) {
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (quantity < 0) {
-            throw new RuntimeException("Quantity must be >= 0");
+            throw new BadRequestException("Quantity must be >= 0");
         }
 
         product.setQuantity(quantity);
@@ -174,7 +176,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(Long id) {
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         boolean hasOrders =
                 orderItemRepository.existsByProductId(id);
