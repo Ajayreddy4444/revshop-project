@@ -45,9 +45,29 @@ public class GlobalExceptionHandler {
         return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidPaymentRequestException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidPaymentRequest(InvalidPaymentRequestException ex){
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalState(IllegalStateException ex){
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(OrderAlreadyPaidException.class)
+    public ResponseEntity<Map<String, String>> handleOrderAlreadyPaid(OrderAlreadyPaidException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<String> handleOrderNotFound(OrderNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     private ResponseEntity<Map<String, String>> buildResponse(String message, HttpStatus status){
         Map<String, String> error = new HashMap<>();
         error.put("error", message);
         return new ResponseEntity<>(error, status);
     }
+   
 }
