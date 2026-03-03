@@ -51,8 +51,10 @@
          class="row g-4">
         <div class="col-lg-3 col-md-4 col-sm-6 d-flex" th:each="product : ${products}">
             <div class="card shadow-sm w-100 product-card"
-                 th:classappend="${product.lowStockThreshold != null and product.quantity <= product.lowStockThreshold}
-                     ? 'border-danger' : 'border-light'">
+                 th:classappend="${(product.lowStockThreshold != null and product.quantity <= product.lowStockThreshold)
+            ? 'border-danger '
+            : 'border-light '}
+         + (!product.active ? 'opacity-75' : '')">
 
                 <img th:src="${product.imageUrl != null}
                 ? @{'/images/' + ${product.imageUrl}}
@@ -62,7 +64,16 @@
 
                 <div class="card-body d-flex flex-column">
 
-                    <h5 class="fw-semibold mb-1" th:text="${product.name}"></h5>
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+
+                        <h5 class="fw-semibold mb-0"
+                            th:text="${product.name}">
+                        </h5>
+
+                        <span class="badge bg-secondary"
+                              th:if="${!product.active}">Inactive
+                        </span>
+                    </div>
 
                     <p class="text-muted small mb-2"
                        th:text="${product.description}"></p>
@@ -72,11 +83,19 @@
                     </div>
 
                     <div class="mb-2">
-                        <span class="fw-semibold">Stock:</span>
-                        <span th:text="${product.quantity}"></span>
+                        <span th:if="${product.active}">
+                             <span class="fw-semibold">Stock:</span>
+                             <span th:text="${product.quantity}"></span>
+                        </span>
+
+                        <span th:if="${!product.active}"
+                              class="text-muted text-decoration-line-through">
+                             <span class="fw-semibold">Stock:</span>
+                             <span th:text="${product.quantity}"></span>
+                        </span>
 
                         <span class="badge bg-danger ms-2"
-                              th:if="${product.lowStockThreshold != null and product.quantity <= product.lowStockThreshold}">
+                              th:if="${product.lowStockThreshold != null and product.quantity <= product.lowStockThreshold and product.active}">
                             Low Stock
                         </span>
                     </div>
@@ -92,7 +111,8 @@
                         <!-- EDIT + DELETE -->
                         <div class="d-flex gap-2 mb-2">
 
-                            <a th:href="@{'/seller/products/edit/' + ${product.id}}"
+                            <a th:if="${product.active}"
+                               th:href="@{'/seller/products/edit/' + ${product.id}}"
                                class="btn btn-sm btn-outline-primary w-100">
                                 Edit
                             </a>
@@ -101,13 +121,15 @@
                                     class="btn btn-sm btn-outline-danger w-100"
                                     data-bs-toggle="modal"
                                     data-bs-target="#deleteModal"
+                                    th:if="${product.active}"
                                     th:attr="data-id=${product.id},data-name=${product.name}">
                                 Delete
                             </button>
 
                         </div>
                         <!-- STOCK UPDATE -->
-                        <form th:action="@{/seller/products/stock/{id}(id=${product.id})}"
+                        <form th:if="${product.active}"
+                              th:action="@{/seller/products/stock/{id}(id=${product.id})}"
                               method="post"
                               class="d-flex gap-2">
 
