@@ -6,6 +6,8 @@ public class AuthResponse {
     private String name;
     private String email;
     private String role;
+    private String token;  
+
 
     public AuthResponse() {}
 
@@ -20,4 +22,12 @@ public class AuthResponse {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+    
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 }

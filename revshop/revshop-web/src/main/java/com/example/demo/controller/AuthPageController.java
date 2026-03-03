@@ -46,6 +46,7 @@ public class AuthPageController {
             AuthResponse response = authClientService.login(request);
 
             session.setAttribute("user", response);
+            session.setAttribute("token", response.getToken());  
 
             return "redirect:/home";
 

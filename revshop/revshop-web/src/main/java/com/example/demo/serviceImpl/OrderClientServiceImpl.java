@@ -1,105 +1,117 @@
 package com.example.demo.serviceImpl;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import com.example.demo.dto.OrderResponse;
 import com.example.demo.dto.PlaceOrderRequest;
 import com.example.demo.dto.SellerOrderResponse;
 import com.example.demo.service.OrderClientService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @Service
 public class OrderClientServiceImpl implements OrderClientService {
 
     private final RestTemplate restTemplate;
+    private final HttpServletRequest request;
 
     @Value("${backend.base-url}")
     private String baseUrl;
 
-    public OrderClientServiceImpl(RestTemplate restTemplate) {
+    public OrderClientServiceImpl(RestTemplate restTemplate,
+                                  HttpServletRequest request) {
         this.restTemplate = restTemplate;
+        this.request = request;
     }
 
-    // PLACE ORDER 
-    @Override
-    public OrderResponse placeOrder(PlaceOrderRequest request) {
+    // 🔥 JWT HEADER
+    private HttpHeaders getHeaders() {
 
-        try {
-            return restTemplate.postForObject(
-                    baseUrl + "/orders/place",
-                    request,
-                    OrderResponse.class
-            );
+        String token = (String) request.getSession().getAttribute("token");
 
-        } catch (HttpStatusCodeException ex) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            String errorMessage = ex.getResponseBodyAsString();
-
-            throw new RuntimeException(
-                    errorMessage != null ? errorMessage : "Order API failed"
-            );
+        if (token != null) {
+            headers.setBearerAuth(token);
         }
-    }
-    
 
-    //  GET ORDERS BY USER 
+        return headers;
+    }
+
+    // ================= PLACE ORDER =================
+    @Override
+    public OrderResponse placeOrder(PlaceOrderRequest requestBody) {
+
+        HttpEntity<PlaceOrderRequest> entity =
+                new HttpEntity<>(requestBody, getHeaders());
+
+        ResponseEntity<OrderResponse> response =
+                restTemplate.exchange(
+                        baseUrl + "/orders/place",
+                        HttpMethod.POST,
+                        entity,
+                        OrderResponse.class
+                );
+
+        return response.getBody();
+    }
+
+    // ================= GET ORDERS BY USER =================
     @Override
     public List<OrderResponse> getOrderByUser(Long userId) {
 
-        try {
-            String url = baseUrl + "/orders/user/" + userId;
+        HttpEntity<Void> entity =
+                new HttpEntity<>(getHeaders());
 
-            OrderResponse[] response =
-                    restTemplate.getForObject(url, OrderResponse[].class);
+        ResponseEntity<List<OrderResponse>> response =
+                restTemplate.exchange(
+                        baseUrl + "/orders/user/" + userId,
+                        HttpMethod.GET,
+                        entity,
+                        new ParameterizedTypeReference<List<OrderResponse>>() {}
+                );
 
-            if (response == null) {
-                return Collections.emptyList();
-            }
-
-            return Arrays.asList(response);
-
-        } catch (RestClientException ex) {
-            ex.printStackTrace();
-            return Collections.emptyList();
-        }
+        return response.getBody();
     }
 
-    //  CHECK IF USER PURCHASED PRODUCT
+    // ================= HAS PURCHASED =================
     @Override
     public boolean hasUserPurchasedProduct(Long userId, Long productId) {
 
-        try {
-            String url = baseUrl + "/orders/has-purchased/"
-                    + userId + "/" + productId;
+        HttpEntity<Void> entity =
+                new HttpEntity<>(getHeaders());
 
-            Boolean result =
-                    restTemplate.getForObject(url, Boolean.class);
+        ResponseEntity<Boolean> response =
+                restTemplate.exchange(
+                        baseUrl + "/orders/has-purchased/" + userId + "/" + productId,
+                        HttpMethod.GET,
+                        entity,
+                        Boolean.class
+                );
 
-            return Boolean.TRUE.equals(result);
-
-        } catch (RestClientException ex) {
-            ex.printStackTrace();
-            return false;
-        }
+        return Boolean.TRUE.equals(response.getBody());
     }
+
+    // ================= SELLER ORDERS =================
     @Override
     public List<SellerOrderResponse> getSellerOrders(Long sellerId) {
 
-        String url = baseUrl + "/orders/seller/" + sellerId;
-    
+        HttpEntity<Void> entity =
+                new HttpEntity<>(getHeaders());
 
-        SellerOrderResponse[] response =
-                restTemplate.getForObject(url, SellerOrderResponse[].class);
+        ResponseEntity<List<SellerOrderResponse>> response =
+                restTemplate.exchange(
+                        baseUrl + "/orders/seller/" + sellerId,
+                        HttpMethod.GET,
+                        entity,
+                        new ParameterizedTypeReference<List<SellerOrderResponse>>() {}
+                );
 
-        if (response == null) {
-            return Collections.emptyList();
-        }
-
-        return Arrays.asList(response);
+        return response.getBody();
     }
 }

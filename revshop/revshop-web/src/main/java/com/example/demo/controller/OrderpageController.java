@@ -3,9 +3,11 @@ package com.example.demo.controller;
 import java.util.List;
 
 import jakarta.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.demo.dto.AuthResponse;
@@ -51,7 +53,6 @@ public class OrderpageController {
             return "redirect:/cart";
         }
 
-        // 🔥 Calculate total amount
         double totalAmount = cartItems.stream()
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
                 .sum();
@@ -67,6 +68,7 @@ public class OrderpageController {
         return "checkout";
     }
 
+    // 🔹 Place Order
     @PostMapping("/place")
     public String placeOrder(@RequestParam Long addressId,
                              HttpSession session,
@@ -76,6 +78,7 @@ public class OrderpageController {
         if (userId == null) return "redirect:/login";
 
         try {
+
             PlaceOrderRequest request = new PlaceOrderRequest();
             request.setUserId(userId);
             request.setAddressId(addressId);
@@ -85,10 +88,22 @@ public class OrderpageController {
             return "redirect:/payment?orderId=" + response.getOrderId()
                     + "&amount=" + response.getTotalAmount();
 
+        } catch (HttpClientErrorException ex) {
+
+            // 🔥 Extract clean backend message only
+            String backendMessage = ex.getResponseBodyAsString();
+
+            if (backendMessage == null || backendMessage.isBlank()) {
+                backendMessage = "Unable to place order. Please try again.";
+            }
+
+            redirectAttributes.addFlashAttribute("orderError", backendMessage);
+            return "redirect:/orders/checkout";
+
         } catch (Exception ex) {
 
             redirectAttributes.addFlashAttribute("orderError",
-                    "Order failed: " + ex.getMessage());
+                    "Something went wrong. Please try again.");
 
             return "redirect:/orders/checkout";
         }
@@ -109,7 +124,3 @@ public class OrderpageController {
         return "orders";
     }
 }
-
-
-
-   
