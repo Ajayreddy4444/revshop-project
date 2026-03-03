@@ -1,4 +1,4 @@
-package CartClientServiceImpl;
+package com.example.demo.serviceImplTest;
 
 import com.example.demo.dto.CartRequest;
 import com.example.demo.dto.CartResponse;
