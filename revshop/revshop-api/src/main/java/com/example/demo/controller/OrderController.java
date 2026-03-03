@@ -1,10 +1,8 @@
 package com.example.demo.controller;
 
 import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.demo.dto.PlaceOrderRequestDTO;
 import com.example.demo.dto.SellerOrderResponseDTO;
 import com.example.demo.dto.OrderResponseDTO;
@@ -49,11 +47,9 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    // =========================================================
-    // ✅ UPDATED: Check If User Purchased Specific Product
-    // Used by review module in revshop-web
+
     // Endpoint: /api/orders/has-purchased/{userId}/{productId}
-    // =========================================================
+
     @GetMapping("/has-purchased/{userId}/{productId}")
     public ResponseEntity<Boolean> hasUserPurchased(
             @PathVariable Long userId,

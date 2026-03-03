@@ -3,10 +3,8 @@ package com.example.demo.serviceImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.example.demo.dto.OrderItemResponseDTO;
 import com.example.demo.dto.OrderResponseDTO;
 import com.example.demo.dto.PlaceOrderRequestDTO;
@@ -43,15 +41,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDTO placeOrder(PlaceOrderRequestDTO request) {
 
-        // 1️⃣ Fetch User
+        // Fetch User
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 2️⃣ Fetch Address
+        //  Fetch Address
         Address address = addressRepository.findById(request.getAddressId())
                 .orElseThrow(() -> new RuntimeException("Address not found"));
 
-        // 3️⃣ Fetch Cart
+        //  Fetch Cart
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
@@ -61,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Cart is empty");
         }
 
-        // 4️⃣ Create Order
+        // Create Order
         Order order = new Order();
         order.setUser(user);
         order.setAddress(address);
@@ -71,7 +69,7 @@ public class OrderServiceImpl implements OrderService {
         double totalAmount = 0.0;
         List<OrderItem> orderItems = new ArrayList<>();
 
-        // 5️⃣ Process Each Cart Item
+        //  Process Each Cart Item
         for (CartItem cartItem : cartItems) {
 
             Product product = productRepository.findById(cartItem.getProductId())
@@ -80,7 +78,7 @@ public class OrderServiceImpl implements OrderService {
             int availableStock = product.getQuantity();
             int requestedQty = cartItem.getQuantity();
 
-            // 🔒 Stock Validation
+            //  Stock Validation
             if (availableStock < requestedQty) {
                 throw new RuntimeException(
                         "Insufficient stock for product: " + product.getName());
@@ -88,11 +86,9 @@ public class OrderServiceImpl implements OrderService {
 
             double subtotal = product.getPrice() * requestedQty;
 
-            // 🔥 Reduce Product Stock
-            //product.setQuantity(availableStock - requestedQty);
-            // No need to call save() — JPA auto flushes inside @Transactional
+           
 
-            // 🔥 Create Order Item
+            //  Create Order Item
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
@@ -107,11 +103,9 @@ public class OrderServiceImpl implements OrderService {
         order.setItems(orderItems);
         order.setTotalAmount(totalAmount);
 
-        // 6️⃣ Save Order (Cascade should save OrderItems)
+        // Save Order (Cascade should save OrderItems)
         Order savedOrder = orderRepository.save(order);
-//
-//        // 7️⃣ Clear Cart
-//        cartItemRepository.deleteAll(cartItems);
+
 
         return convertToDTO(savedOrder);
     }
@@ -135,12 +129,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    
     public List<OrderResponseDTO> getOrderByUser(Long userId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Order> orders = orderRepository.findByUser(user);
+        List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
 
         List<OrderResponseDTO> responseList = new ArrayList<>();
 
@@ -180,17 +175,17 @@ public class OrderServiceImpl implements OrderService {
         return dto;
     }
     
- // ============================================================
- // ✅ UPDATED: Check If User Purchased Specific Product
+
+ // UPDATED: Check If User Purchased Specific Product
  // Used by review module to restrict reviews
- // ============================================================
+
  @Override
  public boolean hasUserPurchasedProduct(Long userId, Long productId) {
 
      User user = userRepository.findById(userId)
              .orElseThrow(() -> new RuntimeException("User not found"));
      // Get all orders of the user
-     List<Order> orders = orderRepository.findByUser(user);
+     List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
 
      // Check each order and its items
      for (Order order : orders) {
@@ -209,7 +204,7 @@ public class OrderServiceImpl implements OrderService {
  public List<SellerOrderResponseDTO> getOrdersForSeller(Long sellerId) {
 
      List<OrderItem> orderItems =
-             orderItemRepository.findByProduct_Seller_Id(sellerId);
+             orderItemRepository.findByProduct_Seller_IdOrderByOrder_OrderDateDesc(sellerId);
 
      List<SellerOrderResponseDTO> response = new ArrayList<>();
 

@@ -59,5 +59,4 @@ public class AddressRequest {
 		this.addressId = addressId;
 	}
 
-    // getters & setters
 }

@@ -2,7 +2,6 @@ package com.example.demo.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -13,7 +12,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    // 🔹 Order belongs to one User
+    //  Order belongs to one User
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -24,25 +23,22 @@ public class Order {
     @Column(nullable = false)
     private Double totalAmount= 0.0 ;
 
-    // 🔹 Order linked to one Address
+    // Order linked to one Address
     @ManyToOne
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;
 
-    // 🔹 Order lifecycle status
+    //  Order lifecycle status
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status;
 
-    // 🔹 Order contains multiple items
+    //  Order contains multiple items
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL ,orphanRemoval = true)
     private List<OrderItem> items;
 
     public Order() {
     }
-
-    // ================= GETTERS & SETTERS =================
-
     public long getId() {
         return id;
     }
