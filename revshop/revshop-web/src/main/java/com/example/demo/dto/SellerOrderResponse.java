@@ -16,8 +16,6 @@ import java.time.LocalDateTime;
 
     private String imageUrl;
 
-    // ===== GETTERS AND SETTERS =====
-
     public Long getOrderId() {
         return orderId;
     }

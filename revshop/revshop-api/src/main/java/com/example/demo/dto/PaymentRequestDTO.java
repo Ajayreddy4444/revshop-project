@@ -1,7 +1,6 @@
 package com.example.demo.dto;
 
 import com.example.demo.entity.PaymentMethod;
-
 public class PaymentRequestDTO {
 
     private Long orderId;

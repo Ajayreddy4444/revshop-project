@@ -12,13 +12,15 @@ public class ProductResponse {
     private Integer lowStockThreshold;
     private double averageRating;
     private int reviewCount;
+    private boolean active;
 
     public ProductResponse() {
     }
 
     public ProductResponse(Long id, String name, String description,
                            Double price, Double mrp,
-                           Integer quantity, String imageUrl, Integer lowStockThreshold, Double averageRating, int reviewCount, Double discountPercent) {
+                           Integer quantity, String imageUrl, Integer lowStockThreshold, Double averageRating, int reviewCount, Double discountPercent,
+                           boolean active) {
 
         this.id = id;
         this.name = name;
@@ -31,6 +33,7 @@ public class ProductResponse {
         this.averageRating = averageRating;
         this.reviewCount = reviewCount;
         this.discountPercent = discountPercent;
+        this.active = active;
     }
 
     public Long getId() {
@@ -115,5 +118,13 @@ public class ProductResponse {
 
     public void setDiscountPercent(Double discountPercent) {
         this.discountPercent = discountPercent;
+    }
+
+    public boolean getActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

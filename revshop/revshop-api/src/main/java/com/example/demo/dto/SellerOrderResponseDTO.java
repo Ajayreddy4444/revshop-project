@@ -1,9 +1,7 @@
 package com.example.demo.dto;
 
 import java.time.LocalDateTime;
-
 import com.example.demo.entity.OrderStatus;
-
 public class SellerOrderResponseDTO {
 
 	private Long orderId;

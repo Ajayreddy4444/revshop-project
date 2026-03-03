@@ -2,11 +2,9 @@ package com.example.demo.serviceImpl;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import com.example.demo.dto.AddressRequest;
 import com.example.demo.dto.AddressResponse;
 import com.example.demo.service.AddressClientService;
@@ -42,7 +40,7 @@ public class AddressClientServiceImpl implements AddressClientService {
         restTemplate.postForObject(url, request, Object.class);
     }
 
-    // ✅ NEW METHOD
+ 
     @Override
     public AddressResponse getAddressById(Long id) {
 
@@ -51,7 +49,7 @@ public class AddressClientServiceImpl implements AddressClientService {
         return restTemplate.getForObject(url, AddressResponse.class);
     }
 
-    // ✅ NEW METHOD
+
     @Override
     public void updateAddress(AddressRequest request) {
 

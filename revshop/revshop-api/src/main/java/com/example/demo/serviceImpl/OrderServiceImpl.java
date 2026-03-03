@@ -14,7 +14,6 @@ import com.example.demo.dto.SellerOrderResponseDTO;
 import com.example.demo.entity.*;
 import com.example.demo.repository.*;
 import com.example.demo.service.OrderService;
-import com.example.demo.service.NotificationService;
 
 @Service
 @Transactional
@@ -27,12 +26,10 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final CartItemRepository cartItemRepository;
     private final OrderItemRepository orderItemRepository;
-    private final NotificationService notificationService;
 
     public OrderServiceImpl(UserRepository userRepository,
                             OrderRepository orderRepository,
                             ProductRepository productRepository,
-                            NotificationService notificationService,
                             AddressRepository addressRepository,
                             CartRepository cartRepository,
                             CartItemRepository cartItemRepository,
@@ -41,7 +38,6 @@ public class OrderServiceImpl implements OrderService {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
-        this.notificationService = notificationService;
         this.addressRepository = addressRepository;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
@@ -51,15 +47,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDTO placeOrder(PlaceOrderRequestDTO request) {
 
-        // 1️⃣ Fetch User
+        // Fetch User
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 2️⃣ Fetch Address
+        // Fetch Address
         Address address = addressRepository.findById(request.getAddressId())
                 .orElseThrow(() -> new RuntimeException("Address not found"));
 
-        // 3️⃣ Fetch Cart
+        // Fetch Cart
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
@@ -69,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Cart is empty");
         }
 
-        // 4️⃣ Create Order
+        // Create Order
         Order order = new Order();
         order.setUser(user);
         order.setAddress(address);
@@ -79,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
         double totalAmount = 0.0;
         List<OrderItem> orderItems = new ArrayList<>();
 
-        // 5️⃣ Process Cart Items
+        // Process Each Cart Item
         for (CartItem cartItem : cartItems) {
 
             Product product = productRepository.findById(cartItem.getProductId())
@@ -88,6 +84,7 @@ public class OrderServiceImpl implements OrderService {
             int availableStock = product.getQuantity();
             int requestedQty = cartItem.getQuantity();
 
+            // Stock Validation Only
             if (availableStock < requestedQty) {
                 throw new RuntimeException(
                         "Insufficient stock for product: " + product.getName());
@@ -95,30 +92,7 @@ public class OrderServiceImpl implements OrderService {
 
             double subtotal = product.getPrice() * requestedQty;
 
-            // 🔥 Reduce stock temporarily (only validation here)
-            int newStock = availableStock - requestedQty;
-            product.setQuantity(newStock);
-            productRepository.save(product);
-
-            // 🔔 Low Stock Notification (THIS IS OK TO KEEP)
-            if (product.getLowStockThreshold() != null &&
-                newStock <= product.getLowStockThreshold()) {
-
-                User seller = product.getSeller();
-                if (seller != null) {
-                    String warningMessage =
-                            "⚠️ Low Stock Alert! Product: "
-                            + product.getName()
-                            + " | Remaining Qty: "
-                            + newStock;
-
-                    notificationService.createLowStockNotification(
-                            seller,
-                            warningMessage
-                    );
-                }
-            }
-
+            // Create Order Item
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
@@ -133,13 +107,8 @@ public class OrderServiceImpl implements OrderService {
         order.setItems(orderItems);
         order.setTotalAmount(totalAmount);
 
-        // 6️⃣ Save Order
+        // Save Order (Cascade saves OrderItems)
         Order savedOrder = orderRepository.save(order);
-
-        // ❌ NO ORDER NOTIFICATION HERE ANYMORE
-
-        // 7️⃣ Clear Cart
-        cartItemRepository.deleteAll(cartItems);
 
         return convertToDTO(savedOrder);
     }
@@ -165,7 +134,8 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Order> orders = orderRepository.findByUser(user);
+        List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
+
         List<OrderResponseDTO> responseList = new ArrayList<>();
 
         for (Order order : orders) {
@@ -176,6 +146,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderResponseDTO convertToDTO(Order order) {
+
         OrderResponseDTO dto = new OrderResponseDTO();
         dto.setOrderId(order.getId());
         dto.setOrderDate(order.getOrderDate());
@@ -186,6 +157,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (order.getItems() != null) {
             for (OrderItem item : order.getItems()) {
+
                 OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
                 itemDTO.setProductId(item.getProduct().getId());
                 itemDTO.setProductName(item.getProduct().getName());
@@ -193,6 +165,7 @@ public class OrderServiceImpl implements OrderService {
                 itemDTO.setPriceAtPurchase(item.getPriceAtPurchase());
                 itemDTO.setSubtotal(item.getSubtotal());
                 itemDTO.setImageUrl(item.getProduct().getImageUrl());
+
                 itemDTOs.add(itemDTO);
             }
         }
@@ -201,12 +174,14 @@ public class OrderServiceImpl implements OrderService {
         return dto;
     }
 
+    // Check If User Purchased Specific Product
     @Override
     public boolean hasUserPurchasedProduct(Long userId, Long productId) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Order> orders = orderRepository.findByUser(user);
+        List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
 
         for (Order order : orders) {
             for (OrderItem item : order.getItems()) {
@@ -215,6 +190,7 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
         }
+
         return false;
     }
 
@@ -222,11 +198,12 @@ public class OrderServiceImpl implements OrderService {
     public List<SellerOrderResponseDTO> getOrdersForSeller(Long sellerId) {
 
         List<OrderItem> orderItems =
-                orderItemRepository.findByProduct_Seller_Id(sellerId);
+                orderItemRepository.findByProduct_Seller_IdOrderByOrder_OrderDateDesc(sellerId);
 
         List<SellerOrderResponseDTO> response = new ArrayList<>();
 
         for (OrderItem item : orderItems) {
+
             SellerOrderResponseDTO dto = new SellerOrderResponseDTO();
             dto.setOrderId(item.getOrder().getId());
             dto.setOrderDate(item.getOrder().getOrderDate());
@@ -237,6 +214,7 @@ public class OrderServiceImpl implements OrderService {
             dto.setSubtotal(item.getSubtotal());
             dto.setBuyerName(item.getOrder().getUser().getName());
             dto.setBuyerEmail(item.getOrder().getUser().getEmail());
+
             response.add(dto);
         }
 

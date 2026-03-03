@@ -6,7 +6,14 @@ import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.entity.*;
+import com.example.demo.entity.Cart;
+import com.example.demo.entity.Order;
+import com.example.demo.entity.OrderItem;
+import com.example.demo.entity.OrderStatus;
+import com.example.demo.entity.Payment;
+import com.example.demo.entity.PaymentMethod;
+import com.example.demo.entity.PaymentStatus;
+import com.example.demo.entity.Product;
 import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.PaymentRepository;
@@ -38,6 +45,8 @@ public class PaymentServiceImpl implements PaymentService {
                                   Double amount,
                                   PaymentMethod method) {
 
+        System.out.println("PAYMENT EXECUTED for order " + orderId);
+
         if (orderId == null)
             throw new IllegalArgumentException("Order ID cannot be null");
 
@@ -47,14 +56,14 @@ public class PaymentServiceImpl implements PaymentService {
         if (method == null)
             throw new IllegalArgumentException("Payment method must be selected");
 
-        // 1️⃣ Fetch Order
+        // Fetch Order
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // 2️⃣ Simulate payment result
+        // Simulate payment result (replace later with real gateway result)
         PaymentStatus paymentStatus = PaymentStatus.SUCCESS;
 
-        // 3️⃣ Create Payment record
+        // Create Payment record
         Payment payment = new Payment();
         payment.setOrderId(orderId);
         payment.setAmount(amount);
@@ -64,13 +73,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         paymentRepository.save(payment);
 
-        // 4️⃣ Handle order + stock + cart based on payment result
+        // Handle order + stock + cart based on payment result
         if (paymentStatus == PaymentStatus.SUCCESS) {
 
-            // ✅ Mark order as PAID
+            // Mark order as PAID
             order.setStatus(OrderStatus.PAID);
 
-            // ✅ Reduce stock
+            // Reduce stock
             for (OrderItem item : order.getItems()) {
 
                 Product product = item.getProduct();
@@ -85,20 +94,20 @@ public class PaymentServiceImpl implements PaymentService {
                 product.setQuantity(updatedStock);
             }
 
-            // ✅ Clear Cart
+            // Clear Cart
             Cart cart = cartRepository.findByUserId(order.getUser().getId())
                     .orElseThrow(() -> new RuntimeException("Cart not found"));
 
             cart.getItems().clear();
 
-            // ✅ Format timestamp
+            // Format timestamp
             DateTimeFormatter formatter =
                     DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
 
             String formattedDate =
                     order.getOrderDate().format(formatter);
 
-            // 🔔 Notify Buyer
+            // Notify Buyer
             String buyerMessage =
                     "Your order has been placed successfully.\n"
                     + "Order ID: " + order.getId()
@@ -110,7 +119,7 @@ public class PaymentServiceImpl implements PaymentService {
                     buyerMessage
             );
 
-            // 🔔 Notify Sellers
+            // Notify Sellers
             order.getItems().forEach(item -> {
                 if (item.getProduct().getSeller() != null) {
 
@@ -128,6 +137,8 @@ public class PaymentServiceImpl implements PaymentService {
             });
 
         } else {
+
+            // Payment failed → Cancel order
             order.setStatus(OrderStatus.CANCELLED);
         }
 
@@ -139,6 +150,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void cancelOrder(Long orderId) {
+
+        System.out.println("CANCEL CALLED for orderId = " + orderId);
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
