@@ -1,10 +1,8 @@
 package com.example.demo.serviceImpl;
 
 import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.example.demo.entity.Cart;
 import com.example.demo.entity.Order;
 import com.example.demo.entity.OrderItem;
@@ -38,6 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment processPayment(Long orderId,
                                   Double amount,
                                   PaymentMethod method) {
+    	System.out.println(" PAYMENT EXECUTED for order " + orderId);
 
         if (orderId == null)
             throw new IllegalArgumentException("Order ID cannot be null");
@@ -48,14 +47,14 @@ public class PaymentServiceImpl implements PaymentService {
         if (method == null)
             throw new IllegalArgumentException("Payment method must be selected");
 
-        // 1️⃣ Fetch Order
+        //  Fetch Order
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // 2️⃣ Simulate payment result (replace later with real gateway result)
+        //  Simulate payment result (replace later with real gateway result)
         PaymentStatus paymentStatus = PaymentStatus.SUCCESS;
 
-        // 3️⃣ Create Payment record
+        //  Create Payment record
         Payment payment = new Payment();
         payment.setOrderId(orderId);
         payment.setAmount(amount);
@@ -65,13 +64,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         paymentRepository.save(payment);
 
-        // 4️⃣ Handle order + stock + cart based on payment result
+        // Handle order + stock + cart based on payment result
         if (paymentStatus == PaymentStatus.SUCCESS) {
 
-            // ✅ Mark order as PAID
+            //  Mark order as PAID
             order.setStatus(OrderStatus.PAID);
 
-            // ✅ Reduce stock
+            // Reduce stock
             for (OrderItem item : order.getItems()) {
 
                 Product product = item.getProduct();
@@ -86,15 +85,15 @@ public class PaymentServiceImpl implements PaymentService {
                 product.setQuantity(updatedStock);
             }
 
-            // ✅ Clear Cart
+            //  Clear Cart
             Cart cart = cartRepository.findByUserId(order.getUser().getId())
                     .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-            cart.getItems().clear();   // orphanRemoval must be true
+            cart.getItems().clear();   
 
         } else {
 
-            // ❌ Payment failed → Cancel order
+            //  Payment failed → Cancel order
             order.setStatus(OrderStatus.CANCELLED);
         }
 
@@ -106,6 +105,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public void cancelOrder(Long orderId) {
 
+    	 System.out.println(" CANCEL CALLED for orderId = " + orderId);
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 

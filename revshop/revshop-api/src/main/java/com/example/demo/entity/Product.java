@@ -42,7 +42,7 @@ public class Product {
 
     private String imageUrl;
 
-    private Boolean active = true;
+    private boolean active = true;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -159,11 +159,11 @@ public class Product {
         this.lowStockThreshold = lowStockThreshold;
     }
 
-    public Boolean getActive() {
+    public boolean getActive() {
         return active;
     }
 
-    public void setActive(Boolean active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 

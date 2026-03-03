@@ -11,6 +11,10 @@ public interface OrderService {
 	OrderResponseDTO placeOrder(PlaceOrderRequestDTO request);
 	OrderResponseDTO getOrderById(Long orderId);
 	List<OrderResponseDTO> getOrderByUser(Long userId);
+
+
+	
+	
 	void updateOrderStatus(Long orderId, OrderStatus status);
 	//updated
 	boolean hasUserPurchasedProduct(Long userId, Long productId);

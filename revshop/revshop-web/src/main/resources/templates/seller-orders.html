@@ -2,151 +2,156 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Seller Orders', ~{::section})}">
 
-<section class="container mt-5">
+	<section class="orders-container">
 
-    <style>
-        .page-title {
-            font-weight: 700;
-            margin-bottom: 25px;
-        }
+	    <style>
+	        .orders-container {
+	            max-width: 1000px;
+	            margin: auto;
+	            padding: 30px;
+	        }
 
-        .order-card {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-            transition: 0.2s ease;
-            height: 100%;
-        }
+	        .page-title {
+	            font-size: 28px;
+	            font-weight: 700;
+	            margin-bottom: 30px;
+	        }
 
-        .order-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
-        }
+	        .order-card {
+	            background: #ffffff;
+	            padding: 20px;
+	            border-radius: 12px;
+	            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+	            margin-bottom: 25px;
+	        }
 
-        .order-id {
-            font-weight: 600;
-            color: #666;
-        }
+	        .order-header {
+	            display: flex;
+	            justify-content: space-between;
+	            flex-wrap: wrap;
+	            border-bottom: 1px solid #eee;
+	            padding-bottom: 10px;
+	            margin-bottom: 15px;
+	        }
 
-        .amount {
-            font-size: 18px;
-            font-weight: 700;
-            color: #28a745;
-        }
+	        .status-created { background-color: #6c757d; }
+	        .status-paid { background-color: #0d6efd; }
+	        .status-shipped { background-color: #fd7e14; }
+	        .status-delivered { background-color: #28a745; }
+	        .status-cancelled { background-color: #dc3545; }
 
-        .buyer-box {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 12px;
-        }
+	        .status-badge {
+	            padding: 5px 12px;
+	            border-radius: 20px;
+	            color: white;
+	            font-size: 12px;
+	        }
 
-        .product-img {
-            width: 70px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
+	        .order-body {
+	            display: flex;
+	            gap: 20px;
+	            align-items: center;
+	        }
 
-        .status-created {
-            background-color: #6c757d;
-        }
+	        .product-img {
+	            width: 100px;
+	            height: 100px;
+	            object-fit: cover;
+	            border-radius: 10px;
+	        }
 
-        .status-paid {
-            background-color: #0d6efd;
-        }
+	        .details {
+	            flex: 1;
+	        }
 
-        .status-shipped {
-            background-color: #fd7e14;
-        }
+	        .amount {
+	            font-weight: 700;
+	            font-size: 18px;
+	            color: #28a745;
+	        }
 
-        .status-delivered {
-            background-color: #28a745;
-        }
+	        .buyer-box {
+	            background: #f8f9fa;
+	            padding: 10px;
+	            border-radius: 8px;
+	            margin-top: 10px;
+	        }
 
-        .status-cancelled {
-            background-color: #dc3545;
-        }
+	        .empty-orders {
+	            text-align: center;
+	            padding: 40px;
+	            color: gray;
+	        }
+	    </style>
 
-    </style>
+	    <h2 class="page-title"> Orders Received</h2>
 
-    <h3 class="page-title">📦 Orders Received</h3>
+	    <!-- Empty State -->
+	    <div th:if="${#lists.isEmpty(orders)}"
+	         class="empty-orders">
+	        No orders received yet.
+	    </div>
 
-    <!-- Empty State -->
-    <div th:if="${#lists.isEmpty(orders)}"
-         class="alert alert-info text-center">
-        No orders received yet.
-    </div>
+	    <div th:each="order : ${orders}" class="order-card">
 
-    <div class="row g-4" th:each="order : ${orders}">
+	        <!-- Header -->
+	        <div class="order-header">
 
-        <div class="col-md-6 col-lg-4">
+	            <div>
+	                <strong>Order ID:</strong>
+	                <span th:text="${order.orderId}"></span>
+	            </div>
 
-            <div class="order-card">
+	            <div class="amount">
+	                ₹ <span th:text="${order.subtotal}"></span>
+	            </div>
 
-                <!-- Top Section -->
-                <div class="d-flex justify-content-between align-items-center mb-3">
+	            <span class="status-badge"
+	                  th:text="${order.status}"
+	                  th:classappend="${
+	                      order.status == 'CREATED' ? ' status-created' :
+	                      order.status == 'PAID' ? ' status-paid' :
+	                      order.status == 'SHIPPED' ? ' status-shipped' :
+	                      order.status == 'DELIVERED' ? ' status-delivered' :
+	                      ' status-cancelled'
+	                  }">
+	            </span>
 
-                    <div class="order-id">
-                        Order #<span th:text="${order.orderId}"></span>
-                    </div>
+	        </div>
 
-					<span class="badge"
-					      th:text="${order.status}"
-					      th:classappend="${
-					          order.status == 'CREATED' ? ' status-created' :
-					          order.status == 'PAID' ? ' status-paid' :
-					          ' status-cancelled'
-					      }">
-					</span>
+	        <!-- Body -->
+	        <div class="order-body">
 
-                </div>
+	            <img th:if="${order.imageUrl != null}"
+	                 th:src="@{'/images/' + ${order.imageUrl}}"
+	                 class="product-img"/>
 
-                <!-- Product Section -->
-                <div class="d-flex align-items-center mb-3">
+	            <div class="details">
 
-					
+	                <div class="fw-semibold mb-1"
+	                     th:text="${order.productName}"></div>
 
-					<img th:if="${order.imageUrl != null}"
-					     th:src="@{'/images/' + ${order.imageUrl}}"
-					     class="product-img me-3"/>
+	                <div>
+	                    Qty: <b th:text="${order.quantity}"></b>
+	                </div>
 
-					    <div>                   
-                            <div class="fw-semibold"
-                             th:text="${order.productName}"></div>
+	                <div class="buyer-box">
+	                    <div class="fw-semibold">Buyer Details</div>
+	                    <div th:text="${order.buyerName}"></div>
+	                    <div class="text-muted small"
+	                         th:text="${order.buyerEmail}"></div>
+	                </div>
 
-                        <small class="text-muted">
-                            Qty: <span th:text="${order.quantity}"></span>
-                        </small>
-                    </div>
+	                <div class="text-muted small mt-2">
+	                    Ordered on:
+	                    <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy, hh:mm a')}"></span>
+	                </div>
 
-                </div>
+	            </div>
 
-                <!-- Amount -->
-                <div class="amount mb-3">
-                    ₹ <span th:text="${order.subtotal}"></span>
-                </div>
+	        </div>
 
-                <!-- Buyer Info -->
-                <div class="buyer-box mb-3">
-                    <div class="fw-semibold mb-1">Buyer Details</div>
-                    <div th:text="${order.buyerName}"></div>
-                    <div class="text-muted small"
-                         th:text="${order.buyerEmail}"></div>
-                </div>
+	    </div>
 
-                <!-- Order Date -->
-                <div class="text-muted small">
-                    Ordered on:
-                    <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy, hh:mm a')}"></span>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
+	</section>
 </html>
