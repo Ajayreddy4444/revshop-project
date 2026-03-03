@@ -8,9 +8,7 @@ public class OrderItemResponseDTO {
 	private Double priceAtPurchase;
 	private Double subtotal;
 	private String imageUrl;
-	
-	
-	
+
 	public OrderItemResponseDTO() {
 		
 	}

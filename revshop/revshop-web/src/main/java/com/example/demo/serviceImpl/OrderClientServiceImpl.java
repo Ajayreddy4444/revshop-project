@@ -3,12 +3,10 @@ package com.example.demo.serviceImpl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
 import com.example.demo.dto.OrderResponse;
 import com.example.demo.dto.PlaceOrderRequest;
 import com.example.demo.dto.SellerOrderResponse;
@@ -26,7 +24,7 @@ public class OrderClientServiceImpl implements OrderClientService {
         this.restTemplate = restTemplate;
     }
 
-    // ================== PLACE ORDER ==================
+    // PLACE ORDER 
     @Override
     public OrderResponse placeOrder(PlaceOrderRequest request) {
 
@@ -46,7 +44,7 @@ public class OrderClientServiceImpl implements OrderClientService {
         }
     
 
-    // ================== GET ORDERS BY USER ==================
+    //  GET ORDERS BY USER 
     @Override
     public List<OrderResponse> getOrderByUser(Long userId) {
 
@@ -68,7 +66,7 @@ public class OrderClientServiceImpl implements OrderClientService {
         }
     }
 
-    // ================== CHECK IF USER PURCHASED PRODUCT ==================
+    //  CHECK IF USER PURCHASED PRODUCT
     @Override
     public boolean hasUserPurchasedProduct(Long userId, Long productId) {
 
@@ -90,7 +88,7 @@ public class OrderClientServiceImpl implements OrderClientService {
     public List<SellerOrderResponse> getSellerOrders(Long sellerId) {
 
         String url = baseUrl + "/orders/seller/" + sellerId;
-        // baseUrl is probably http://localhost:8080/api
+    
 
         SellerOrderResponse[] response =
                 restTemplate.getForObject(url, SellerOrderResponse[].class);
