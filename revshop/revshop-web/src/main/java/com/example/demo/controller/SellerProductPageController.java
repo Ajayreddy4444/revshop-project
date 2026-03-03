@@ -199,9 +199,13 @@ public class SellerProductPageController {
     }
 
     @PostMapping("/products/delete/{id}")
-    public String deleteProduct(@PathVariable Long id) {
+    public String deleteProduct(@PathVariable Long id,
+                                RedirectAttributes redirectAttributes) {
 
         productClientService.deleteProduct(id);
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Product deleted successfully");
+
         return "redirect:/seller/products";
     }
 

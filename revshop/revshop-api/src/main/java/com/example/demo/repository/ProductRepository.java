@@ -14,4 +14,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     Boolean existsBySellerIdAndNameIgnoreCaseAndCategory_Id(Long sellerId, String name, Long categoryId);
 
+    List<Product> findByActiveTrue();
 }
