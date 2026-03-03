@@ -11,6 +11,7 @@ import com.example.demo.dto.PlaceOrderRequestDTO;
 import com.example.demo.dto.SellerOrderResponseDTO;
 import com.example.demo.entity.*;
 import com.example.demo.exception.OrderNotFoundException;
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.repository.*;
 import com.example.demo.service.OrderService;
 
@@ -44,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Fetch User
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         //  Fetch Address
         Address address = addressRepository.findById(request.getAddressId())
@@ -184,7 +185,7 @@ public class OrderServiceImpl implements OrderService {
  public boolean hasUserPurchasedProduct(Long userId, Long productId) {
 
      User user = userRepository.findById(userId)
-             .orElseThrow(() -> new RuntimeException("User not found"));
+             .orElseThrow(() -> new UserNotFoundException("User not found"));
      // Get all orders of the user
      List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
 
