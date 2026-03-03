@@ -129,18 +129,20 @@
                     </form>
 
                     <!-- Wishlist Heart -->
-                    <button type="button"
-                            class="btn btn-outline-danger"
-                            th:onclick="'toggleWishlist(' + ${product.id} + ')'">
+                    <div th:if="${product.active}">
+                        <button type="button"
+                                class="btn btn-outline-danger"
+                                th:onclick="'toggleWishlist(' + ${product.id} + ')'">
 
-                        <i class="bi"
-                           th:id="'heart-'+${product.id}"
-                           th:classappend="${product.wishlisted} ?
+                            <i class="bi"
+                               th:id="'heart-'+${product.id}"
+                               th:classappend="${product.wishlisted} ?
                            'bi-heart-fill text-danger' :
                            'bi-heart'">
-                        </i>
+                            </i>
 
-                    </button>
+                        </button>
+                    </div>
 
                 </div>
 
