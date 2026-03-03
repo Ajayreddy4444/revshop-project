@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.demo.dto.AuthResponse;
 import com.example.demo.dto.CartResponse;
@@ -66,23 +67,31 @@ public class OrderpageController {
         return "checkout";
     }
 
-    // 🔹 Place Order
     @PostMapping("/place")
     public String placeOrder(@RequestParam Long addressId,
-                             HttpSession session) {
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
 
         Long userId = getLoggedInUserId(session);
         if (userId == null) return "redirect:/login";
 
-        PlaceOrderRequest request = new PlaceOrderRequest();
-        request.setUserId(userId);
-        request.setAddressId(addressId);
+        try {
+            PlaceOrderRequest request = new PlaceOrderRequest();
+            request.setUserId(userId);
+            request.setAddressId(addressId);
 
-        OrderResponse response = orderClientService.placeOrder(request);
+            OrderResponse response = orderClientService.placeOrder(request);
 
-        // 🔥 Redirect to payment page
-        return "redirect:/payment?orderId=" + response.getOrderId()
-                + "&amount=" + response.getTotalAmount();
+            return "redirect:/payment?orderId=" + response.getOrderId()
+                    + "&amount=" + response.getTotalAmount();
+
+        } catch (Exception ex) {
+
+            redirectAttributes.addFlashAttribute("orderError",
+                    "Order failed: " + ex.getMessage());
+
+            return "redirect:/orders/checkout";
+        }
     }
 
     // 🔹 My Orders

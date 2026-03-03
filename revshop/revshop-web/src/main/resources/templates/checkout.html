@@ -5,6 +5,11 @@
 <section class="container checkout-container mt-5 position-relative">
 
     <style>
+		.fade-out {
+		    opacity: 0;
+		    transition: opacity 0.4s ease;
+		}
+		
         .checkout-container {
             background-color: #f8f9fa;
             padding: 30px;
@@ -121,7 +126,14 @@
 		    align-self: flex-start;
 		}
     </style>
-
+	
+	<div th:if="${orderError}" 
+	     id="orderErrorAlert"
+	     class="alert alert-danger text-center shadow-sm"
+	     style="border-radius:8px;">
+	     
+		<span th:text="${orderError}"></span>	</div>
+	
     <!-- Cancel Message -->
     <div th:if="${cancelMessage}"
          id="cancelAlert"
@@ -214,17 +226,19 @@
                     </div>
 
                     <!-- SINGLE Place Order Button -->
-                    <span data-bs-toggle="tooltip"
-                          th:attr="title=${#lists.isEmpty(addresses)} ? 'Please add an address first' : ''">
+					<span data-bs-toggle="tooltip"
+					      data-bs-placement="top"
+					      th:attr="title=${orderError != null} ? ${orderError} : 
+					               (${#lists.isEmpty(addresses)} ? 'Please add an address first' : '')">
 
-                        <button type="submit"
-                                class="place-order-btn mt-3"
-								th:classappend="${#lists.isEmpty(addresses)} ? ' disabled-btn' : ''"
-                                th:disabled="${#lists.isEmpty(addresses)}">
-                            Place Order
-                        </button>
+					    <button type="submit"
+					            class="place-order-btn mt-3"
+					            th:classappend="${orderError != null || #lists.isEmpty(addresses)} ? ' disabled-btn' : ''"
+					            th:disabled="${orderError != null || #lists.isEmpty(addresses)}">
+					        Place Order
+					    </button>
 
-                    </span>
+					</span>
 
                 </form>
             </div>
@@ -287,6 +301,20 @@
         });
 
     });
+	
+	// Auto hide order error after 2 seconds
+	const orderErrorAlert = document.getElementById("orderErrorAlert");
+
+	if (orderErrorAlert) {
+	    setTimeout(function () {
+	        orderErrorAlert.classList.add("fade-out");
+	        
+	        setTimeout(function () {
+	            orderErrorAlert.remove();
+	        }, 400);
+	        
+	    }, 2000); // 2 seconds
+	}
     </script>
 
 </section>

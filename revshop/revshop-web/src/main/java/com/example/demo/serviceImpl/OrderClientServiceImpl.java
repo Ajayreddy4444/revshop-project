@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -31,19 +32,21 @@ public class OrderClientServiceImpl implements OrderClientService {
     public OrderResponse placeOrder(PlaceOrderRequest request) {
 
         try {
-            String url = baseUrl + "/orders/place";
-
             return restTemplate.postForObject(
-                    url,
+                    baseUrl + "/orders/place",
                     request,
                     OrderResponse.class
             );
 
-        } catch (RestClientException ex) {
-            throw new RuntimeException("API call failed", ex);
+        } catch (HttpStatusCodeException ex) {
+
+            String errorMessage = ex.getResponseBodyAsString();
+
+            throw new RuntimeException(
+                    errorMessage != null ? errorMessage : "Order API failed"
+            );
         }
-            
-        }
+    }
     
 
     // ================== GET ORDERS BY USER ==================

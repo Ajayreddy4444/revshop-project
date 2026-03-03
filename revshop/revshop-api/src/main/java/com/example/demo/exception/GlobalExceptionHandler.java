@@ -29,6 +29,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleUserExists(UserAlreadyExistsException ex){
         return buildResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
+    
+    @ExceptionHandler(StockUnavailableException.class)
+    public ResponseEntity<String> handleStockException(
+            StockUnavailableException ex) {
+
+        return ResponseEntity
+                .badRequest()
+                .body(ex.getMessage());
+    }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleUserNotFound(UserNotFoundException ex){
