@@ -18,6 +18,7 @@ public class ProductDto {
     private double averageRating;
     private int reviewCount;
     private boolean wishlisted;
+    private boolean active;
 
     public ProductDto() {
     }
@@ -132,5 +133,13 @@ public class ProductDto {
 
     public void setWishlisted(boolean wishlisted) {
         this.wishlisted = wishlisted;
+    }
+
+    public boolean getActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
