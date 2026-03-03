@@ -60,7 +60,7 @@ public class PaymentServiceImpl implements PaymentService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // Simulate payment result (replace later with real gateway result)
+        // Simulate payment result
         PaymentStatus paymentStatus = PaymentStatus.SUCCESS;
 
         // Create Payment record
@@ -73,13 +73,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         paymentRepository.save(payment);
 
-        // Handle order + stock + cart based on payment result
+        // Handle order + stock + cart
         if (paymentStatus == PaymentStatus.SUCCESS) {
 
             // Mark order as PAID
             order.setStatus(OrderStatus.PAID);
 
-            // Reduce stock
+            // Reduce stock + Low stock check
             for (OrderItem item : order.getItems()) {
 
                 Product product = item.getProduct();
@@ -92,6 +92,24 @@ public class PaymentServiceImpl implements PaymentService {
                 }
 
                 product.setQuantity(updatedStock);
+
+                // 🔔 LOW STOCK ALERT FIXED HERE
+                if (product.getLowStockThreshold() != null &&
+                    updatedStock <= product.getLowStockThreshold()) {
+
+                    if (product.getSeller() != null) {
+
+                        String warningMessage =
+                                "⚠️ Low Stock Alert!\n"
+                                + "Product: " + product.getName()
+                                + "\nRemaining Qty: " + updatedStock;
+
+                        notificationService.createLowStockNotification(
+                                product.getSeller(),
+                                warningMessage
+                        );
+                    }
+                }
             }
 
             // Clear Cart
@@ -119,7 +137,7 @@ public class PaymentServiceImpl implements PaymentService {
                     buyerMessage
             );
 
-            // Notify Sellers
+            // Notify Sellers (Order received)
             order.getItems().forEach(item -> {
                 if (item.getProduct().getSeller() != null) {
 
@@ -138,7 +156,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         } else {
 
-            // Payment failed → Cancel order
+            // Payment failed
             order.setStatus(OrderStatus.CANCELLED);
         }
 
