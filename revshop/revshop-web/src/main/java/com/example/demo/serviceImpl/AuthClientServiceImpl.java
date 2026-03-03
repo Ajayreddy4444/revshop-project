@@ -26,6 +26,7 @@ public class AuthClientServiceImpl implements AuthClientService {
     @Override
     public AuthResponse login(LoginRequest request) {
         try {
+
             HttpEntity<LoginRequest> entity = new HttpEntity<>(request);
 
             ResponseEntity<AuthResponse> response =
@@ -45,6 +46,7 @@ public class AuthClientServiceImpl implements AuthClientService {
     @Override
     public AuthResponse registerBuyer(RegisterRequest request) {
         try {
+
             HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
 
             ResponseEntity<AuthResponse> response =
@@ -64,6 +66,7 @@ public class AuthClientServiceImpl implements AuthClientService {
     @Override
     public AuthResponse registerSeller(RegisterRequest request) {
         try {
+
             HttpEntity<RegisterRequest> entity = new HttpEntity<>(request);
 
             ResponseEntity<AuthResponse> response =
@@ -83,6 +86,7 @@ public class AuthClientServiceImpl implements AuthClientService {
     @Override
     public void forgotPassword(String email) {
         try {
+
             Map<String, String> request = Map.of("email", email);
 
             restTemplate.postForObject(
@@ -99,6 +103,7 @@ public class AuthClientServiceImpl implements AuthClientService {
     @Override
     public void resetPassword(String email, String otp, String newPassword) {
         try {
+
             Map<String, String> request = Map.of(
                     "email", email,
                     "otp", otp,
@@ -116,7 +121,7 @@ public class AuthClientServiceImpl implements AuthClientService {
         }
     }
 
-    // ✅ CLEAN ERROR EXTRACTION (NO <br>)
+    // ✅ CLEAN ERROR EXTRACTION
     private String extractErrorMessage(HttpClientErrorException ex) {
 
         String response = ex.getResponseBodyAsString();
@@ -125,7 +130,6 @@ public class AuthClientServiceImpl implements AuthClientService {
             return "Something went wrong";
         }
 
-        // Remove JSON formatting characters
         response = response.replace("{", "")
                            .replace("}", "")
                            .replace("\"", "");
