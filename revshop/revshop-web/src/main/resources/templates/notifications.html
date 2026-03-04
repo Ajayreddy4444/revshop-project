@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout('Notifications', ~{::section})}">
+
+<section style="margin-top:60px;">
+
+    <!-- Centered Heading -->
+    <div style="display:flex; justify-content:center; align-items:center; margin-bottom:40px; gap:12px;">
+        <span style="font-size:28px;">🔔</span>
+        <h2 style="margin:0;">Notifications</h2>
+    </div>
+
+    <div id="notificationContainer"></div>
+
+    <script th:inline="javascript">
+
+        const userId = /*[[${session.userId}]]*/ null;
+
+        function loadNotifications() {
+
+            const container = document.getElementById("notificationContainer");
+            container.innerHTML = "";
+
+            // Center container layout
+            container.style.display = "flex";
+            container.style.flexDirection = "column";
+            container.style.alignItems = "center";
+            container.style.gap = "25px";
+
+            if (!userId) {
+                container.innerHTML = "<p>Please login to view notifications.</p>";
+                return;
+            }
+
+            fetch(`http://localhost:8080/api/notifications/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = "<p>No notifications available.</p>";
+                        updateBadge(0);
+                        return;
+                    }
+
+                    let unreadCount = 0;
+
+                    data.forEach(n => {
+
+                        const card = document.createElement("div");
+
+                        // Card Styling
+                        card.style.width = "900px";
+                        card.style.maxWidth = "95%";
+                        card.style.padding = "25px";
+                        card.style.borderRadius = "12px";
+                        card.style.border = "1px solid #e0e0e0";
+                        card.style.boxShadow = "0 4px 12px rgba(0,0,0,0.06)";
+                        card.style.cursor = "pointer";
+                        card.style.transition = "0.2s ease";
+                        card.style.lineHeight = "1.6";
+
+                        // Unread styling
+                        if (!n.seen) {
+                            card.style.backgroundColor = "#f5f5f5";
+                            unreadCount++;
+                        } else {
+                            card.style.backgroundColor = "#ffffff";
+                        }
+
+                        // Title & message style
+                        const titleStyle =
+                            n.type === 'warning'
+                                ? 'color:red; font-weight:600; font-size:18px;'
+                                : 'font-weight:600; font-size:18px;';
+
+                        const messageStyle =
+                            n.type === 'warning'
+                                ? 'color:red; margin-top:10px;'
+                                : 'margin-top:10px;';
+
+                        card.innerHTML = `
+                            <div style="${titleStyle}">
+                                ${n.title ?? ''}
+                            </div>
+                            <div style="white-space:pre-line; ${messageStyle}">
+                                ${n.message ?? ''}
+                            </div>
+                        `;
+
+                        // Hover effect
+                        card.onmouseover = function () {
+                            card.style.transform = "scale(1.01)";
+                        };
+
+                        card.onmouseout = function () {
+                            card.style.transform = "scale(1)";
+                        };
+
+                        // Mark as seen on click
+                        card.onclick = function () {
+                            fetch(`http://localhost:8080/api/notifications/seen/${n.id}`, {
+                                method: "PUT"
+                            }).then(() => loadNotifications());
+                        };
+
+                        container.appendChild(card);
+                    });
+
+                    updateBadge(unreadCount);
+                })
+                .catch(() => {
+                    container.innerHTML = "<p>Error loading notifications.</p>";
+                });
+        }
+
+        function updateBadge(count) {
+
+            const badge = document.getElementById("notificationCount");
+            if (!badge) return;
+
+            if (count > 0) {
+                badge.style.display = "block";
+                badge.innerText = count;
+            } else {
+                badge.style.display = "none";
+            }
+        }
+
+        window.addEventListener("load", loadNotifications);
+
+    </script>
+
+</section>
+
+</html>

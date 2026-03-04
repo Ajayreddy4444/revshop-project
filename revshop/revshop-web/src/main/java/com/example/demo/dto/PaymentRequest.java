@@ -5,6 +5,9 @@ public class PaymentRequest {
     private Long orderId;
     private Double amount;
     private String paymentMethod;
+    private String cardNumber;
+    private String cvv;
+    private String upiId;
 
     public PaymentRequest() {}
 
@@ -30,5 +33,29 @@ public class PaymentRequest {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
+    public String getCvv() {
+        return cvv;
+    }
+
+    public void setCvv(String cvv) {
+        this.cvv = cvv;
+    }
+
+    public String getUpiId() {
+        return upiId;
+    }
+
+    public void setUpiId(String upiId) {
+        this.upiId = upiId;
     }
 }

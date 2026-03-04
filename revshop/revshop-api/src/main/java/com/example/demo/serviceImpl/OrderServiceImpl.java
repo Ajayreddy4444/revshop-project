@@ -3,13 +3,16 @@ package com.example.demo.serviceImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.example.demo.dto.OrderItemResponseDTO;
 import com.example.demo.dto.OrderResponseDTO;
 import com.example.demo.dto.PlaceOrderRequestDTO;
 import com.example.demo.dto.SellerOrderResponseDTO;
 import com.example.demo.entity.*;
+import com.example.demo.exception.OrderNotFoundException;
 import com.example.demo.repository.*;
 import com.example.demo.service.OrderService;
 
@@ -22,19 +25,23 @@ public class OrderServiceImpl implements OrderService {
     private final AddressRepository addressRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
-    private final OrderItemRepository orderItemRepository; 
+    private final CartItemRepository cartItemRepository;
+    private final OrderItemRepository orderItemRepository;
+
     public OrderServiceImpl(UserRepository userRepository,
                             OrderRepository orderRepository,
+                            ProductRepository productRepository,
                             AddressRepository addressRepository,
                             CartRepository cartRepository,
                             CartItemRepository cartItemRepository,
-                            OrderItemRepository orderItemRepository,
-                            ProductRepository productRepository) {
+                            OrderItemRepository orderItemRepository) {
+
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
         this.addressRepository = addressRepository;
         this.cartRepository = cartRepository;
-        this.productRepository = productRepository;
+        this.cartItemRepository = cartItemRepository;
         this.orderItemRepository = orderItemRepository;
     }
 
@@ -45,11 +52,11 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        //  Fetch Address
+        // Fetch Address
         Address address = addressRepository.findById(request.getAddressId())
                 .orElseThrow(() -> new RuntimeException("Address not found"));
 
-        //  Fetch Cart
+        // Fetch Cart
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
@@ -69,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
         double totalAmount = 0.0;
         List<OrderItem> orderItems = new ArrayList<>();
 
-        //  Process Each Cart Item
+        // Process Each Cart Item
         for (CartItem cartItem : cartItems) {
 
             Product product = productRepository.findById(cartItem.getProductId())
@@ -78,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
             int availableStock = product.getQuantity();
             int requestedQty = cartItem.getQuantity();
 
-            //  Stock Validation
+            // Stock Validation Only
             if (availableStock < requestedQty) {
                 throw new RuntimeException(
                         "Insufficient stock for product: " + product.getName());
@@ -86,9 +93,7 @@ public class OrderServiceImpl implements OrderService {
 
             double subtotal = product.getPrice() * requestedQty;
 
-           
-
-            //  Create Order Item
+            // Create Order Item
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
@@ -103,35 +108,30 @@ public class OrderServiceImpl implements OrderService {
         order.setItems(orderItems);
         order.setTotalAmount(totalAmount);
 
-        // Save Order (Cascade should save OrderItems)
+        // Save Order (Cascade saves OrderItems)
         Order savedOrder = orderRepository.save(order);
-
 
         return convertToDTO(savedOrder);
     }
 
     @Override
     public void updateOrderStatus(Long orderId, OrderStatus status) {
-
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
 
         order.setStatus(status);
     }
 
     @Override
     public OrderResponseDTO getOrderById(Long orderId) {
-
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
 
         return convertToDTO(order);
     }
 
     @Override
-    
     public List<OrderResponseDTO> getOrderByUser(Long userId) {
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -160,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
             for (OrderItem item : order.getItems()) {
 
                 OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
-                itemDTO.setProductId(item.getProduct().getId()); // ✅ CORRECT
+                itemDTO.setProductId(item.getProduct().getId());
                 itemDTO.setProductName(item.getProduct().getName());
                 itemDTO.setQuantity(item.getQuantity());
                 itemDTO.setPriceAtPurchase(item.getPriceAtPurchase());
@@ -174,58 +174,51 @@ public class OrderServiceImpl implements OrderService {
         dto.setItems(itemDTOs);
         return dto;
     }
-    
 
- // UPDATED: Check If User Purchased Specific Product
- // Used by review module to restrict reviews
+    // Check If User Purchased Specific Product
+    @Override
+    public boolean hasUserPurchasedProduct(Long userId, Long productId) {
 
- @Override
- public boolean hasUserPurchasedProduct(Long userId, Long productId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-     User user = userRepository.findById(userId)
-             .orElseThrow(() -> new RuntimeException("User not found"));
-     // Get all orders of the user
-     List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
+        List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
 
-     // Check each order and its items
-     for (Order order : orders) {
+        for (Order order : orders) {
+            for (OrderItem item : order.getItems()) {
+                if (item.getProduct().getId().equals(productId)) {
+                    return true;
+                }
+            }
+        }
 
-         for (OrderItem item : order.getItems()) {
+        return false;
+    }
 
-             if (item.getProduct().getId().equals(productId)) {
-                 return true; // Product found in any order
-             }
-         }
-     }
+    @Override
+    public List<SellerOrderResponseDTO> getOrdersForSeller(Long sellerId) {
 
-     return false; // Product never purchased
- }
- @Override
- public List<SellerOrderResponseDTO> getOrdersForSeller(Long sellerId) {
+        List<OrderItem> orderItems =
+                orderItemRepository.findByProduct_Seller_IdOrderByOrder_OrderDateDesc(sellerId);
 
-     List<OrderItem> orderItems =
-             orderItemRepository.findByProduct_Seller_IdOrderByOrder_OrderDateDesc(sellerId);
+        List<SellerOrderResponseDTO> response = new ArrayList<>();
 
-     List<SellerOrderResponseDTO> response = new ArrayList<>();
+        for (OrderItem item : orderItems) {
 
-     for (OrderItem item : orderItems) {
+            SellerOrderResponseDTO dto = new SellerOrderResponseDTO();
+            dto.setOrderId(item.getOrder().getId());
+            dto.setOrderDate(item.getOrder().getOrderDate());
+            dto.setStatus(item.getOrder().getStatus());
+            dto.setImageUrl(item.getProduct().getImageUrl());
+            dto.setProductName(item.getProduct().getName());
+            dto.setQuantity(item.getQuantity());
+            dto.setSubtotal(item.getSubtotal());
+            dto.setBuyerName(item.getOrder().getUser().getName());
+            dto.setBuyerEmail(item.getOrder().getUser().getEmail());
 
-         SellerOrderResponseDTO dto = new SellerOrderResponseDTO();
+            response.add(dto);
+        }
 
-         dto.setOrderId(item.getOrder().getId());
-         dto.setOrderDate(item.getOrder().getOrderDate());
-         dto.setStatus(item.getOrder().getStatus());
-         dto.setImageUrl(item.getProduct().getImageUrl());
-         dto.setProductName(item.getProduct().getName());
-         dto.setQuantity(item.getQuantity());
-         dto.setSubtotal(item.getSubtotal());
-
-         dto.setBuyerName(item.getOrder().getUser().getName());
-         dto.setBuyerEmail(item.getOrder().getUser().getEmail());
-
-         response.add(dto);
-     }
-
-     return response;
- }
+        return response;
+    }
 }

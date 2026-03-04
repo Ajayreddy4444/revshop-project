@@ -5,6 +5,9 @@ public interface PaymentService {
 
     Payment processPayment(Long orderId,
                            Double amount,
-                           PaymentMethod method);
+                           PaymentMethod method,
+                           String cardNumber,
+                           String cvv,
+                           String upiId);
     void cancelOrder(Long orderId);
 }

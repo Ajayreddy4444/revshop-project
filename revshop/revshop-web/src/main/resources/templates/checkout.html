@@ -130,6 +130,11 @@
          class="custom-alert">
         <span th:text="${cancelMessage}"></span>
     </div>
+    <div th:if="${cancelError}"
+         id="cancelErrorAlert"
+         class="custom-alert">
+        <span th:text="${cancelError}"></span>
+    </div>
 
     <div class="d-flex justify-content-end mb-3">
         <a th:href="@{/cart}"
@@ -278,6 +283,16 @@
                 alertBox.classList.add("fade-out");
                 setTimeout(function () {
                     alertBox.remove();
+                }, 500);
+            }, 5000);
+        }
+
+        const errorBox = document.getElementById("cancelErrorAlert");
+        if (errorBox) {
+            setTimeout(function () {
+                errorBox.classList.add("fade-out");
+                setTimeout(function () {
+                    errorBox.remove();
                 }, 500);
             }, 5000);
         }
