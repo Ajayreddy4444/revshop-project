@@ -63,7 +63,7 @@ public class ReviewServiceImpl implements ReviewService {
 //
 //        return reviews.map(this::mapToResponse);
 //    }
-    
+
     @Override
     public List<ReviewResponse> getReviewsByProduct(Long productId) {
 
@@ -96,16 +96,13 @@ public class ReviewServiceImpl implements ReviewService {
 
     // ✅ DELETE REVIEW
     @Override
-    public void deleteReview(Long reviewId) {
+    public void deleteReview(Long reviewId, Long userId) {
 
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
-
-        Product product = review.getProduct();
+        Review review = reviewRepository
+                .findByIdAndUser_Id(reviewId, userId)
+                .orElseThrow(() -> new RuntimeException("Review not found or not allowed"));
 
         reviewRepository.delete(review);
-
-        updateProductRating(product);
     }
 
     // ✅ REVIEW STATS
@@ -155,7 +152,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         return response;
     }
-    
+
     //existing review not allowed
     @Override
     public boolean hasUserReviewed(Long userId, Long productId) {

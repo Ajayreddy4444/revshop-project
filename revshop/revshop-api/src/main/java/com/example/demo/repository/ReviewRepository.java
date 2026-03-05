@@ -23,7 +23,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     // 🔹 Optional: count reviews for stats
     long countByProduct(Product product);
-    
+
     //existing review not allowed
     boolean existsByUser_IdAndProduct_Id(Long userId, Long productId);
+
+    Optional<Review> findByIdAndUser_Id(Long reviewId, Long userId);
 }
