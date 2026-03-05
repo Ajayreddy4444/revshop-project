@@ -9,44 +9,45 @@
         <h2 class="mb-4 text-center">Welcome Back</h2>
 
         <!-- Success Message -->
-        <div th:if="${success}" 
+        <div th:if="${success}"
              class="alert alert-success text-center auto-hide">
             <span th:text="${success}"></span>
         </div>
 
-        <!-- Global Backend Error (Wrong Credentials etc.) -->
-        <div th:if="${error}" 
+        <!-- Backend Error -->
+        <div th:if="${error}"
              class="alert alert-danger text-center auto-hide">
             <span th:utext="${error}"></span>
         </div>
 
-        <form method="post"
+        <form id="loginForm"
+              method="post"
+              novalidate
               th:action="@{/login}"
               th:object="${loginRequest}">
 
             <!-- Email -->
             <div class="mb-3">
                 <input type="email"
+                       id="email"
                        th:field="*{email}"
                        class="form-control"
-                       required
-                       th:classappend="${#fields.hasErrors('email')} ? ' is-invalid' : ''"
-                       th:placeholder="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : 'Email address'">
+                       placeholder="Email address">
+                <div class="text-danger small"></div>
             </div>
 
             <!-- Password -->
             <div class="mb-3">
                 <input type="password"
+                       id="password"
                        th:field="*{password}"
                        class="form-control"
-                       required
-                       th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''"
-                       th:placeholder="${#fields.hasErrors('password')} ? ${#fields.errors('password')[0]} : 'Password'">
+                       placeholder="Password">
+                <div class="text-danger small"></div>
             </div>
 
             <div class="mb-3 text-end">
-                <a th:href="@{/forgot-password}"
-                   class="text-decoration-none">
+                <a th:href="@{/forgot-password}" class="text-decoration-none">
                     Forgot Password?
                 </a>
             </div>
@@ -69,34 +70,60 @@
 
     </div>
 
-</section>
-
-<!-- Auto Reset Script (2 seconds) -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
 
-        setTimeout(function () {
+document.getElementById("loginForm").addEventListener("submit", function(e){
 
-            const defaultPlaceholders = {
-                email: "Email address",
-                password: "Password"
-            };
+    let valid = true;
 
-            document.querySelectorAll('.is-invalid').forEach(function (input) {
-                input.classList.remove('is-invalid');
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
 
-                if (defaultPlaceholders[input.name]) {
-                    input.placeholder = defaultPlaceholders[input.name];
-                }
-            });
+    /* reset errors */
+    document.querySelectorAll(".text-danger").forEach(el => el.textContent = "");
+    document.querySelectorAll(".form-control").forEach(el => el.classList.remove("is-invalid"));
 
-            document.querySelectorAll('.auto-hide').forEach(function (alert) {
-                alert.remove();
-            });
+    /* EMAIL validation */
+    if(email.value.trim() === ""){
+        email.classList.add("is-invalid");
+        email.nextElementSibling.textContent = "Email is required";
+        valid = false;
+    }
+    else if(!email.value.includes("@")){
+        email.classList.add("is-invalid");
+        email.nextElementSibling.textContent = "Enter valid email";
+        valid = false;
+    }
 
-        }, 2000);
+    /* PASSWORD validation */
+    if(password.value.trim() === ""){
+        password.classList.add("is-invalid");
+        password.nextElementSibling.textContent = "Password is required";
+        valid = false;
+    }
 
-    });
+    if(!valid){
+        e.preventDefault();
+    }
+
+});
+
+
+/* Auto hide alerts */
+document.addEventListener("DOMContentLoaded", function () {
+
+    setTimeout(function () {
+
+        document.querySelectorAll('.auto-hide').forEach(function (alert) {
+            alert.remove();
+        });
+
+    }, 3000);
+
+});
+
 </script>
+
+</section>
 
 </html>
