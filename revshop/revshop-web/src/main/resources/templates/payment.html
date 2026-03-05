@@ -4,394 +4,393 @@
 
 <section class="container payment-container mt-5">
 
-<style>
-
-.payment-container{max-width:600px;margin:auto;}
-
-.payment-card{
-background:#fff;
-padding:30px;
-border-radius:16px;
-box-shadow:0 8px 25px rgba(0,0,0,0.08);
-}
-
-.payment-title{font-weight:700;margin-bottom:20px;}
-
-.order-summary{
-background:#f8f9fa;
-padding:15px;
-border-radius:10px;
-margin-bottom:25px;
-}
-
-.amount{
-font-size:20px;
-font-weight:700;
-color:#28a745;
-}
-
-.method-box{margin-bottom:15px;}
-
-.input-box{
-width:100%;
-padding:10px;
-border-radius:8px;
-border:1px solid #ced4da;
-margin-top:10px;
-}
-
-.action-buttons{
-display:flex;
-gap:12px;
-margin-top:25px;
-}
-
-.pay-btn{
-flex:1;
-padding:12px;
-border-radius:8px;
-border:none;
-background:linear-gradient(45deg,#0d6efd,#0b5ed7);
-color:white;
-font-weight:600;
-}
+    <style>
+
+        .payment-container{max-width:600px;margin:auto;}
+
+        .payment-card{
+        background:#fff;
+        padding:30px;
+        border-radius:16px;
+        box-shadow:0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .payment-title{font-weight:700;margin-bottom:20px;}
+
+        .order-summary{
+        background:#f8f9fa;
+        padding:15px;
+        border-radius:10px;
+        margin-bottom:25px;
+        }
+
+        .amount{
+        font-size:20px;
+        font-weight:700;
+        color:#28a745;
+        }
+
+        .method-box{margin-bottom:15px;}
+
+        .input-box{
+        width:100%;
+        padding:10px;
+        border-radius:8px;
+        border:1px solid #ced4da;
+        margin-top:10px;
+        }
+
+        .action-buttons{
+        display:flex;
+        gap:12px;
+        margin-top:25px;
+        }
+
+        .pay-btn{
+        flex:1;
+        padding:12px;
+        border-radius:8px;
+        border:none;
+        background:linear-gradient(45deg,#0d6efd,#0b5ed7);
+        color:white;
+        font-weight:600;
+        }
 
-.cancel-btn{
-flex:1;
-padding:12px;
-border-radius:8px;
-border:2px solid #dc3545;
-background:white;
-color:#dc3545;
-font-weight:600;
-}
-
-.cancel-btn:hover{
-background:#dc3545;
-color:white;
-}
+        .cancel-btn{
+        flex:1;
+        padding:12px;
+        border-radius:8px;
+        border:2px solid #dc3545;
+        background:white;
+        color:#dc3545;
+        font-weight:600;
+        }
+
+        .cancel-btn:hover{
+        background:#dc3545;
+        color:white;
+        }
 
-</style>
+    </style>
 
 
-<!-- Back to checkout -->
-<div class="d-flex justify-content-end mb-3">
-<a th:href="@{/orders/checkout}" class="btn btn-outline-secondary btn-sm">
-← Back to Checkout
-</a>
-</div>
+    <!-- Back to checkout -->
+    <div class="d-flex justify-content-end mb-3">
+        <a th:href="@{/orders/checkout}" class="btn btn-outline-secondary btn-sm">
+            ← Back to Checkout
+        </a>
+    </div>
 
 
-<div class="payment-card">
+    <div class="payment-card">
 
-<h3 class="payment-title text-center">Secure Payment</h3>
+        <h3 class="payment-title text-center">Secure Payment</h3>
 
-<!-- backend error message -->
-<div th:if="${paymentError}" class="alert alert-danger" th:text="${paymentError}"></div>
+        <!-- backend error message -->
+        <div th:if="${paymentError}" class="alert alert-danger" th:text="${paymentError}"></div>
 
-<div class="order-summary">
-<p><strong>Order ID:</strong> <span th:text="${orderId}"></span></p>
-<p class="amount">Total: ₹ <span th:text="${amount}"></span></p>
-</div>
+        <div class="order-summary">
+            <p><strong>Order ID:</strong> <span th:text="${orderId}"></span></p>
+            <p class="amount">Total: ₹ <span th:text="${amount}"></span></p>
+        </div>
 
 
-<form id="paymentForm" th:action="@{/payment/process}" method="post">
+        <form id="paymentForm" th:action="@{/payment/process}" method="post">
 
-<input type="hidden" name="orderId" th:value="${orderId}">
-<input type="hidden" name="amount" th:value="${amount}">
+            <input type="hidden" name="orderId" th:value="${orderId}">
+            <input type="hidden" name="amount" th:value="${amount}">
 
-<h6>Select Payment Method</h6>
+            <h6>Select Payment Method</h6>
 
 
-<div class="method-box">
-<label>
-<input type="radio" name="paymentMethod" value="CARD" required>
-Credit / Debit Card
-</label>
+            <div class="method-box">
+                <label>
+                    <input type="radio" name="paymentMethod" value="CARD" required>
+                    Credit / Debit Card
+                </label>
 
-<div id="cardSection" style="display:none">
+                <div id="cardSection" style="display:none">
 
-<input type="text"
-id="cardNumber"
-name="cardNumber"
-placeholder="Card Number"
-maxlength="19"
-class="input-box">
+                    <input type="text"
+                           id="cardNumber"
+                           name="cardNumber"
+                           placeholder="Card Number"
+                           maxlength="19"
+                           class="input-box">
 
-<small id="cardError" style="color:red"></small>
+                    <small id="cardError" style="color:red"></small>
 
-<input type="text"
-name="cardHolder"
-placeholder="Card Holder Name"
-class="input-box">
+                    <input type="text"
+                           name="cardHolder"
+                           placeholder="Card Holder Name"
+                           class="input-box">
 
-<input type="text"
-id="expiry"
-name="expiryDate"
-placeholder="Expiry (MM/YY)"
-maxlength="5"
-class="input-box">
+                    <input type="text"
+                           id="expiry"
+                           name="expiryDate"
+                           placeholder="Expiry (MM/YY)"
+                           maxlength="5"
+                           class="input-box">
 
-<small id="expiryError" style="color:red"></small>
+                    <small id="expiryError" style="color:red"></small>
 
-<input type="password"
-id="cvv"
-name="cvv"
-placeholder="CVV"
-maxlength="3"
-class="input-box">
+                    <input type="password"
+                           id="cvv"
+                           name="cvv"
+                           placeholder="CVV"
+                           maxlength="3"
+                           class="input-box">
 
-<small id="cvvError" style="color:red"></small>
+                    <small id="cvvError" style="color:red"></small>
 
-</div>
-</div>
+                </div>
+            </div>
 
 
-<div class="method-box">
-<label>
-<input type="radio" name="paymentMethod" value="UPI">
-UPI
-</label>
+            <div class="method-box">
+                <label>
+                    <input type="radio" name="paymentMethod" value="UPI">
+                    UPI
+                </label>
 
-<div id="upiSection" style="display:none">
+                <div id="upiSection" style="display:none">
 
-<input type="text"
-id="upiId"
-name="upiId"
-placeholder="Enter UPI ID"
-class="input-box">
+                    <input type="text"
+                           id="upiId"
+                           name="upiId"
+                           placeholder="Enter UPI ID"
+                           class="input-box">
 
-<small id="upiError" style="color:red"></small>
+                    <small id="upiError" style="color:red"></small>
 
-</div>
-</div>
+                </div>
+            </div>
 
 
-<div class="action-buttons">
-<button type="submit" class="pay-btn">Pay Now</button>
-</div>
+            <div class="action-buttons">
+                <button type="submit" class="pay-btn">Pay Now</button>
+            </div>
 
-</form>
+        </form>
 
 
-<!-- Cancel Order -->
-<form th:action="@{/payment/cancel}" method="post" class="action-buttons">
+        <!-- Cancel Order -->
+        <form th:action="@{/payment/cancel}" method="post" class="action-buttons">
 
-<input type="hidden" name="orderId" th:value="${orderId}">
-<input type="hidden" name="amount" th:value="${amount}">
+            <input type="hidden" name="orderId" th:value="${orderId}">
+            <input type="hidden" name="amount" th:value="${amount}">
 
-<button type="submit"
-class="cancel-btn"
-onclick="return confirm('Are you sure you want to cancel this order?')">
-Cancel Order
-</button>
+            <button type="submit"
+                    class="cancel-btn">
+                Cancel Order
+            </button>
 
-</form>
+        </form>
 
 
-</div>
+    </div>
 
 
-<script>
+    <script>
 
-document.addEventListener("DOMContentLoaded",function(){
+        document.addEventListener("DOMContentLoaded",function(){
 
-const cardSection=document.getElementById("cardSection")
-const upiSection=document.getElementById("upiSection")
+        const cardSection=document.getElementById("cardSection")
+        const upiSection=document.getElementById("upiSection")
 
-const cardNumber=document.getElementById("cardNumber")
-const cvv=document.getElementById("cvv")
-const expiry=document.getElementById("expiry")
-const upiId=document.getElementById("upiId")
+        const cardNumber=document.getElementById("cardNumber")
+        const cvv=document.getElementById("cvv")
+        const expiry=document.getElementById("expiry")
+        const upiId=document.getElementById("upiId")
 
-const radios=document.querySelectorAll('input[name="paymentMethod"]')
-const form=document.getElementById("paymentForm")
+        const radios=document.querySelectorAll('input[name="paymentMethod"]')
+        const form=document.getElementById("paymentForm")
 
-/* disable card fields initially */
+        /* disable card fields initially */
 
-cardNumber.disabled=true
-cvv.disabled=true
-expiry.disabled=true
+        cardNumber.disabled=true
+        cvv.disabled=true
+        expiry.disabled=true
 
 
-/* CARD FORMAT */
+        /* CARD FORMAT */
 
-cardNumber.addEventListener("input",function(){
+        cardNumber.addEventListener("input",function(){
 
-let value=this.value.replace(/\D/g,"")
-value=value.substring(0,16)
+        let value=this.value.replace(/\D/g,"")
+        value=value.substring(0,16)
 
-let formatted=value.match(/.{1,4}/g)
+        let formatted=value.match(/.{1,4}/g)
 
-if(formatted){
-this.value=formatted.join(" ")
-}else{
-this.value=value
-}
+        if(formatted){
+        this.value=formatted.join(" ")
+        }else{
+        this.value=value
+        }
 
-})
+        })
 
 
-/* CVV numbers only */
+        /* CVV numbers only */
 
-cvv.addEventListener("input",function(){
-this.value=this.value.replace(/\D/g,"")
-})
+        cvv.addEventListener("input",function(){
+        this.value=this.value.replace(/\D/g,"")
+        })
 
 
-/* EXPIRY AUTO FORMAT */
+        /* EXPIRY AUTO FORMAT */
 
-expiry.addEventListener("input",function(){
+        expiry.addEventListener("input",function(){
 
-let value=this.value.replace(/\D/g,"")
+        let value=this.value.replace(/\D/g,"")
 
-if(value.length>=3){
-value=value.substring(0,2)+"/"+value.substring(2,4)
-}
+        if(value.length>=3){
+        value=value.substring(0,2)+"/"+value.substring(2,4)
+        }
 
-this.value=value
+        this.value=value
 
-})
+        })
 
 
-/* TOGGLE PAYMENT METHOD */
+        /* TOGGLE PAYMENT METHOD */
 
-radios.forEach(radio=>{
-radio.addEventListener("change",function(){
+        radios.forEach(radio=>{
+        radio.addEventListener("change",function(){
 
-if(this.value==="CARD"){
+        if(this.value==="CARD"){
 
-cardSection.style.display="block"
-upiSection.style.display="none"
+        cardSection.style.display="block"
+        upiSection.style.display="none"
 
-cardNumber.disabled=false
-cvv.disabled=false
-expiry.disabled=false
+        cardNumber.disabled=false
+        cvv.disabled=false
+        expiry.disabled=false
 
-upiId.disabled=true
-upiId.value=""
+        upiId.disabled=true
+        upiId.value=""
 
-}else{
+        }else{
 
-upiSection.style.display="block"
-cardSection.style.display="none"
+        upiSection.style.display="block"
+        cardSection.style.display="none"
 
-cardNumber.disabled=true
-cvv.disabled=true
-expiry.disabled=true
+        cardNumber.disabled=true
+        cvv.disabled=true
+        expiry.disabled=true
 
-cardNumber.value=""
-cvv.value=""
-expiry.value=""
+        cardNumber.value=""
+        cvv.value=""
+        expiry.value=""
 
-upiId.disabled=false
+        upiId.disabled=false
 
-}
+        }
 
-})
-})
+        })
+        })
 
 
-/* VALIDATION */
+        /* VALIDATION */
 
-form.addEventListener("submit",function(e){
+        form.addEventListener("submit",function(e){
 
-if(!validatePayment()){
-e.preventDefault()
-}
+        if(!validatePayment()){
+        e.preventDefault()
+        }
 
-})
+        })
 
-})
+        })
 
 
-function validatePayment(){
+        function validatePayment(){
 
-const selected=document.querySelector('input[name="paymentMethod"]:checked')
+        const selected=document.querySelector('input[name="paymentMethod"]:checked')
 
-if(!selected){
-alert("Please select payment method")
-return false
-}
+        if(!selected){
+        alert("Please select payment method")
+        return false
+        }
 
-let valid=true
+        let valid=true
 
-document.getElementById("cardError").innerText=""
-document.getElementById("cvvError").innerText=""
-document.getElementById("expiryError").innerText=""
-document.getElementById("upiError").innerText=""
+        document.getElementById("cardError").innerText=""
+        document.getElementById("cvvError").innerText=""
+        document.getElementById("expiryError").innerText=""
+        document.getElementById("upiError").innerText=""
 
 
-if(selected.value==="CARD"){
+        if(selected.value==="CARD"){
 
-let card=document.getElementById("cardNumber").value.replace(/\s/g,"")
-let cvv=document.getElementById("cvv").value.trim()
-let expiry=document.getElementById("expiry").value.trim()
+        let card=document.getElementById("cardNumber").value.replace(/\s/g,"")
+        let cvv=document.getElementById("cvv").value.trim()
+        let expiry=document.getElementById("expiry").value.trim()
 
-const cardRegex=/^(?!0+$)(?!([0-9])\1+$)[0-9]{16}$/
-const cvvRegex=/^(?!000$)[0-9]{3}$/
-const expiryRegex=/^(0[1-9]|1[0-2])\/([0-9]{2})$/
+        const cardRegex=/^(?!0+$)(?!([0-9])\1+$)[0-9]{16}$/
+        const cvvRegex=/^(?!000$)[0-9]{3}$/
+        const expiryRegex=/^(0[1-9]|1[0-2])\/([0-9]{2})$/
 
 
-if(!cardRegex.test(card)){
-document.getElementById("cardError").innerText="Invalid card number"
-valid=false
-}
+        if(!cardRegex.test(card)){
+        document.getElementById("cardError").innerText="Invalid card number"
+        valid=false
+        }
 
 
-if(!cvvRegex.test(cvv)){
-document.getElementById("cvvError").innerText="Invalid CVV"
-valid=false
-}
+        if(!cvvRegex.test(cvv)){
+        document.getElementById("cvvError").innerText="Invalid CVV"
+        valid=false
+        }
 
 
-if(!expiryRegex.test(expiry)){
-document.getElementById("expiryError").innerText="Expiry must be MM/YY"
-valid=false
-}else{
+        if(!expiryRegex.test(expiry)){
+        document.getElementById("expiryError").innerText="Expiry must be MM/YY"
+        valid=false
+        }else{
 
-let parts = expiry.split("/")
-let expMonth = parseInt(parts[0])
-let expYear = 2000 + parseInt(parts[1])
+        let parts = expiry.split("/")
+        let expMonth = parseInt(parts[0])
+        let expYear = 2000 + parseInt(parts[1])
 
-let today = new Date()
-let currentMonth = today.getMonth() + 1
-let currentYear = today.getFullYear()
+        let today = new Date()
+        let currentMonth = today.getMonth() + 1
+        let currentYear = today.getFullYear()
 
-if(expYear < currentYear){
-document.getElementById("expiryError").innerText="Card is expired"
-valid=false
-}
+        if(expYear < currentYear){
+        document.getElementById("expiryError").innerText="Card is expired"
+        valid=false
+        }
 
-if(expYear === currentYear && expMonth < currentMonth){
-document.getElementById("expiryError").innerText="Card is expired"
-valid=false
-}
+        if(expYear === currentYear && expMonth < currentMonth){
+        document.getElementById("expiryError").innerText="Card is expired"
+        valid=false
+        }
 
-}
+        }
 
-}
+        }
 
 
-if(selected.value==="UPI"){
+        if(selected.value==="UPI"){
 
-let upi=document.getElementById("upiId").value.trim()
+        let upi=document.getElementById("upiId").value.trim()
 
-const upiRegex=/^[\w.-]+@[\w.-]+$/
+        const upiRegex=/^[\w.-]+@[\w.-]+$/
 
-if(!upiRegex.test(upi)){
-document.getElementById("upiError").innerText="Invalid UPI ID"
-valid=false
-}
+        if(!upiRegex.test(upi)){
+        document.getElementById("upiError").innerText="Invalid UPI ID"
+        valid=false
+        }
 
-}
+        }
 
 
-return valid
+        return valid
 
-}
+        }
 
-</script>
+    </script>
 
 </section>
 </html>
