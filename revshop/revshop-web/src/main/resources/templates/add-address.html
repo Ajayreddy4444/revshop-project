@@ -1,111 +1,139 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout('Add Address', ~{::section})}">
 
 <section class="container address-container">
 
-    <!-- ============ ADDRESS PAGE CSS ============ -->
+    <!-- ================= CSS ================= -->
     <style>
-        .address-container {
-            min-height: 85vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f8f9fa;
+
+        .address-container{
+            min-height:85vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:#f8f9fa;
         }
 
-        .address-card {
-            background: #ffffff;
-            padding: 35px;
-            border-radius: 15px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 500px;
-            animation: fadeIn 0.4s ease-in-out;
-            margin-bottom: 4px;
+        .address-card{
+            background:white;
+            padding:35px;
+            border-radius:15px;
+            box-shadow:0 6px 20px rgba(0,0,0,0.1);
+            width:100%;
+            max-width:500px;
+            animation:fadeIn 0.4s ease-in-out;
         }
 
-        .address-title {
-            font-weight: 700;
-            margin-bottom: 25px;
-            text-align: center;
+        .address-title{
+            font-weight:700;
+            margin-bottom:25px;
+            text-align:center;
         }
 
-        .form-group {
-            margin-bottom: 18px;
+        .form-group{
+            margin-bottom:18px;
         }
 
-        .form-control {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid #ced4da;
-            transition: 0.2s ease;
+        .form-control{
+            width:100%;
+            padding:10px 12px;
+            border-radius:8px;
+            border:1px solid #ced4da;
+            transition:0.2s ease;
         }
 
-        .form-control:focus {
-            border-color: #0d6efd;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(13,110,253,0.2);
+        .form-control:focus{
+            border-color:#0d6efd;
+            outline:none;
+            box-shadow:0 0 0 2px rgba(13,110,253,0.2);
         }
 
-        .save-btn {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
-            background-color: #0d6efd;
-            color: white;
-            border: none;
-            transition: 0.3s ease;
+        .save-btn{
+            width:100%;
+            padding:12px;
+            font-size:16px;
+            font-weight:600;
+            border-radius:8px;
+            background:#0d6efd;
+            color:white;
+            border:none;
+            transition:0.3s ease;
         }
 
-        .save-btn:hover {
-            background-color: #0b5ed7;
-            transform: scale(1.03);
+        .save-btn:hover{
+            background:#0b5ed7;
+            transform:scale(1.03);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        .text-danger{
+            color:red;
+            font-size:13px;
         }
+
+        @keyframes fadeIn{
+            from{opacity:0; transform:translateY(15px);}
+            to{opacity:1; transform:translateY(0);}
+        }
+
     </style>
+
+    <!-- ================= FORM ================= -->
 
     <div class="address-card">
 
         <h2 class="address-title">Add New Address</h2>
 
-        <form th:action="@{/address/save}" method="post">
+        <form th:action="@{/address/save}" method="post"
+              onsubmit="return validateForm()">
 
+            <!-- Full Name -->
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" name="fullName" class="form-control" required/>
+                <input type="text" id="fullName" name="fullName"
+                       class="form-control" onkeyup="validateName()" required>
+                <small id="nameError" class="text-danger"></small>
             </div>
 
+            <!-- Phone -->
             <div class="form-group">
                 <label>Phone Number</label>
-                <input type="text" name="phoneNumber" class="form-control" required/>
+                <input type="text" id="phoneNumber" name="phoneNumber"
+                       class="form-control" onkeyup="validatePhone()" required>
+                <small id="phoneError" class="text-danger"></small>
             </div>
 
+            <!-- Address -->
             <div class="form-group">
                 <label>Address Line</label>
-                <input type="text" name="addressLine" class="form-control" required/>
+                <input type="text" id="addressLine" name="addressLine"
+                       class="form-control" onkeyup="validateAddress()" required>
+                <small id="addressError" class="text-danger"></small>
             </div>
 
+            <!-- City -->
             <div class="form-group">
                 <label>City</label>
-                <input type="text" name="city" class="form-control" required/>
+                <input type="text" id="city" name="city"
+                       class="form-control" onkeyup="validateCity()" required>
+                <small id="cityError" class="text-danger"></small>
             </div>
 
+            <!-- State -->
             <div class="form-group">
                 <label>State</label>
-                <input type="text" name="state" class="form-control" required/>
+                <input type="text" id="state" name="state"
+                       class="form-control" onkeyup="validateState()" required>
+                <small id="stateError" class="text-danger"></small>
             </div>
 
+            <!-- Pincode -->
             <div class="form-group">
                 <label>Pincode</label>
-                <input type="text" name="pincode" class="form-control" required/>
+                <input type="text" id="pincode" name="pincode"
+                       class="form-control" onkeyup="validatePincode()" required>
+                <small id="pincodeError" class="text-danger"></small>
             </div>
 
             <button type="submit" class="save-btn">
@@ -116,5 +144,106 @@
 
     </div>
 
+    <!-- ================= JAVASCRIPT VALIDATION ================= -->
+
+    <script>
+
+        function validateName(){
+            let name=document.getElementById("fullName").value;
+            let regex=/^[A-Za-z ]{3,50}$/;
+
+            if(!regex.test(name)){
+                document.getElementById("nameError").innerText=
+                "Name must contain only letters (min 3 characters)";
+                return false;
+            }else{
+                document.getElementById("nameError").innerText="";
+                return true;
+            }
+        }
+
+        function validatePhone(){
+            let phone=document.getElementById("phoneNumber").value;
+            let regex=/^[6-9]\d{9}$/;
+
+            if(!regex.test(phone)){
+                document.getElementById("phoneError").innerText=
+                "Enter valid 10 digit mobile number";
+                return false;
+            }else{
+                document.getElementById("phoneError").innerText="";
+                return true;
+            }
+        }
+
+        function validateAddress(){
+            let address=document.getElementById("addressLine").value;
+            let regex=/^[A-Za-z0-9, ]{5,100}$/;
+
+            if(!regex.test(address)){
+                document.getElementById("addressError").innerText=
+                "Address must be at least 5 characters";
+                return false;
+            }else{
+                document.getElementById("addressError").innerText="";
+                return true;
+            }
+        }
+
+        function validateCity(){
+            let city=document.getElementById("city").value;
+            let regex=/^[A-Za-z ]{2,50}$/;
+
+            if(!regex.test(city)){
+                document.getElementById("cityError").innerText=
+                "City must contain only letters";
+                return false;
+            }else{
+                document.getElementById("cityError").innerText="";
+                return true;
+            }
+        }
+
+        function validateState(){
+            let state=document.getElementById("state").value;
+            let regex=/^[A-Za-z ]{2,50}$/;
+
+            if(!regex.test(state)){
+                document.getElementById("stateError").innerText=
+                "State must contain only letters";
+                return false;
+            }else{
+                document.getElementById("stateError").innerText="";
+                return true;
+            }
+        }
+
+        function validatePincode(){
+            let pin=document.getElementById("pincode").value;
+            let regex=/^[1-9][0-9]{5}$/;
+
+            if(!regex.test(pin)){
+                document.getElementById("pincodeError").innerText=
+                "Enter valid 6 digit pincode";
+                return false;
+            }else{
+                document.getElementById("pincodeError").innerText="";
+                return true;
+            }
+        }
+
+        function validateForm(){
+            return validateName() &&
+                   validatePhone() &&
+                   validateAddress() &&
+                   validateCity() &&
+                   validateState() &&
+                   validatePincode();
+        }
+
+    </script>
+
 </section>
+
 </html>
+
