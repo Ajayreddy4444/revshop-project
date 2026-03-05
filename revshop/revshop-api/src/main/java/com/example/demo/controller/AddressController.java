@@ -2,7 +2,10 @@ package com.example.demo.controller;
 
 import java.util.List;
 
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 
 import com.example.demo.dto.AddressRequest;
 import com.example.demo.dto.AddressResponse;
@@ -26,7 +29,13 @@ public class AddressController {
 
     // ✅ Save Address
     @PostMapping
-    public Address saveAddress(@RequestBody AddressRequest request) {
+    public Address saveAddress(@Valid @RequestBody AddressRequest request,
+                               BindingResult result) {
+
+        if (result.hasErrors()) {
+            throw new RuntimeException(
+                    result.getAllErrors().get(0).getDefaultMessage());
+        }
 
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -43,7 +52,7 @@ public class AddressController {
         return addressRepository.save(address);
     }
 
-    // ✅ Get Address By ID (needed for Edit page)
+    // ✅ Get Address By ID
     @GetMapping("/{id}")
     public AddressResponse getAddressById(@PathVariable Long id) {
 
@@ -65,7 +74,13 @@ public class AddressController {
 
     // ✅ Update Address
     @PutMapping("/update")
-    public void updateAddress(@RequestBody AddressRequest request) {
+    public Address updateAddress(@Valid @RequestBody AddressRequest request,
+                                 BindingResult result) {
+
+        if (result.hasErrors()) {
+            throw new RuntimeException(
+                    result.getAllErrors().get(0).getDefaultMessage());
+        }
 
         Address address = addressRepository.findById(request.getAddressId())
                 .orElseThrow(() -> new RuntimeException("Address not found"));
@@ -77,7 +92,7 @@ public class AddressController {
         address.setState(request.getState());
         address.setPincode(request.getPincode());
 
-        addressRepository.save(address);
+        return addressRepository.save(address);
     }
 
     // ✅ Get Addresses By User
