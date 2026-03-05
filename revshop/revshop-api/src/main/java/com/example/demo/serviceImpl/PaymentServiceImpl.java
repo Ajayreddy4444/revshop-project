@@ -2,6 +2,7 @@ package com.example.demo.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -138,11 +139,20 @@ public class PaymentServiceImpl implements PaymentService {
             String formattedDate =
                     order.getOrderDate().format(formatter);
 
+            
+            // Collect product names
+            String productNames =
+                    order.getItems()
+                            .stream()
+                            .map(item -> item.getProduct().getName())
+                            .collect(Collectors.joining(", "));
+
             // Buyer notification
             String buyerMessage =
                     "Your order has been placed successfully.\n"
-                    + "Order ID: " + order.getId()
-                    + " at " + formattedDate;
+                    		 + "Product: " + productNames + "\n"
+                             + "Order ID: " + order.getId()
+                             + " at " + formattedDate;
 
             notificationService.createOrderNotification(
                     order.getUser(),
@@ -155,7 +165,9 @@ public class PaymentServiceImpl implements PaymentService {
                 if (item.getProduct().getSeller() != null) {
 
                     String sellerMessage =
-                            "Order ID: "
+                    		 "Product: "
+                                     + item.getProduct().getName()
+                                     + "\nOrder ID: "
                             + order.getId()
                             + " | "
                             + formattedDate;
