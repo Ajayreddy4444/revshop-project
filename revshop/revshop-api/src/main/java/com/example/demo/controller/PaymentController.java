@@ -34,7 +34,8 @@ import com.example.demo.service.PaymentService;
 	            request.getPaymentMethod(),
 	            request.getCardNumber(),
 	            request.getCvv(),
-	            request.getUpiId()
+	            request.getUpiId(),
+	            request.getExpiryDate()
 	    );
 	}
-	}	
+	}

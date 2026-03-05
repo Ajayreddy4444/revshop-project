@@ -8,8 +8,17 @@ public class PaymentRequest {
     private String cardNumber;
     private String cvv;
     private String upiId;
+    private String expiryDate;
 
-    public PaymentRequest() {}
+    public String getExpiryDate() {
+		return expiryDate;
+	}
+
+	public void setExpiryDate(String expiryDate) {
+		this.expiryDate = expiryDate;
+	}
+
+	public PaymentRequest() {}
 
     public Long getOrderId() {
         return orderId;

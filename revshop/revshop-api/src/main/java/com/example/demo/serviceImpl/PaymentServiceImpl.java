@@ -50,7 +50,8 @@ public class PaymentServiceImpl implements PaymentService {
                                   PaymentMethod method,
                                   String cardNumber,
                                   String cvv,
-                                  String upiId) {
+                                  String upiId,
+                                  String expiryDate) {
 
         if (orderId == null)
             throw new InvalidPaymentRequestException("Order ID is required");
@@ -61,7 +62,7 @@ public class PaymentServiceImpl implements PaymentService {
         if (method == null)
             throw new InvalidPaymentRequestException("Payment method is required");
 
-        validatePaymentDetails(method, cardNumber, cvv, upiId);
+        validatePaymentDetails(method, cardNumber, cvv, upiId ,expiryDate);
 
         // Fetch Order
         Order order = orderRepository.findById(orderId)
@@ -137,6 +138,7 @@ public class PaymentServiceImpl implements PaymentService {
             String formattedDate =
                     order.getOrderDate().format(formatter);
 
+            
             // Collect product names
             String productNames =
                     order.getItems()
@@ -147,9 +149,9 @@ public class PaymentServiceImpl implements PaymentService {
             // Buyer notification
             String buyerMessage =
                     "Your order has been placed successfully.\n"
-                            + "Product: " + productNames + "\n"
-                            + "Order ID: " + order.getId()
-                            + " at " + formattedDate;
+                    		 + "Product: " + productNames + "\n"
+                             + "Order ID: " + order.getId()
+                             + " at " + formattedDate;
 
             notificationService.createOrderNotification(
                     order.getUser(),
@@ -162,9 +164,9 @@ public class PaymentServiceImpl implements PaymentService {
                 if (item.getProduct().getSeller() != null) {
 
                     String sellerMessage =
-                            "Product: "
-                            + item.getProduct().getName()
-                            + "\nOrder ID: "
+                    		 "Product: "
+                                     + item.getProduct().getName()
+                                     + "\nOrder ID: "
                             + order.getId()
                             + " | "
                             + formattedDate;
@@ -187,27 +189,41 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void validatePaymentDetails(PaymentMethod method,
-                                        String cardNumber,
-                                        String cvv,
-                                        String upiId) {
+            String cardNumber,
+            String cvv,
+            String upiId,
+            String expiryDate) {
 
-        if (method == PaymentMethod.CARD) {
+                      if (method == PaymentMethod.CARD) {
 
-            if (cardNumber == null || !cardNumber.trim().matches("^\\d{16}$"))
-                throw new InvalidPaymentRequestException(
-                        "Card number must be exactly 16 digits");
+                      if (cardNumber == null ||
+                                  !cardNumber.trim().matches("^(?!0+$)(?!([0-9])\\1+$)[0-9]{16}$")) {
 
-            if (cvv == null || !cvv.trim().matches("^\\d{3}$"))
-                throw new InvalidPaymentRequestException(
-                        "CVV must be exactly 3 digits");
-        }
+                                    throw new InvalidPaymentRequestException("Invalid card number");
+}
 
-        if (method == PaymentMethod.UPI) {
+                   if (cvv == null ||
+                              !cvv.trim().matches("^(?!000$)[0-9]{3}$")) {
 
-            if (upiId == null || !upiId.trim().matches("^[\\w.-]+@[\\w.-]+$"))
-                throw new InvalidPaymentRequestException("Invalid UPI ID");
-        }
-    }
+                                throw new InvalidPaymentRequestException("Invalid CVV");
+}
+
+                          if (expiryDate == null ||
+                                     !expiryDate.trim().matches("^(0[1-9]|1[0-2])\\/([0-9]{2})$")) {
+
+                          throw new InvalidPaymentRequestException("Expiry must be MM/YY");
+}
+}
+
+                             if (method == PaymentMethod.UPI) {
+
+                                  if (upiId == null ||
+                        !upiId.trim().matches("^[\\w.-]+@[\\w.-]+$")) {
+
+                      throw new InvalidPaymentRequestException("Invalid UPI ID");
+}
+}
+}
 
     @Override
     @Transactional
@@ -221,4 +237,4 @@ public class PaymentServiceImpl implements PaymentService {
 
         order.setStatus(OrderStatus.CANCELLED);
     }
-}
+} 

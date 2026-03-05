@@ -2,6 +2,7 @@ package com.example.demo.dto;
 
 import com.example.demo.entity.PaymentMethod;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 
 public class PaymentRequestDTO {
@@ -15,9 +16,30 @@ public class PaymentRequestDTO {
 
     @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod;
+
+    @Pattern(
+        regexp = "^(?!0+$)(?!([0-9])\\1+$)[0-9]{16}$",
+        message = "Card number must be 16 digits and cannot be all same numbers"
+    )
     private String cardNumber;
+
+    @Pattern(
+        regexp = "^(?!000$)[0-9]{3}$",
+        message = "CVV must be 3 digits and cannot be 000"
+    )
     private String cvv;
+
+    @Pattern(
+        regexp = "^[\\w.-]+@[\\w.-]+$",
+        message = "Invalid UPI ID"
+    )
     private String upiId;
+
+    @Pattern(
+        regexp = "^(0[1-9]|1[0-2])\\/([0-9]{2})$",
+        message = "Expiry must be in MM/YY format"
+    )
+    private String expiryDate;
 
     public PaymentRequestDTO() {}
 
@@ -67,5 +89,13 @@ public class PaymentRequestDTO {
 
     public void setUpiId(String upiId) {
         this.upiId = upiId;
+    }
+
+    public String getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(String expiryDate) {
+        this.expiryDate = expiryDate;
     }
 }
