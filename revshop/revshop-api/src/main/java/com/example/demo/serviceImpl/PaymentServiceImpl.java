@@ -112,8 +112,8 @@ public class PaymentServiceImpl implements PaymentService {
                 product.setQuantity(updatedStock);
 
                 if (product.getLowStockThreshold() != null &&
-                    updatedStock <= product.getLowStockThreshold() &&
-                    product.getSeller() != null) {
+                        updatedStock <= product.getLowStockThreshold() &&
+                        product.getSeller() != null) {
 
                     String warningMessage =
                             "Product: " + product.getName() +
@@ -121,12 +121,11 @@ public class PaymentServiceImpl implements PaymentService {
 
                     notificationService.createLowStockNotification(
                             product.getSeller(),
-                            warningMessage
-                    );
+                            warningMessage);
                 }
             }
 
-            // Clear cart
+            // Clear Cart
             Cart cart = cartRepository.findByUserId(order.getUser().getId())
                     .orElseThrow(() -> new InvalidPaymentRequestException("Cart not found"));
 
@@ -157,11 +156,11 @@ public class PaymentServiceImpl implements PaymentService {
             notificationService.createOrderNotification(
                     order.getUser(),
                     order.getId(),
-                    buyerMessage
-            );
+                    buyerMessage);
 
-            // Seller notification (NEW FORMAT)
+            // Seller notification
             order.getItems().forEach(item -> {
+
                 if (item.getProduct().getSeller() != null) {
 
                     String sellerMessage =
