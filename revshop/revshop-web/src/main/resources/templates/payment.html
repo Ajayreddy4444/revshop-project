@@ -5,244 +5,392 @@
 <section class="container payment-container mt-5">
 
     <style>
-        .payment-container {
-            max-width: 600px;
-            margin: auto;
+
+        .payment-container{max-width:600px;margin:auto;}
+
+        .payment-card{
+        background:#fff;
+        padding:30px;
+        border-radius:16px;
+        box-shadow:0 8px 25px rgba(0,0,0,0.08);
         }
 
-        .payment-card {
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        .payment-title{font-weight:700;margin-bottom:20px;}
+
+        .order-summary{
+        background:#f8f9fa;
+        padding:15px;
+        border-radius:10px;
+        margin-bottom:25px;
         }
 
-        .payment-title {
-            font-weight: 700;
-            margin-bottom: 20px;
+        .amount{
+        font-size:20px;
+        font-weight:700;
+        color:#28a745;
         }
 
-        .order-summary {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 25px;
+        .method-box{margin-bottom:15px;}
+
+        .input-box{
+        width:100%;
+        padding:10px;
+        border-radius:8px;
+        border:1px solid #ced4da;
+        margin-top:10px;
         }
 
-        .amount {
-            font-size: 20px;
-            font-weight: 700;
-            color: #28a745;
+        .action-buttons{
+        display:flex;
+        gap:12px;
+        margin-top:25px;
         }
 
-        .method-box {
-            margin-bottom: 15px;
+        .pay-btn{
+        flex:1;
+        padding:12px;
+        border-radius:8px;
+        border:none;
+        background:linear-gradient(45deg,#0d6efd,#0b5ed7);
+        color:white;
+        font-weight:600;
         }
 
-        .input-box {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ced4da;
-            margin-bottom: 10px;
+        .cancel-btn{
+        flex:1;
+        padding:12px;
+        border-radius:8px;
+        border:2px solid #dc3545;
+        background:white;
+        color:#dc3545;
+        font-weight:600;
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 25px;
+        .cancel-btn:hover{
+        background:#dc3545;
+        color:white;
         }
 
-        .pay-btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            background: linear-gradient(45deg, #0d6efd, #0b5ed7);
-            color: white;
-            font-weight: 600;
-        }
-
-        .pay-btn:hover {
-            opacity: 0.9;
-        }
-
-        .cancel-btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 8px;
-            border: 2px solid #dc3545;
-            background: white;
-            color: #dc3545;
-            font-weight: 600;
-        }
-
-        .cancel-btn:hover {
-            background: #dc3545;
-            color: white;
-        }
     </style>
+
+
+    <!-- Back to checkout -->
     <div class="d-flex justify-content-end mb-3">
-        <a th:href="@{/orders/checkout}"
-           class="btn btn-outline-secondary btn-sm">
+        <a th:href="@{/orders/checkout}" class="btn btn-outline-secondary btn-sm">
             ← Back to Checkout
         </a>
     </div>
+
+
     <div class="payment-card">
 
         <h3 class="payment-title text-center">Secure Payment</h3>
+
+        <!-- backend error message -->
         <div th:if="${paymentError}" class="alert alert-danger" th:text="${paymentError}"></div>
 
         <div class="order-summary">
             <p><strong>Order ID:</strong> <span th:text="${orderId}"></span></p>
-            <p class="amount">
-                Total: ₹ <span th:text="${amount}"></span>
-            </p>
+            <p class="amount">Total: ₹ <span th:text="${amount}"></span></p>
         </div>
+
 
         <form id="paymentForm" th:action="@{/payment/process}" method="post">
 
-            <input type="hidden" name="orderId" th:value="${orderId}"/>
-            <input type="hidden" name="amount" th:value="${amount}"/>
+            <input type="hidden" name="orderId" th:value="${orderId}">
+            <input type="hidden" name="amount" th:value="${amount}">
 
-            <h6 class="mb-3">Select Payment Method</h6>
+            <h6>Select Payment Method</h6>
 
-            <div class="method-box">
-                <input type="radio" name="paymentMethod" value="CARD" required>
-                <i class="bi bi-credit-card-2-front-fill text-primary ms-1 me-2"></i>
-                Credit / Debit Card
-            </div>
 
             <div class="method-box">
-                <input type="radio" name="paymentMethod" value="UPI">
-                <i class="bi bi-phone-fill text-success ms-1 me-2"></i>
-                UPI
+                <label>
+                    <input type="radio" name="paymentMethod" value="CARD" required>
+                    Credit / Debit Card
+                </label>
+
+                <div id="cardSection" style="display:none">
+
+                    <input type="text"
+                           id="cardNumber"
+                           name="cardNumber"
+                           placeholder="Card Number"
+                           maxlength="19"
+                           class="input-box">
+
+                    <small id="cardError" style="color:red"></small>
+
+                    <input type="text"
+                           name="cardHolder"
+                           placeholder="Card Holder Name"
+                           class="input-box">
+
+                    <input type="text"
+                           id="expiry"
+                           name="expiryDate"
+                           placeholder="Expiry (MM/YY)"
+                           maxlength="5"
+                           class="input-box">
+
+                    <small id="expiryError" style="color:red"></small>
+
+                    <input type="password"
+                           id="cvv"
+                           name="cvv"
+                           placeholder="CVV"
+                           maxlength="3"
+                           class="input-box">
+
+                    <small id="cvvError" style="color:red"></small>
+
+                </div>
             </div>
 
-            <!-- CARD SECTION -->
-            <div id="cardSection" style="display:none; margin-top:15px;">
-                <input type="text" id="cardNumber" name="cardNumber"
-                       placeholder="Card Number"
-                       class="input-box">
-                <small id="cardError" style="color:red;"></small>
 
-                <input type="text" name="cardHolder"
-                       placeholder="Card Holder Name"
-                       class="input-box">
+            <div class="method-box">
+                <label>
+                    <input type="radio" name="paymentMethod" value="UPI">
+                    UPI
+                </label>
 
-                <input type="text" name="expiry"
-                       placeholder="Expiry (MM/YY)"
-                       class="input-box">
+                <div id="upiSection" style="display:none">
 
-                <input type="password" id="cvv" name="cvv"
-                       placeholder="CVV"
-                       class="input-box">
-                <small id="cvvError" style="color:red;"></small>
+                    <input type="text"
+                           id="upiId"
+                           name="upiId"
+                           placeholder="Enter UPI ID"
+                           class="input-box">
+
+                    <small id="upiError" style="color:red"></small>
+
+                </div>
             </div>
 
-            <!-- UPI SECTION -->
-            <div id="upiSection" style="display:none; margin-top:15px;">
-                <input type="text" id="upiId" name="upiId"
-                       placeholder="Enter UPI ID"
-                       class="input-box">
-                <small id="upiError" style="color:red;"></small>
-            </div>
 
-            <!-- Buttons side by side -->
             <div class="action-buttons">
-                <button type="submit" class="pay-btn">
-                    Pay Now
-                </button>
+                <button type="submit" class="pay-btn">Pay Now</button>
             </div>
+
         </form>
 
-        <!-- Cancel Form -->
+
+        <!-- Cancel Order -->
         <form th:action="@{/payment/cancel}" method="post" class="action-buttons">
-            <input type="hidden" name="orderId" th:value="${orderId}"/>
-            <input type="hidden" name="amount" th:value="${amount}"/>
-            <button type="submit" class="cancel-btn">
-                Cancel
+
+            <input type="hidden" name="orderId" th:value="${orderId}">
+            <input type="hidden" name="amount" th:value="${amount}">
+
+            <button type="submit"
+                    class="cancel-btn">
+                Cancel Order
             </button>
+
         </form>
+
 
     </div>
+
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
 
-            const radios = document.querySelectorAll('input[name="paymentMethod"]');
-            const cardSection = document.getElementById("cardSection");
-            const upiSection = document.getElementById("upiSection");
-            const form = document.getElementById("paymentForm");
+        document.addEventListener("DOMContentLoaded",function(){
 
-            if (form) {
-                    form.addEventListener("submit", function (e) {
-                        if (!validatePayment()) {
-                            e.preventDefault();
-                        }
-                    });
-                }
+        const cardSection=document.getElementById("cardSection")
+        const upiSection=document.getElementById("upiSection")
 
-            radios.forEach(radio => {
-                radio.addEventListener("change", function () {
+        const cardNumber=document.getElementById("cardNumber")
+        const cvv=document.getElementById("cvv")
+        const expiry=document.getElementById("expiry")
+        const upiId=document.getElementById("upiId")
 
-                    if (this.value === "CARD") {
-                        cardSection.style.display = "block";
-                        upiSection.style.display = "none";
-                    } else {
-                        upiSection.style.display = "block";
-                        cardSection.style.display = "none";
-                    }
-                });
-            });
-        });
+        const radios=document.querySelectorAll('input[name="paymentMethod"]')
+        const form=document.getElementById("paymentForm")
 
-          function validatePayment() {
-            console.log("Validation running");
+        /* disable card fields initially */
 
-            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked');
+        cardNumber.disabled=true
+        cvv.disabled=true
+        expiry.disabled=true
 
-            if (!selectedMethod) {
-                alert("Please select a payment method");
-                return false;
-            }
 
-            let valid = true;
+        /* CARD FORMAT */
 
-            // Clear errors
-            document.getElementById("cardError").innerText = "";
-            document.getElementById("cvvError").innerText = "";
-            document.getElementById("upiError").innerText = "";
+        cardNumber.addEventListener("input",function(){
 
-            if (selectedMethod.value === "CARD") {
+        let value=this.value.replace(/\D/g,"")
+        value=value.substring(0,16)
 
-                let card = document.getElementById("cardNumber").value.trim();
-                let cvv = document.getElementById("cvv").value.trim();
+        let formatted=value.match(/.{1,4}/g)
 
-                if (!/^\d{16}$/.test(card)) {
-                    document.getElementById("cardError").innerText = "Card must be 16 digits";
-                    valid = false;
-                }
-
-                if (!/^\d{3}$/.test(cvv)) {
-                    document.getElementById("cvvError").innerText = "CVV must be 3 digits";
-                    valid = false;
-                }
-
-            } else if (selectedMethod.value === "UPI") {
-
-                let upi = document.getElementById("upiId").value.trim();
-
-                if (!/^[\w.-]+@[\w.-]+$/.test(upi)) {
-                    document.getElementById("upiError").innerText = "Invalid UPI ID";
-                    valid = false;
-                }
-            }
-
-            return valid;
+        if(formatted){
+        this.value=formatted.join(" ")
+        }else{
+        this.value=value
         }
+
+        })
+
+
+        /* CVV numbers only */
+
+        cvv.addEventListener("input",function(){
+        this.value=this.value.replace(/\D/g,"")
+        })
+
+
+        /* EXPIRY AUTO FORMAT */
+
+        expiry.addEventListener("input",function(){
+
+        let value=this.value.replace(/\D/g,"")
+
+        if(value.length>=3){
+        value=value.substring(0,2)+"/"+value.substring(2,4)
+        }
+
+        this.value=value
+
+        })
+
+
+        /* TOGGLE PAYMENT METHOD */
+
+        radios.forEach(radio=>{
+        radio.addEventListener("change",function(){
+
+        if(this.value==="CARD"){
+
+        cardSection.style.display="block"
+        upiSection.style.display="none"
+
+        cardNumber.disabled=false
+        cvv.disabled=false
+        expiry.disabled=false
+
+        upiId.disabled=true
+        upiId.value=""
+
+        }else{
+
+        upiSection.style.display="block"
+        cardSection.style.display="none"
+
+        cardNumber.disabled=true
+        cvv.disabled=true
+        expiry.disabled=true
+
+        cardNumber.value=""
+        cvv.value=""
+        expiry.value=""
+
+        upiId.disabled=false
+
+        }
+
+        })
+        })
+
+
+        /* VALIDATION */
+
+        form.addEventListener("submit",function(e){
+
+        if(!validatePayment()){
+        e.preventDefault()
+        }
+
+        })
+
+        })
+
+
+        function validatePayment(){
+
+        const selected=document.querySelector('input[name="paymentMethod"]:checked')
+
+        if(!selected){
+        alert("Please select payment method")
+        return false
+        }
+
+        let valid=true
+
+        document.getElementById("cardError").innerText=""
+        document.getElementById("cvvError").innerText=""
+        document.getElementById("expiryError").innerText=""
+        document.getElementById("upiError").innerText=""
+
+
+        if(selected.value==="CARD"){
+
+        let card=document.getElementById("cardNumber").value.replace(/\s/g,"")
+        let cvv=document.getElementById("cvv").value.trim()
+        let expiry=document.getElementById("expiry").value.trim()
+
+        const cardRegex=/^(?!0+$)(?!([0-9])\1+$)[0-9]{16}$/
+        const cvvRegex=/^(?!000$)[0-9]{3}$/
+        const expiryRegex=/^(0[1-9]|1[0-2])\/([0-9]{2})$/
+
+
+        if(!cardRegex.test(card)){
+        document.getElementById("cardError").innerText="Invalid card number"
+        valid=false
+        }
+
+
+        if(!cvvRegex.test(cvv)){
+        document.getElementById("cvvError").innerText="Invalid CVV"
+        valid=false
+        }
+
+
+        if(!expiryRegex.test(expiry)){
+        document.getElementById("expiryError").innerText="Expiry must be MM/YY"
+        valid=false
+        }else{
+
+        let parts = expiry.split("/")
+        let expMonth = parseInt(parts[0])
+        let expYear = 2000 + parseInt(parts[1])
+
+        let today = new Date()
+        let currentMonth = today.getMonth() + 1
+        let currentYear = today.getFullYear()
+
+        if(expYear < currentYear){
+        document.getElementById("expiryError").innerText="Card is expired"
+        valid=false
+        }
+
+        if(expYear === currentYear && expMonth < currentMonth){
+        document.getElementById("expiryError").innerText="Card is expired"
+        valid=false
+        }
+
+        }
+
+        }
+
+
+        if(selected.value==="UPI"){
+
+        let upi=document.getElementById("upiId").value.trim()
+
+        const upiRegex=/^[\w.-]+@[\w.-]+$/
+
+        if(!upiRegex.test(upi)){
+        document.getElementById("upiError").innerText="Invalid UPI ID"
+        valid=false
+        }
+
+        }
+
+
+        return valid
+
+        }
+
     </script>
 
 </section>
-
-
 </html>

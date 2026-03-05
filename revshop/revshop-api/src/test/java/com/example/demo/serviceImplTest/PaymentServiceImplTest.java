@@ -32,7 +32,7 @@ class PaymentServiceImplTest {
     @InjectMocks
     private PaymentServiceImpl paymentService;
 
-    // VALIDATIONS 
+    // NULL ORDER ID
 
     @Test
     void processPayment_nullOrderId() {
@@ -42,11 +42,14 @@ class PaymentServiceImplTest {
                         null,
                         1000.0,
                         PaymentMethod.CARD,
-                        "1234567812345678",
+                        "4111111111111111",
                         "123",
-                        null
+                        null,
+                        "12/30"
                 ));
     }
+
+    // INVALID AMOUNT
 
     @Test
     void processPayment_invalidAmount() {
@@ -56,13 +59,65 @@ class PaymentServiceImplTest {
                         1L,
                         0.0,
                         PaymentMethod.CARD,
-                        "1234567812345678",
+                        "4111111111111111",
                         "123",
+                        null,
+                        "12/30"
+                ));
+    }
+
+    // INVALID CARD (REPEATED DIGITS)
+
+    @Test
+    void processPayment_invalidCardNumber() {
+
+        assertThrows(InvalidPaymentRequestException.class,
+                () -> paymentService.processPayment(
+                        1L,
+                        1000.0,
+                        PaymentMethod.CARD,
+                        "1111111111111111",
+                        "123",
+                        null,
+                        "12/30"
+                ));
+    }
+
+    // INVALID CVV
+
+    @Test
+    void processPayment_invalidCvv() {
+
+        assertThrows(InvalidPaymentRequestException.class,
+                () -> paymentService.processPayment(
+                        1L,
+                        1000.0,
+                        PaymentMethod.CARD,
+                        "4111111111111111",
+                        "000",
+                        null,
+                        "12/30"
+                ));
+    }
+
+    // INVALID UPI
+
+    @Test
+    void processPayment_invalidUpi() {
+
+        assertThrows(InvalidPaymentRequestException.class,
+                () -> paymentService.processPayment(
+                        1L,
+                        1000.0,
+                        PaymentMethod.UPI,
+                        null,
+                        null,
+                        "invalidupi",
                         null
                 ));
     }
 
-    //  ORDER NOT FOUND
+    // ORDER NOT FOUND
 
     @Test
     void processPayment_orderNotFound() {
@@ -75,13 +130,14 @@ class PaymentServiceImplTest {
                         1L,
                         1000.0,
                         PaymentMethod.CARD,
-                        "1234567812345678",
+                        "4111111111111111",
                         "123",
-                        null
+                        null,
+                        "12/30"
                 ));
     }
 
-    // ORDER ALREADY PAID 
+    // ORDER ALREADY PAID
 
     @Test
     void processPayment_orderAlreadyPaid() {
@@ -97,13 +153,14 @@ class PaymentServiceImplTest {
                         1L,
                         1000.0,
                         PaymentMethod.CARD,
-                        "1234567812345678",
+                        "4111111111111111",
                         "123",
-                        null
+                        null,
+                        "12/30"
                 ));
     }
 
-    // CANCELLED ORDER 
+    // CANCELLED ORDER
 
     @Test
     void processPayment_cancelledOrder() {
@@ -119,13 +176,14 @@ class PaymentServiceImplTest {
                         1L,
                         1000.0,
                         PaymentMethod.CARD,
-                        "1234567812345678",
+                        "4111111111111111",
                         "123",
-                        null
+                        null,
+                        "12/30"
                 ));
     }
 
-    //  AMOUNT MISMATCH 
+    // AMOUNT MISMATCH
 
     @Test
     void processPayment_amountMismatch() {
@@ -140,13 +198,16 @@ class PaymentServiceImplTest {
         assertThrows(InvalidPaymentRequestException.class,
                 () -> paymentService.processPayment(
                         1L,
-                        1000.0, // mismatch
+                        1000.0,
                         PaymentMethod.CARD,
-                        "1234567812345678",
+                        "4111111111111111",
                         "123",
-                        null
+                        null,
+                        "12/30"
                 ));
     }
+
+    // SUCCESSFUL PAYMENT
 
     @Test
     void processPayment_success() {
@@ -164,13 +225,12 @@ class PaymentServiceImplTest {
         user.setId(1L);
 
         Order order = new Order();
-       
         order.setStatus(OrderStatus.CREATED);
         order.setTotalAmount(1000.0);
         order.setItems(List.of(item));
         order.setUser(user);
         order.setOrderDate(LocalDateTime.now());
-     // simulate DB-generated ID
+
         ReflectionTestUtils.setField(order, "id", 1L);
 
         Cart cart = new Cart();
@@ -188,14 +248,14 @@ class PaymentServiceImplTest {
         when(paymentRepository.save(any(Payment.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-
         Payment payment = paymentService.processPayment(
                 orderId,
                 1000.0,
                 PaymentMethod.CARD,
-                "1234567812345678",
+                "4111111111111111",
                 "123",
-                null
+                null,
+                "12/30"
         );
 
         assertNotNull(payment);
@@ -206,4 +266,4 @@ class PaymentServiceImplTest {
         verify(paymentRepository, times(1)).save(any(Payment.class));
         verify(orderRepository, times(1)).save(order);
     }
-}  
+}

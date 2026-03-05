@@ -1,15 +1,45 @@
 package com.example.demo.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
 public class AddressRequest {
 
     private Long userId;
-    private String fullName;
-    private String addressLine;
-    private String phoneNumber;
-    private String city;
-    private String state;
-    private String pincode;
     private Long addressId;
+
+        @NotBlank(message = "Full name is required")
+        @Pattern(regexp = "^[A-Za-z ]{3,50}$",
+                message = "Name must contain only letters")
+        private String fullName;
+
+        @NotBlank(message = "Phone number is required")
+        @Pattern(regexp = "^[6-9]\\d{9}$",
+                message = "Enter valid 10 digit mobile number")
+        private String phoneNumber;
+
+        @NotBlank(message = "Address is required")
+        @Pattern(regexp = "^[A-Za-z0-9, ]{5,100}$",
+                message = "Address must be 5-100 characters")
+        private String addressLine;
+
+        @NotBlank(message = "City is required")
+        @Pattern(regexp = "^[A-Za-z ]{2,50}$",
+                message = "City must contain only letters")
+        private String city;
+
+        @NotBlank(message = "State is required")
+        @Pattern(regexp = "^[A-Za-z ]{2,50}$",
+                message = "State must contain only letters")
+        private String state;
+
+        @NotBlank(message = "Pincode is required")
+        @Pattern(regexp = "^[1-9][0-9]{5}$",
+                message = "Enter valid 6 digit pincode")
+        private String pincode;
+
+        // getters and setters
+    
 	public Long getUserId() {
 		return userId;
 	}
