@@ -4,99 +4,108 @@
 
 <section class="auth-wrapper">
 
-    <div class="auth-card">
+<div class="auth-card">
 
-        <h2 class="mb-4 text-center">Welcome Back</h2>
+<h2 class="mb-4 text-center">Welcome Back</h2>
 
-        <!-- Success Message -->
-        <div th:if="${success}" 
-             class="alert alert-success text-center auto-hide">
-            <span th:text="${success}"></span>
-        </div>
+<!-- Success Message -->
+<div th:if="${success}" 
+     class="alert alert-success text-center auto-hide">
+<span th:text="${success}"></span>
+</div>
 
-        <!-- Global Backend Error (Wrong Credentials etc.) -->
-        <div th:if="${error}" 
-             class="alert alert-danger text-center auto-hide">
-            <span th:utext="${error}"></span>
-        </div>
 
-        <form method="post"
-              th:action="@{/login}"
-              th:object="${loginRequest}">
 
-            <!-- Email -->
-            <div class="mb-3">
-                <input type="email"
-                       th:field="*{email}"
-                       class="form-control"
-                       required
-                       th:classappend="${#fields.hasErrors('email')} ? ' is-invalid' : ''"
-                       th:placeholder="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : 'Email address'">
-            </div>
+<form method="post"
+      th:action="@{/login}"
+      th:object="${loginRequest}"
+      novalidate>
 
-            <!-- Password -->
-            <div class="mb-3">
-                <input type="password"
-                       th:field="*{password}"
-                       class="form-control"
-                       required
-                       th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''"
-                       th:placeholder="${#fields.hasErrors('password')} ? ${#fields.errors('password')[0]} : 'Password'">
-            </div>
+<!-- Email -->
+<div class="mb-2">
 
-            <div class="mb-3 text-end">
-                <a th:href="@{/forgot-password}"
-                   class="text-decoration-none">
-                    Forgot Password?
-                </a>
-            </div>
+<input type="email"
+       th:field="*{email}"
+       class="form-control"
+       placeholder="Email address"
+       th:classappend="${#fields.hasErrors('email')} ? ' is-invalid' : ''">
 
-            <button type="submit"
-                    class="btn btn-warning w-100 fw-semibold">
-                Login
-            </button>
+<div class="invalid-feedback d-block error-space">
 
-        </form>
+<span th:if="${#fields.hasErrors('email') and #strings.isEmpty(loginRequest.email)}">
+Please enter your email
+</span>
 
-        <div class="mt-4 text-center">
-            <small>
-                Don’t have an account?
-                <a th:href="@{/register}" class="text-warning fw-semibold">
-                    Register
-                </a>
-            </small>
-        </div>
+<span th:if="${#fields.hasErrors('email') and !#strings.isEmpty(loginRequest.email)}">
+Enter a valid email address
+</span>
 
-    </div>
+</div>
+
+</div>
+
+<!-- Password -->
+<div class="mb-2">
+
+<input type="password"
+       th:field="*{password}"
+       class="form-control"
+       placeholder="Password"
+       th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''">
+
+<div class="invalid-feedback d-block error-space">
+
+<span th:if="${#fields.hasErrors('password')}">
+Please enter your password
+</span>
+
+</div>
+
+</div>
+
+<div class="mb-3 text-end">
+<a th:href="@{/forgot-password}"
+   class="text-decoration-none">
+Forgot Password?
+</a>
+</div>
+
+<button type="submit"
+        class="btn btn-warning w-100 fw-semibold">
+Login
+</button>
+
+</form>
+
+<div class="mt-4 text-center">
+<small>
+Don’t have an account?
+<a th:href="@{/register}" class="text-warning fw-semibold">
+Register
+</a>
+</small>
+</div>
+
+</div>
 
 </section>
 
-<!-- Auto Reset Script (2 seconds) -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-        setTimeout(function () {
+setTimeout(function () {
 
-            const defaultPlaceholders = {
-                email: "Email address",
-                password: "Password"
-            };
+document.querySelectorAll('.is-invalid').forEach(function (input) {
+input.classList.remove('is-invalid');
+});
 
-            document.querySelectorAll('.is-invalid').forEach(function (input) {
-                input.classList.remove('is-invalid');
+document.querySelectorAll('.auto-hide').forEach(function (alert) {
+alert.remove();
+});
 
-                if (defaultPlaceholders[input.name]) {
-                    input.placeholder = defaultPlaceholders[input.name];
-                }
-            });
+}, 2000);
 
-            document.querySelectorAll('.auto-hide').forEach(function (alert) {
-                alert.remove();
-            });
-
-        }, 2000);
-
-    });
+});
 </script>
 
 </html>
