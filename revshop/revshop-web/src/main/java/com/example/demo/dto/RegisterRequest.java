@@ -5,19 +5,24 @@ import jakarta.validation.constraints.*;
 public class RegisterRequest {
 
 	@NotBlank(message = "Please enter your full name")
-    private String name;
+	@Size(min = 3, max = 50, message = "Name must be at least 3 characters")
+	private String name;
 
-    @NotBlank(message = "Please enter your email")
-    private String email;
+	@NotBlank(message = "Please enter your email")
+	@Email(message = "Enter a valid email address")
+	private String email;
 
-    @NotBlank(message = "Please enter your phone number")
-    private String phone;
+	@NotBlank(message = "Please enter your phone number")
+	@Pattern(regexp="^[0-9]{10}$", message="Phone number must be 10 digits")
+	private String phone;
 
-    @NotBlank(message = "Please enter your password")
-    private String password;
+	@NotBlank(message = "Please enter your password")
+	@Size(min=6, message="Password must be at least 6 characters")
+	private String password;
 
-    @NotBlank(message = "Please select a role")
-    private String role;
+	@NotBlank(message = "Please select a role")
+	private String role;
+
     public RegisterRequest() {}
 
     public String getName() { return name; }
