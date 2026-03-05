@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.example.demo.dto.PaymentRequest;
 import com.example.demo.service.PaymentClientService;
 
@@ -11,11 +12,11 @@ import com.example.demo.service.PaymentClientService;
 @RequestMapping("/payment")
 public class PaymentPageController {
 
-	   private final PaymentClientService paymentClientService;
-	   public PaymentPageController(PaymentClientService paymentClientService) {
-	        this.paymentClientService = paymentClientService;
-	        
-	    }
+    private final PaymentClientService paymentClientService;
+
+    public PaymentPageController(PaymentClientService paymentClientService) {
+        this.paymentClientService = paymentClientService;
+    }
 
     // Show Payment Page
     @GetMapping
@@ -36,8 +37,14 @@ public class PaymentPageController {
                                  @RequestParam String paymentMethod,
                                  @RequestParam(required = false) String cardNumber,
                                  @RequestParam(required = false) String cvv,
+                                 @RequestParam(required = false) String expiryDate,
                                  @RequestParam(required = false) String upiId,
                                  Model model) {
+
+        // remove spaces from card number (important)
+        if (cardNumber != null) {
+            cardNumber = cardNumber.replaceAll("\\s+", "");
+        }
 
         PaymentRequest request = new PaymentRequest();
         request.setOrderId(orderId);
@@ -45,24 +52,28 @@ public class PaymentPageController {
         request.setPaymentMethod(paymentMethod);
         request.setCardNumber(cardNumber);
         request.setCvv(cvv);
+        request.setExpiryDate(expiryDate);
         request.setUpiId(upiId);
 
         try {
             paymentClientService.processPayment(request);
         } catch (RuntimeException ex) {
+
+        	  ex.printStackTrace();
             model.addAttribute("orderId", orderId);
             model.addAttribute("amount", amount);
             model.addAttribute("paymentError", ex.getMessage());
+
             return "payment";
         }
 
-        // Send orderId to success page
         model.addAttribute("orderId", orderId);
         model.addAttribute("amount", amount);
         model.addAttribute("paymentMethod", paymentMethod);
 
         return "success";
     }
+
     @PostMapping("/cancel")
     public String cancelOrder(@RequestParam Long orderId,
                               @RequestParam Double amount,
@@ -70,15 +81,19 @@ public class PaymentPageController {
 
         try {
             paymentClientService.cancelOrder(orderId);
+
             redirectAttributes.addFlashAttribute(
                     "cancelMessage",
                     "Order has been cancelled successfully!"
             );
+
         } catch (RuntimeException ex) {
+
             redirectAttributes.addFlashAttribute(
                     "paymentError",
                     ex.getMessage()
             );
+
             return "redirect:/payment?orderId=" + orderId + "&amount=" + amount;
         }
 
