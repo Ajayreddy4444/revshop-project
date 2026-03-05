@@ -2,6 +2,7 @@ package com.example.demo.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,8 +111,8 @@ public class PaymentServiceImpl implements PaymentService {
                 product.setQuantity(updatedStock);
 
                 if (product.getLowStockThreshold() != null &&
-                    updatedStock <= product.getLowStockThreshold() &&
-                    product.getSeller() != null) {
+                        updatedStock <= product.getLowStockThreshold() &&
+                        product.getSeller() != null) {
 
                     String warningMessage =
                             "Product: " + product.getName() +
@@ -119,12 +120,11 @@ public class PaymentServiceImpl implements PaymentService {
 
                     notificationService.createLowStockNotification(
                             product.getSeller(),
-                            warningMessage
-                    );
+                            warningMessage);
                 }
             }
 
-            // Clear cart
+            // Clear Cart
             Cart cart = cartRepository.findByUserId(order.getUser().getId())
                     .orElseThrow(() -> new InvalidPaymentRequestException("Cart not found"));
 
@@ -137,24 +137,34 @@ public class PaymentServiceImpl implements PaymentService {
             String formattedDate =
                     order.getOrderDate().format(formatter);
 
+            // Collect product names
+            String productNames =
+                    order.getItems()
+                            .stream()
+                            .map(item -> item.getProduct().getName())
+                            .collect(Collectors.joining(", "));
+
             // Buyer notification
             String buyerMessage =
                     "Your order has been placed successfully.\n"
-                    + "Order ID: " + order.getId()
-                    + " at " + formattedDate;
+                            + "Product: " + productNames + "\n"
+                            + "Order ID: " + order.getId()
+                            + " at " + formattedDate;
 
             notificationService.createOrderNotification(
                     order.getUser(),
                     order.getId(),
-                    buyerMessage
-            );
+                    buyerMessage);
 
-            // Seller notification (NEW FORMAT)
+            // Seller notification
             order.getItems().forEach(item -> {
+
                 if (item.getProduct().getSeller() != null) {
 
                     String sellerMessage =
-                            "Order ID: "
+                            "Product: "
+                            + item.getProduct().getName()
+                            + "\nOrder ID: "
                             + order.getId()
                             + " | "
                             + formattedDate;
