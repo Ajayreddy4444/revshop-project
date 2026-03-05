@@ -93,33 +93,47 @@ const roleError = document.getElementById("roleError");
 document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
 document.querySelectorAll(".form-control").forEach(el => el.classList.remove("is-invalid"));
 
+const namePattern = /^[A-Za-z ]+$/;
+
 if(name.value.trim()===""){
 name.classList.add("is-invalid");
 name.nextElementSibling.textContent="Name is required";
 valid=false;
-}else if(name.value.trim().length<3){
+}
+else if(!namePattern.test(name.value.trim())){
+name.classList.add("is-invalid");
+name.nextElementSibling.textContent="Name should contain only letters";
+valid=false;
+}
+else if(name.value.trim().length < 3){
 name.classList.add("is-invalid");
 name.nextElementSibling.textContent="Name must be at least 3 characters";
 valid=false;
 }
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 if(email.value.trim()===""){
 email.classList.add("is-invalid");
 email.nextElementSibling.textContent="Email is required";
 valid=false;
-}else if(!email.value.includes("@")){
+}
+else if(!emailPattern.test(email.value.trim())){
 email.classList.add("is-invalid");
-email.nextElementSibling.textContent="Enter valid email";
+email.nextElementSibling.textContent="Enter a valid email address";
 valid=false;
 }
 
+const phonePattern = /^[6-9][0-9]{9}$/;
+
 if(phone.value.trim()===""){
 phone.classList.add("is-invalid");
-phone.nextElementSibling.textContent="Phone number is required";
+phone.nextElementSibling.textContent="Enter a valid Indian mobile number (10 digits starting with 6–9)";
 valid=false;
-}else if(!/^[0-9]{10}$/.test(phone.value)){
+}
+else if(!phonePattern.test(phone.value.trim())){
 phone.classList.add("is-invalid");
-phone.nextElementSibling.textContent="Phone must be 10 digits";
+phone.nextElementSibling.textContent="Enter a valid 10-digit phone number";
 valid=false;
 }
 
