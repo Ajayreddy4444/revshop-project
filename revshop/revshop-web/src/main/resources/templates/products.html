@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/base :: layout('Products', ~{::section})}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout('Products', ~{::section})}">
 
 <section class="container mt-3 mb-4 ">
 
 
-    <div id="successMsg"
-         th:if="${param.added}"
-         class="alert alert-success text-center">
+    <!-- SUCCESS MESSAGE (Hidden by default, shown by JS) -->
+    <div id="successMsg" class="alert alert-success text-center shadow-sm"
+        style="display:none; font-weight: bold; color: #155724;">
         ✔ Added to cart successfully
     </div>
 
@@ -18,45 +17,30 @@
         </h2>
     </div>
 
-    <form method="get"
-          th:action="@{/products}"
-          class="d-flex align-items-center justify-content-between mb-4">
+    <form method="get" th:action="@{/products}" class="d-flex align-items-center justify-content-between mb-4">
 
         <!-- LEFT SIDE -->
-        <select name="categoryId"
-                class="form-select form-select-sm"
-                style="width:180px;">
+        <select name="categoryId" class="form-select form-select-sm" style="width:180px;">
             <option value="">All Categories</option>
-            <option th:each="c : ${categories}"
-                    th:value="${c.id}"
-                    th:text="${c.name}"
-                    th:selected="${c.id == categoryId}">
+            <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"
+                th:selected="${c.id == categoryId}">
             </option>
         </select>
 
         <!-- RIGHT SIDE -->
         <div class="d-flex align-items-center gap-2">
 
-            <input type="number"
-                   name="minPrice"
-                   th:value="${minPrice}"
-                   class="form-control form-control-sm"
-                   placeholder="Min"
-                   style="width:110px;">
+            <input type="number" name="minPrice" th:value="${minPrice}" class="form-control form-control-sm"
+                placeholder="Min" style="width:110px;">
 
-            <input type="number"
-                   name="maxPrice"
-                   th:value="${maxPrice}"
-                   class="form-control form-control-sm"
-                   placeholder="Max"
-                   style="width:110px;">
+            <input type="number" name="maxPrice" th:value="${maxPrice}" class="form-control form-control-sm"
+                placeholder="Max" style="width:110px;">
 
             <button class="btn btn-warning btn-sm">
                 <i class="bi bi-search"></i>
             </button>
 
-            <a th:href="@{/products}"
-               class="btn btn-outline-secondary btn-sm">
+            <a th:href="@{/products}" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-clockwise"></i>
             </a>
 
@@ -65,11 +49,9 @@
     </form>
 
     <!-- NO PRODUCTS -->
-    <div th:if="${#lists.isEmpty(products)}"
-         class="text-center py-5">
+    <div th:if="${#lists.isEmpty(products)}" class="text-center py-5">
 
-        <i class="bi bi-box-seam text-warning"
-           style="font-size: 48px;"></i>
+        <i class="bi bi-box-seam text-warning" style="font-size: 48px;"></i>
 
         <h4 class="mt-3 fw-bold">
             No products available
@@ -86,38 +68,32 @@
             <div class="card product-card shadow-sm w-100 h-100 border-0 position-relative">
 
                 <div class="wishlist-icon position-absolute top-0 end-0 p-2">
-                    <i class="bi"
-                       th:id="'heart-'+${product.id}"
-                       th:classappend="${product.wishlisted} ?
+                    <i class="bi" th:id="'heart-'+${product.id}" th:classappend="${product.wishlisted} ?
                        'bi-heart-fill text-danger' :
-                       'bi-heart text-dark'"
-                       style="font-size:20px; cursor:pointer;"
-                       th:onclick="'toggleWishlist(' + ${product.id} + ')'">
+                       'bi-heart text-dark'" style="font-size:20px; cursor:pointer;"
+                        th:onclick="'toggleWishlist(' + ${product.id} + ')'">
                     </i>
                 </div>
 
                 <div class="product-image-wrapper">
                     <img th:src="${product.imageUrl != null} ? @{/images/{img}(img=${product.imageUrl})} : @{/images/no-image.jpg}"
-                         class="product-img">
+                        class="product-img">
                 </div>
 
                 <div class="card-body d-flex flex-column">
 
-                    <h5 class="fw-semibold text-truncate"
-                        th:text="${product.name}"></h5>
+                    <h5 class="fw-semibold text-truncate" th:text="${product.name}"></h5>
 
-                    <p class="text-muted small product-desc"
-                       th:text="${product.description}"></p>
+                    <p class="text-muted small product-desc" th:text="${product.description}"></p>
 
                     <div>
-                        <span class="text-muted text-decoration-line-through"
-                              th:if="${product.mrp != null}">
+                        <span class="text-muted text-decoration-line-through" th:if="${product.mrp != null}">
                             ₹ <span th:text="${product.mrp}"></span>
                         </span>
 
                         <span class="badge bg-danger ms-2"
-                              th:if="${product.discountPercent != null && product.discountPercent > 0}">
-                              <span th:text="${product.discountPercent}"></span>% OFF
+                            th:if="${product.discountPercent != null && product.discountPercent > 0}">
+                            <span th:text="${product.discountPercent}"></span>% OFF
                         </span>
                     </div>
                     <div class="fw-bold text-success fs-5 mb-2">
@@ -126,21 +102,19 @@
                     <div class="mb-2">
 
                         <!-- IN STOCK -->
-                        <span class="badge bg-success"
-                              th:if="${product.quantity > product.lowStockThreshold}">
-                                 In Stock
+                        <span class="badge bg-success" th:if="${product.quantity > product.lowStockThreshold}">
+                            In Stock
                         </span>
 
                         <!-- LOW STOCK -->
                         <span class="badge bg-warning text-dark"
-                              th:if="${product.quantity > 0 and product.quantity <= product.lowStockThreshold}">
-                                   Only <span th:text="${product.quantity}"></span> left
+                            th:if="${product.quantity > 0 and product.quantity <= product.lowStockThreshold}">
+                            Only <span th:text="${product.quantity}"></span> left
                         </span>
 
                         <!-- OUT OF STOCK -->
-                        <span class="badge bg-danger"
-                              th:if="${product.quantity == 0}">
-                                   Out of Stock
+                        <span class="badge bg-danger" th:if="${product.quantity == 0}">
+                            Out of Stock
                         </span>
 
                     </div>
@@ -148,23 +122,19 @@
 
                         <div class="d-flex gap-2">
 
-                            <a th:href="@{'/products/' + ${product.id}}"
-                               class="btn btn-outline-secondary btn-sm w-50">
+                            <a th:href="@{'/products/' + ${product.id}}" class="btn btn-outline-secondary btn-sm w-50">
                                 View Details
                             </a>
 
-                            <form th:action="@{/cart/add}" method="post" class="w-50">
-                                <input type="hidden" name="productId"
-                                       th:value="${product.id}">
-                                <input type="hidden" name="quantity" value="1">
-
-                                <button type="submit"
-                                        class="btn btn-warning btn-sm w-100"
-                                        th:disabled="${product.quantity == 0}">
-                                    <span th:if="${product.quantity > 0}">Add To Cart</span>
+                            <div class="w-50">
+                                <button type="button" th:id="'addToCartBtn-' + ${product.id}"
+                                    class="btn btn-warning btn-sm w-100" th:disabled="${product.quantity == 0}"
+                                    th:onclick="'addToCart(' + ${product.id} + ')'">
+                                    <span th:if="${product.quantity > 0}" th:id="'btnText-' + ${product.id}">Add To
+                                        Cart</span>
                                     <span th:if="${product.quantity == 0}">Out of Stock</span>
                                 </button>
-                            </form>
+                            </div>
 
                         </div>
 
@@ -176,69 +146,145 @@
     </div>
 
 
-    <script>
+    <script th:inline="javascript">
+        const userId = /*[[${session.user != null ? session.user.id : null}]]*/ null;
 
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("Products page loaded. User ID:", userId);
+            if (userId) {
+                // Check existing cart items to mark buttons
+                fetch(`http://localhost:8080/api/cart/${userId}`)
+                    .then(res => res.json())
+                    .then(cartItems => {
+                        console.log("Cart items for status:", cartItems);
+                        cartItems.forEach(item => {
+                            const btn = document.getElementById("addToCartBtn-" + item.productId);
+                            const btnText = document.getElementById("btnText-" + item.productId);
+                            if (btn && btnText) {
+                                console.log("Marking item already in cart:", item.productId);
+                                btnText.innerText = "Added to Cart!";
+                                btn.classList.remove("btn-warning");
+                                btn.classList.add("btn-success");
+                                btn.disabled = true;
+                                btn.style.pointerEvents = "none";
+                            }
+                        });
+                    })
+                    .catch(err => console.error("Error fetching cart for status:", err));
+            }
+        });
 
-        const successMsg = document.getElementById("successMsg");
-        if(successMsg){
-            setTimeout(()=>{
-                successMsg.style.display="none";
-            },3000);
+        function addToCart(productId) {
+            console.log("Adding product to cart:", productId);
+            if (!userId) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const btnText = document.getElementById("btnText-" + productId);
+            const btn = document.getElementById("addToCartBtn-" + productId);
+            const successMsg = document.getElementById("successMsg");
+
+            // Prevent double clicks
+            if (btn.disabled) return;
+            btn.disabled = true;
+
+            fetch('http://localhost:8080/api/cart/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: userId, productId: productId, quantity: 1 })
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Server error: " + res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    console.log("Successfully added to cart:", productId);
+                    // Change button state permanently
+                    if (btnText) {
+                        btnText.innerText = "Added to Cart!";
+                    }
+                    btn.classList.remove("btn-warning");
+                    btn.classList.add("btn-success");
+                    btn.disabled = true;
+                    btn.style.pointerEvents = "none";
+
+                    // Show success message with green text (as requested)
+                    if (successMsg) {
+                        successMsg.style.display = "block";
+                        setTimeout(() => {
+                            successMsg.style.display = "none";
+                        }, 3000);
+                    }
+
+                    // Update global cart count
+                    if (typeof updateCartCount === 'function') {
+                        updateCartCount(userId);
+                    }
+                })
+                .catch(err => {
+                    console.error("Add to cart error:", err);
+                    btn.disabled = false; // Re-enable only on error
+                    alert("Could not add to cart. Please try again.");
+                });
         }
-        
-
     </script>
 
     <style>
         body {
-        background-color: #f7f5f2;
-       }
+            background-color: #f7f5f2;
+        }
+
         .product-card {
-    height: 340px;             /* reduced height */
-    border-radius: 14px;
-    transition: all 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;          /* makes image flush */
-}
+            height: 340px;
+            /* reduced height */
+            border-radius: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            /* makes image flush */
+        }
 
-.product-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-}
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        }
 
-.product-image-wrapper {
-    width: 100%;
-    height: 180px;             /* fixed */
-    overflow: hidden;
-}
+        .product-image-wrapper {
+            width: 100%;
+            height: 180px;
+            /* fixed */
+            overflow: hidden;
+        }
 
-.product-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-.product-desc {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    height: 36px;
-}
+        .product-desc {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 36px;
+        }
 
-.card-body {
-    padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-}
+        .card-body {
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+        }
+
         .wishlist-icon i {
-    transition: 0.2s ease;
-}
+            transition: 0.2s ease;
+        }
 
-.wishlist-icon i:hover {
-    transform: scale(1.15);
-}
+        .wishlist-icon i:hover {
+            transform: scale(1.15);
+        }
     </style>
 
 </section>
