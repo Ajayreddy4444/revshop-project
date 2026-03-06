@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:fragment="layout(title,content)">
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title,content)">
 
 <head>
     <title th:text="${title}">RevShop</title>
@@ -22,7 +21,7 @@
         .hero-section {
             height: 90vh;
             background:
-                linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+                linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)),
                 url('https://images.unsplash.com/photo-1607083206869-4c7672e72a8a');
             background-size: cover;
             background-position: center;
@@ -43,19 +42,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(
-                rgba(0,0,0,0.6),
-                rgba(0,0,0,0.6)
-            ),
-            url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1950&q=80')
-            center/cover no-repeat;
+            background: linear-gradient(rgba(0, 0, 0, 0.6),
+                    rgba(0, 0, 0, 0.6)),
+                url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1950&q=80') center/cover no-repeat;
         }
 
         .auth-card {
             background: white;
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 400px;
         }
@@ -85,69 +81,123 @@
 
 <body class="d-flex flex-column min-vh-100">
 
-<!-- Header -->
-<div th:replace="~{fragments/header :: header}"></div>
+    <!-- Header -->
+    <div th:replace="~{fragments/header :: header}"></div>
 
-<!-- Main Content -->
-<main class="flex-fill">
-    <th:block th:replace="${content}"></th:block>
-</main>
+    <!-- Main Content -->
+    <main class="flex-fill">
+        <th:block th:replace="${content}"></th:block>
+    </main>
 
-<!-- Footer -->
-<div th:replace="~{fragments/footer :: footer}"></div>
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Wishlist Toggle Script -->
-<script>
-    function toggleWishlist(productId) {
+    <!-- Wishlist Toggle Script -->
+    <script>
+        function toggleWishlist(productId) {
 
-        fetch('/wishlist/toggle/' + productId, {
-            method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
+            fetch('/wishlist/toggle/' + productId, {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
 
-            const heart = document.getElementById("heart-" + productId);
-            if (!heart) return;
+                    const heart = document.getElementById("heart-" + productId);
+                    if (!heart) return;
 
-            heart.classList.remove("bi-heart", "bi-heart-fill", "text-danger", "text-dark");
+                    heart.classList.remove("bi-heart", "bi-heart-fill", "text-danger", "text-dark");
 
-            if (data.added) {
-                heart.classList.add("bi-heart-fill", "text-danger");
-            } else {
-                heart.classList.add("bi-heart", "text-dark");
-            }
+                    if (data.added) {
+                        heart.classList.add("bi-heart-fill", "text-danger");
+                    } else {
+                        heart.classList.add("bi-heart", "text-dark");
+                    }
+                });
+        }
+    </script>
+
+    <!-- ✅ GLOBAL NOTIFICATION & CART BADGE SCRIPT -->
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const userId = /*[[${session.user != null ? session.user.id : null}]]*/ null;
+            if (!userId) return;
+
+            console.log("Global layout script: User identified", userId);
+
+            // Fetch Notifications
+            fetch(`http://localhost:8080/api/notifications/unread/${userId}`)
+                .then(res => res.json())
+                .then(count => {
+                    const badge = document.getElementById("notificationCount");
+                    if (!badge) return;
+                    if (count > 0) {
+                        badge.style.display = "inline-block";
+                        badge.innerText = count;
+                    } else {
+                        badge.style.display = "none";
+                    }
+                })
+                .catch(err => console.log("Notification badge error:", err));
+
+            // Fetch Cart Count
+            updateCartCount(userId);
+
+            // FALLBACK: Mark already added items if page scripts are cached/old
+            setTimeout(() => {
+                fetch(`http://localhost:8080/api/cart/${userId}`)
+                    .then(res => res.json())
+                    .then(cartItems => {
+                        cartItems.forEach(item => {
+                            const btn = document.getElementById("addToCartBtn-" + item.productId);
+                            const btnText = document.getElementById("btnText-" + item.productId);
+                            if (btn && !btn.disabled) {
+                                console.log("Global fallback marking item:", item.productId);
+                                if (btnText) btnText.innerText = "Added to Cart!";
+                                btn.classList.remove("btn-warning");
+                                btn.classList.add("btn-success");
+                                btn.disabled = true;
+                                btn.style.pointerEvents = "none";
+                            }
+                        });
+                    });
+            }, 1000);
         });
-    }
-</script>
 
-<!-- ✅ GLOBAL NOTIFICATION BADGE SCRIPT -->
-<script th:inline="javascript">
-document.addEventListener("DOMContentLoaded", function() {
+        function updateCartCount(userId) {
+            if (!userId) return;
+            fetch(`http://localhost:8080/api/cart/${userId}`)
+                .then(res => res.json())
+                .then(cartItems => {
+                    const cartBadge = document.getElementById("cartCount");
+                    if (!cartBadge) return;
+                    const totalItems = cartItems.length;
+                    if (totalItems > 0) {
+                        cartBadge.style.display = "inline-block";
+                        cartBadge.innerText = totalItems;
+                    } else {
+                        cartBadge.style.display = "none";
+                    }
+                })
+                .catch(err => console.log("Cart badge error:", err));
+        }
 
-    const userId = /*[[${session.user != null ? session.user.id : null}]]*/ null;
-
-    if (!userId) return;
-
-    fetch(`http://localhost:8080/api/notifications/unread/${userId}`)
-        .then(res => res.json())
-        .then(count => {
-
-            const badge = document.getElementById("notificationCount");
-            if (!badge) return;
-
-            if (count > 0) {
-                badge.style.display = "inline-block";
-                badge.innerText = count;
+        // Global function to show success message if not in page
+        window.showGlobalSuccess = function (msg) {
+            const successMsg = document.getElementById("successMsg");
+            if (successMsg) {
+                successMsg.style.display = "block";
+                setTimeout(() => { successMsg.style.display = "none"; }, 3000);
             } else {
-                badge.style.display = "none";
+                // Fallback alert if div is missing
+                console.log("Success message fallback:", msg);
             }
-        })
-        .catch(err => console.log("Notification badge error:", err));
-});
-</script>
+        };
+    </script>
 
 </body>
+
 </html>

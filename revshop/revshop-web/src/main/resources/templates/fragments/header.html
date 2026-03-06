@@ -98,10 +98,15 @@
                 <!-- BUYER LINKS -->
                 <li class="nav-item"
                     th:if="${session.user != null and session.user.role == 'BUYER'}">
-                    <a class="nav-link text-white fw-semibold"
+                    <a class="nav-link text-white fw-semibold position-relative"
+                       th:id="cartLink"
                        th:href="@{/cart}">
                         <i class="bi bi-cart3 me-1"></i>
                         Cart
+                        <span id="cartCount"
+                              class="position-absolute badge rounded-pill bg-danger"
+                              style="top: 2px; right: -5px; font-size: 10px; display:none;">
+                        </span>
                     </a>
                 </li>
 
