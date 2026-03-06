@@ -88,60 +88,87 @@
 
         <h2 class="address-title">Edit Address</h2>
 
-        <form th:action="@{/address/update}"
-              th:object="${address}"
-              method="post">
+		<form th:action="@{/address/update}"
+		      th:object="${address}"
+		      method="post">
 
-            <!-- IMPORTANT: hidden ID -->
-            <input type="hidden" th:field="*{addressId}"/>
+		    <!-- hidden ID -->
+		    <input type="hidden" th:field="*{addressId}"/>
 
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" th:field="*{fullName}"
-                       class="form-control" required/>
-            </div>
+		    <div class="form-group">
+		        <label>Full Name</label>
+		        <input type="text"
+		               th:field="*{fullName}"
+		               class="form-control"
+		               pattern="^[A-Za-z ]{3,50}$"
+		               title="Name should contain only letters"
+		               required>
+		    </div>
 
-            <div class="form-group">
-                <label>Phone Number</label>
-                <input type="text" th:field="*{phoneNumber}"
-                       class="form-control" required/>
-            </div>
+		    <div class="form-group">
+		        <label>Phone Number</label>
+		        <input type="text"
+		               th:field="*{phoneNumber}"
+		               class="form-control"
+		               pattern="^[6-9][0-9]{9}$"
+		               title="Enter valid 10 digit mobile number"
+		               required>
+		    </div>
 
-            <div class="form-group">
-                <label>Address Line</label>
-                <input type="text" th:field="*{addressLine}"
-                       class="form-control" required/>
-            </div>
+		    <div class="form-group">
+		        <label>Address Line</label>
+		        <input type="text"
+		               th:field="*{addressLine}"
+		               class="form-control"
+		               minlength="5"
+		               required>
+		    </div>
 
-            <div class="form-group">
-                <label>City</label>
-                <input type="text" th:field="*{city}"
-                       class="form-control" required/>
-            </div>
+		    <div class="form-group">
+		        <label>City</label>
+		        <input type="text"
+		               th:field="*{city}"
+		               class="form-control"
+		               pattern="^[A-Za-z ]+$"
+		               title="City should contain only letters"
+		               required>
+		    </div>
 
-            <div class="form-group">
-                <label>State</label>
-                <input type="text" th:field="*{state}"
-                       class="form-control" required/>
-            </div>
+		    <div class="form-group">
+		        <label>State</label>
+		        <input type="text"
+		               th:field="*{state}"
+		               class="form-control"
+		               pattern="^[A-Za-z ]+$"
+		               title="State should contain only letters"
+		               required>
+		    </div>
 
-            <div class="form-group">
-                <label>Pincode</label>
-                <input type="text" th:field="*{pincode}"
-                       class="form-control" required/>
-            </div>
+		    <div class="form-group">
+		        <label>Pincode</label>
+		        <input type="text"
+		               th:field="*{pincode}"
+		               class="form-control"
+		               pattern="^[1-9][0-9]{5}$"
+		               title="Enter valid 6 digit pincode"
+		               required>
+		    </div>
 
-            <button type="submit" class="update-btn">
-                Update Address
-            </button>
+		    <!-- Buttons -->
+		    <div class="d-flex gap-3 mt-3">
 
-        </form>
+		        <button type="submit" class="update-btn w-50">
+		            Update Address
+		        </button>
 
-        <a th:href="@{/orders/checkout}" class="cancel-link">
-            Cancel
-        </a>
+		        <button type="button"
+		                class="btn btn-secondary w-50"
+		                onclick="window.location.href='/orders/checkout'">
+		            Cancel
+		        </button>
 
-    </div>
+		    </div>
 
+		</form>
 </section>
 </html>
