@@ -74,6 +74,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleBadRequest(BadRequestException ex) {
         return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+    
+    @ExceptionHandler(StockNotSufficientException.class)
+    public ResponseEntity<Map<String, String>> handleStockNotSufficient(StockNotSufficientException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 
     private ResponseEntity<Map<String, String>> buildResponse(String message, HttpStatus status) {
         Map<String, String> error = new HashMap<>();

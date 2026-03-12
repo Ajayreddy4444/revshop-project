@@ -13,6 +13,7 @@ import com.example.demo.dto.PlaceOrderRequestDTO;
 import com.example.demo.dto.SellerOrderResponseDTO;
 import com.example.demo.entity.*;
 import com.example.demo.exception.OrderNotFoundException;
+import com.example.demo.exception.StockNotSufficientException;
 import com.example.demo.repository.*;
 import com.example.demo.service.OrderService;
 
@@ -87,8 +88,9 @@ public class OrderServiceImpl implements OrderService {
 
             // Stock Validation Only
             if (availableStock < requestedQty) {
-                throw new RuntimeException(
-                        "Insufficient stock for product: " + product.getName());
+                throw new StockNotSufficientException(
+                        "Stock not sufficient for product: " + product.getName()
+                        + ". Available stock: " + availableStock);
             }
 
             double subtotal = product.getPrice() * requestedQty;
