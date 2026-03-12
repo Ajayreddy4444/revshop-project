@@ -3,10 +3,13 @@ package com.example.demo.serviceImpl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
 import com.example.demo.dto.OrderResponse;
 import com.example.demo.dto.PlaceOrderRequest;
 import com.example.demo.dto.SellerOrderResponse;
@@ -24,11 +27,11 @@ public class OrderClientServiceImpl implements OrderClientService {
         this.restTemplate = restTemplate;
     }
 
-    // PLACE ORDER 
     @Override
     public OrderResponse placeOrder(PlaceOrderRequest request) {
 
         try {
+
             String url = baseUrl + "/orders/place";
 
             return restTemplate.postForObject(
@@ -37,18 +40,25 @@ public class OrderClientServiceImpl implements OrderClientService {
                     OrderResponse.class
             );
 
-        } catch (RestClientException ex) {
-            throw new RuntimeException("API call failed", ex);
-        }
-            
-        }
-    
+        } catch (HttpClientErrorException ex) {
 
-    //  GET ORDERS BY USER 
+            String error = ex.getResponseBodyAsString();
+
+            // remove JSON wrapper if present
+            if (error.contains("error")) {
+                error = error.replace("{\"error\":\"", "")
+                             .replace("\"}", "");
+            }
+
+            throw new RuntimeException(error);
+        }
+    }
+
     @Override
     public List<OrderResponse> getOrderByUser(Long userId) {
 
         try {
+
             String url = baseUrl + "/orders/user/" + userId;
 
             OrderResponse[] response =
@@ -66,11 +76,11 @@ public class OrderClientServiceImpl implements OrderClientService {
         }
     }
 
-    //  CHECK IF USER PURCHASED PRODUCT
     @Override
     public boolean hasUserPurchasedProduct(Long userId, Long productId) {
 
         try {
+
             String url = baseUrl + "/orders/has-purchased/"
                     + userId + "/" + productId;
 
@@ -84,11 +94,11 @@ public class OrderClientServiceImpl implements OrderClientService {
             return false;
         }
     }
+
     @Override
     public List<SellerOrderResponse> getSellerOrders(Long sellerId) {
 
         String url = baseUrl + "/orders/seller/" + sellerId;
-    
 
         SellerOrderResponse[] response =
                 restTemplate.getForObject(url, SellerOrderResponse[].class);

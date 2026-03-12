@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.util.List;
 
 import jakarta.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -31,13 +32,11 @@ public class OrderpageController {
         this.addressClientService = addressClientService;
     }
 
-    // 🔹 Helper method to get logged-in user
     private Long getLoggedInUserId(HttpSession session) {
         AuthResponse user = (AuthResponse) session.getAttribute("user");
         return user != null ? user.getId() : null;
     }
 
-    // 🔹 Checkout Page
     @GetMapping("/checkout")
     public String showCheckoutPage(Model model, HttpSession session) {
 
@@ -50,26 +49,23 @@ public class OrderpageController {
             return "redirect:/cart";
         }
 
-        // 🔥 Calculate total amount
         double totalAmount = cartItems.stream()
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
                 .sum();
 
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("totalAmount", totalAmount);
-
         model.addAttribute("addresses",
                 addressClientService.getAddressesByUser(userId));
-
         model.addAttribute("userId", userId);
 
         return "checkout";
     }
 
-    // 🔹 Place Order
     @PostMapping("/place")
     public String placeOrder(@RequestParam Long addressId,
-                             HttpSession session) {
+                             HttpSession session,
+                             Model model) {
 
         Long userId = getLoggedInUserId(session);
         if (userId == null) return "redirect:/login";
@@ -78,14 +74,35 @@ public class OrderpageController {
         request.setUserId(userId);
         request.setAddressId(addressId);
 
-        OrderResponse response = orderClientService.placeOrder(request);
+        try {
 
-        // 🔥 Redirect to payment page
-        return "redirect:/payment?orderId=" + response.getOrderId()
-                + "&amount=" + response.getTotalAmount();
+            OrderResponse response = orderClientService.placeOrder(request);
+
+            return "redirect:/payment?orderId="
+                    + response.getOrderId()
+                    + "&amount="
+                    + response.getTotalAmount();
+
+        } catch (RuntimeException ex) {
+
+            List<CartResponse> cartItems = cartClientService.getCart(userId);
+
+            double totalAmount = cartItems.stream()
+                    .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                    .sum();
+
+            model.addAttribute("cartItems", cartItems);
+            model.addAttribute("totalAmount", totalAmount);
+            model.addAttribute("addresses",
+                    addressClientService.getAddressesByUser(userId));
+            model.addAttribute("userId", userId);
+
+            model.addAttribute("cancelError", ex.getMessage());
+
+            return "checkout";
+        }
     }
 
-    // 🔹 My Orders
     @GetMapping("/my-orders")
     public String viewOrders(Model model, HttpSession session) {
 
@@ -100,7 +117,3 @@ public class OrderpageController {
         return "orders";
     }
 }
-
-
-
-   

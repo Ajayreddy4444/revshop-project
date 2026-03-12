@@ -18,6 +18,7 @@ import com.example.demo.entity.Product;
 import com.example.demo.exception.InvalidPaymentRequestException;
 import com.example.demo.exception.OrderAlreadyPaidException;
 import com.example.demo.exception.OrderNotFoundException;
+import com.example.demo.exception.StockNotSufficientException;
 import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.PaymentRepository;
@@ -105,10 +106,9 @@ public class PaymentServiceImpl implements PaymentService {
                 int updatedStock = product.getQuantity() - item.getQuantity();
 
                 if (updatedStock < 0) {
-                    throw new InvalidPaymentRequestException(
-                            "Insufficient stock for product: " + product.getName());
+                    throw new StockNotSufficientException(
+                            "Stock not sufficient for product: " + product.getName());
                 }
-
                 product.setQuantity(updatedStock);
 
                 if (product.getLowStockThreshold() != null &&
