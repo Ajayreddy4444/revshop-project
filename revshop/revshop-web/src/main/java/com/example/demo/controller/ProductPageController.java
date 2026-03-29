@@ -142,4 +142,20 @@ public class ProductPageController {
         return "redirect:/products/" + id;
     }
 
+    // ================== DELETE REVIEW ==================
+    @PostMapping("/{productId}/review/{reviewId}/delete")
+    public String deleteReview(@PathVariable Long productId,
+                               @PathVariable Long reviewId,
+                               HttpSession session) {
+
+        if (session.getAttribute("user") == null)
+            return "redirect:/login";
+
+        AuthResponse user = (AuthResponse) session.getAttribute("user");
+
+        reviewClientService.deleteReview(reviewId, user.getId());
+
+        return "redirect:/products/" + productId;
+    }
+
 }

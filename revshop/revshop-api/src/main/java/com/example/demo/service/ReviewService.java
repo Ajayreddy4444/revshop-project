@@ -20,12 +20,11 @@ public interface ReviewService {
     // Update Review
     ReviewResponse updateReview(Long reviewId, ReviewRequest request);
 
-    // Delete Review
-    void deleteReview(Long reviewId);
-
     // Review Statistics
     ReviewStatsResponse getReviewStats(Long productId);
-    
+
     //existing review not allowed twice
     boolean hasUserReviewed(Long userId, Long productId);
+
+    void deleteReview(Long reviewId, Long userId);
 }

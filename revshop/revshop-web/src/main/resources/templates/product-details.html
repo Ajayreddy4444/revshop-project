@@ -173,29 +173,48 @@
 
             <div class="card-body">
 
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-start">
 
-                    <strong th:text="${review.userName}"></strong>
+                    <div>
+                        <strong th:text="${review.userName}"></strong>
 
-                    <small class="text-muted"
-                           th:text="${review.createdAt}"></small>
-
-                </div>
-
-                <!-- Stars -->
-                <div class="text-warning mb-1">
+                        <div class="text-warning mb-1">
                     <span th:each="i : ${#numbers.sequence(1,5)}">
                         <i class="bi"
                            th:classappend="${i <= review.rating} ? 'bi-star-fill' : 'bi-star'"></i>
                     </span>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+
+                        <small class="text-muted">
+                            Reviewed on
+                            <span th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy')}"></span>
+                        </small>
+
+                        <!-- DELETE BUTTON -->
+                        <form th:if="${review.userId == session.user.id}"
+                              th:action="@{'/products/' + ${product.id} + '/review/' + ${review.id} + '/delete'}"
+                              method="post"
+                              class="mt-1">
+
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Delete this review?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+
+                        </form>
+
+                    </div>
+
                 </div>
 
-                <p class="mb-0" th:text="${review.comment}"></p>
+                <p class="mb-0 mt-2" th:text="${review.comment}"></p>
 
             </div>
-        </div>
 
-    </div>
+        </div>
 
     <!-- ADD REVIEW -->
     <div class="mt-4 mb-3" th:if="${canReview}">

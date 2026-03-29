@@ -47,7 +47,7 @@ public class ReviewController {
 //                )
 //        );
 //    }
-    
+
     @GetMapping("/product/{productId}")
     public List<ReviewResponse> getReviewsByProduct(
             @PathVariable Long productId) {
@@ -68,9 +68,12 @@ public class ReviewController {
 
     // ✅ Delete Review
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<String> deleteReview(@PathVariable Long reviewId) {
-        reviewService.deleteReview(reviewId);
-        return ResponseEntity.ok("Review deleted successfully");
+    public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId,
+                                             @RequestParam Long userId) {
+
+        reviewService.deleteReview(reviewId, userId);
+
+        return ResponseEntity.noContent().build();
     }
 
     // ✅ Review Statistics
@@ -82,7 +85,7 @@ public class ReviewController {
                 reviewService.getReviewStats(productId)
         );
     }
-    
+
     //duplicate review disabled
     @GetMapping("/has-reviewed/{userId}/{productId}")
     public boolean hasUserReviewed(@PathVariable Long userId,

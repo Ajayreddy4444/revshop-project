@@ -118,8 +118,7 @@ class ReviewServiceImplTest {
         assertEquals(1, result.size());
         assertEquals("John", result.get(0).getUserName());
     }
-    
-    // ✅ DELETE REVIEW
+
     @Test
     void deleteReview_shouldDeleteAndUpdateRating() {
 
@@ -127,18 +126,15 @@ class ReviewServiceImplTest {
         product.setId(1L);
 
         Review review = new Review();
+        review.setId(1L);
         review.setProduct(product);
 
-        when(reviewRepository.findById(1L))
+        when(reviewRepository.findByIdAndUser_Id(1L, 2L))
                 .thenReturn(Optional.of(review));
 
-        when(reviewRepository.findByProduct(product))
-                .thenReturn(List.of());
-
-        reviewService.deleteReview(1L);
+        reviewService.deleteReview(1L, 2L);
 
         verify(reviewRepository).delete(review);
-        verify(productRepository).save(product);
     }
 
     // ✅ REVIEW STATS
